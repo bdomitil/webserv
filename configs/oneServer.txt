@@ -1,0 +1,23 @@
+server:
+	server_name: test
+	log_file_path: ../test.log
+	host: 127.0.0.1
+	error_page: 404=/www/html/404.html 405=/www/html/405.html
+	port: 8000
+
+	location: /
+		limits_client_body_size: 2000
+		autoindex: on
+		index: /www/html/index.html
+		allow_methods: POST DELETE GET PUT
+		root: /Users/ptycho/Documents/42cursus/web_server
+		path_cgi: .bla /Users/ptycho/Documents/42cursus/web_server/CGI/cgi_tester
+
+	location: /data
+		limits_client_body_size: 1111
+		autoindex: on
+		return: 301 http://localhost:8000/Network/html/ass.jpg
+		index: /www/html/index.html
+		allow_methods: POST DELETE GET PUT
+		root: /Users/ptycho/Documents/42cursus/web_server
+		path_cgi: .bla /Users/ptycho/Documents/42cursus/web_server/CGI/cgi_tester

@@ -17,9 +17,13 @@ private:
 	std::map<std::string, Location>	_locations;
 	std::string 					_logFile;
 	t_server						_serverSettings;
-
+	
+	
+	
 public:
-
+	Server();
+	Server(t_server s);
+	~Server();
 };
 
 #endif //WEBSERV_SERVER_HPP

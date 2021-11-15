@@ -34,5 +34,7 @@
 # CLionDIR
 .idea/
 cmake-build-debug/
+CMakeLists.txt
 *.DS_Store
 *.log
+
