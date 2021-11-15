@@ -28,7 +28,7 @@ private:
 	int 							_fdSock;
 	string							_logfile;
 	Server();
-	void	throwException(string msg)const ;
+	void	throwException(string msg)const;
 	int		createSocket(void);
 
 public:
