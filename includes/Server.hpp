@@ -16,9 +16,13 @@ private:
 	std::map<int, std::string>		_errorPages;
 	std::map<std::string, Location>	_locations;
 	t_server						_serverSettings;
+	Server();
 
 public:
-
+	Server(const t_server &ServSetting);
+	t_server getSettings(void) const;
+	Server(const Server &copy);
+	Server& operator= (const Server &second);
 };
 
 #endif //WEBSERV_SERVER_HPP
