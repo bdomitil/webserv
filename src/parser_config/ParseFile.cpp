@@ -24,6 +24,7 @@ void	printServ(t_server serv) {
 	std::cout << serv.name << std::endl;
 	std::cout << serv.host << std::endl;
 	std::cout << serv.port << std::endl;
+	std::cout << serv.logFile << std::endl;
 	std::map<int, std::string> tmpMap = serv.errorPages;
 	for (auto i = tmpMap.begin(); i != tmpMap.end() ; ++i) {
 		std::cout << i->first << " -> " << i->second << std::endl;
@@ -201,6 +202,14 @@ void eraseValueForServer(std::string &str, t_server & server) {
 			mapingErrorPage(errorPage, subString, '=');
 		}
 		server.errorPages = errorPage;
+	}
+	if (str.find("log_file_path:") != std::string::npos) {
+		std::string value = str.substr(str.find("log_file_path:") + strlen("log_file_path:"));
+		trimSpaces(value);
+		server.logFile = value;
+		std::fstream openFile(value, std::ios::app);
+//		todo: проверка ошибки на создание
+		openFile.is_open();
 	}
 }
 

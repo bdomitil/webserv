@@ -15,6 +15,7 @@ private:
 	int								_port;
 	std::map<int, std::string>		_errorPages;
 	std::map<std::string, Location>	_locations;
+	std::string 					_logFile;
 	t_server						_serverSettings;
 
 public:
