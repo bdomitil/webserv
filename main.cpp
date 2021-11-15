@@ -6,9 +6,9 @@ int main(int ac, char **av) {
 	if (ac == 2) {
 		if (!startParser(av[1], structServers)){
 			std::vector<Server*> Servers;
-			for (auto i = structServers.begin(); i != structServers.end() ; ++i) {
-				printServ(*i);
-			}
+						// for (std::vector<t_server>::iterator i = structServers.begin(); i != structServers.end() ; ++i) {
+							// printServ(*i);
+						// }
 			for (size_t i = 0; i < structServers.size(); ++i) {
 //				TODO: добавить конструктор в Server
 				Servers.push_back(new Server(structServers[i]));
