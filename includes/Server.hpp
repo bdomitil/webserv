@@ -4,16 +4,22 @@
 
 #ifndef WEBSERV_SERVER_HPP
 #define WEBSERV_SERVER_HPP
-
+#define RECV_BUFFER_SIZE 512
+#define SEND_BUFFER_SIZZ 2048
 
 using namespace std;
-typedef struct sockaddr_in t_sockaddr_in;
 #include "MainIncludes.hpp"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <string>
 #include <fcntl.h>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <span>
 
+// TODO make foo for checking if socket is one of servers socket  foo(int socket) { while (Servers){if socket == Servers[i].socket return true} return false}
+typedef struct sockaddr_in t_sockaddr_in;
+typedef struct timeval t_time;
 class Server {
 
 private:
@@ -28,23 +34,32 @@ private:
 	int 							_fdSock;
 	string							_logfile;
 	Server();
-	void	throwException(string msg)const;
 	int		createSocket(void);
 
 public:
 	Server(const t_server &ServSetting);
 	t_server getSettings(void) const;
-	Server(const Server &copy);
+	Server(const Server &copy); //doesn't copy sockaddr_in struct
 	~Server();
-	Server& operator= (const Server &second);
+	Server& operator= (const Server &second); //doesn't copy sockaddr_in struct
 	void Run(void);
 	t_sockaddr_in& getSockAddr(void) {return (_sockaddr);};
+	int getSocket(void) const {return (_fdSock);}
+	void	throwException(string msg)const;
 
-	class SrvErrorExpeption : public std::exception {
-		public :
-			const char* errorMsg;
-			virtual const char* what(void) const throw (){return (this->errorMsg);};
-	};
+
 };
 
 #endif //WEBSERV_SERVER_HPP
+
+
+
+
+
+
+class ErrorException : public std::exception {
+	public :
+		const char* errorMsg;
+		ErrorException(string msg){errorMsg = (const char *)&msg;};
+		virtual const char* what(void) const throw (){return (this->errorMsg);};
+};

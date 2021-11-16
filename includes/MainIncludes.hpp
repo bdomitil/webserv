@@ -16,6 +16,7 @@
 #include "Location.hpp"
 #include "SettingsServer.hpp"
 #include "Server.hpp"
+#include "Client.hpp"
 
 //#include "ParseFile.hpp"
 int		startParser(char *fileName, std::vector<t_server> &servers);
