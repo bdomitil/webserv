@@ -28,7 +28,7 @@ private:
 	int 							_fdSock;
 	string							_logfile;
 	Server();
-	int		createSocket(void);
+	int							createSocket(void);
 
 public:
 	Server(const t_server &ServSetting);

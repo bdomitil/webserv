@@ -26,14 +26,14 @@ void	printServ(t_server serv) {
 	std::cout << serv.port << std::endl;
 	std::cout << serv.logFile << std::endl;
 	std::map<int, std::string> tmpMap = serv.errorPages;
-	for (auto i = tmpMap.begin(); i != tmpMap.end() ; ++i) {
+	for (map<int, std::string> :: iterator i  = tmpMap.begin(); i != tmpMap.end() ; ++i) {
 		std::cout << i->first << " -> " << i->second << std::endl;
 	}
 	printLocations(serv.locations);
 }
 
 void	printServers(std::vector<t_server> servers) {
-	for (auto i = servers.begin(); i != servers.end() ; ++i) {
+	for (vector<t_server> :: iterator i = servers.begin(); i != servers.end() ; ++i) {
 		printServ(*i);
 	}
 }

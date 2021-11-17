@@ -43,20 +43,35 @@ int Server :: createSocket(void) {
 	_sockaddr.sin_port = htons(_port);
 	srsocket = socket(PF_INET, SOCK_STREAM, 0); //SOCK_STREAM - tcp proto, if tcp/udp - third param = 0
 	if (srsocket == -1)
-		throw(ErrorException("Unable to create socket"));
+	{
+		std::cerr << "Unable to create socket" << std::endl;
+		throw(this);
+	}
 	if (setsockopt(srsocket ,SOL_SOCKET ,SO_REUSEADDR , &reuseaddr,sizeof(int)) == -1)  //allow to reuse socket after crash
-		throw(ErrorException("Error setting sockopt"));
+	{
+		std::cerr << "Error setting sockopt" << std::endl;
+		throw(this);
+	}
 	if (fcntl(srsocket, F_SETFL, O_NONBLOCK) == -1)  //unblocking listening socket
-		throw(ErrorException("Error using fcntl"));
+	{
+		std::cerr << "Error using fcntl" << std::endl;
+		throw(this);
+	}
 	return (srsocket);
 }
 
 void Server :: Run(void) {
 	_fdSock =  createSocket();
-	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1)  //binding socket 
-		throw (ErrorException("Error binding socket : " + static_cast<string>(strerror(errno))));
+	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1)
+	{ 
+		std::cerr << "Error binding socket : " << strerror(errno) << std::endl;
+		throw (this);//binding socket 
+	}
 	if (listen(_fdSock, 100) == -1)  //make core listen and wait connections
-		throw(ErrorException("Error listening socket : " + static_cast<string>(strerror(errno))));
+	{
+		std::cerr << "Error listening socket : " << strerror(errno) << std::endl;
+		throw(this);
+	}
 }
 
 
@@ -66,6 +81,7 @@ void Start(vector<Server*> Servers)
 	fd_set readfd, writefd;
 	vector<int> readFd, writeFd;
 	map <int,Client*>Clients;
+	// map <int, Server*> sServers;
 
 	int max_fd = 0;;
 	for (size_t i = 0; i < Servers.size(); i++)
@@ -75,14 +91,21 @@ void Start(vector<Server*> Servers)
 			Servers[i]->Run();
 			Servers[i]->_isrunning  = true;
 		}
-		catch(const std::exception& e) // TODO if exception then delete Server from vector
+		catch (Server *serv)
+		{
+			vector<Server*>::iterator i = Servers.begin();
+			while (*i != serv)
+				i++;
+			Servers.erase(i);
+		}
+		catch(const std::exception& e)
 		{
 			std::cerr << e.what() << '\n';
 		}
 		
 
 	}
-	if (!Servers[0]->_isrunning || Servers.empty()) //if no listening servers exit
+	if (Servers.empty())
 		return ;
 	while (1)
 	{
