@@ -35,11 +35,12 @@ t_server Server :: getSettings(void) const {
 
 int Server :: createSocket(void) {
 	int srsocket, reuseaddr = 1;
+	int res = -2;
 	_sockaddr = getSockAddr();
-	if (inet_pton(AF_INET, (const char*)&_host, &(_sockaddr.sin_addr.s_addr)) < 0)
+	if ((res = inet_pton(AF_INET, _host.c_str(), &(_sockaddr.sin_addr.s_addr))) < 1)
 			throw(ErrorException(strerror(errno)));
 	_sockaddr.sin_family = PF_INET;
-	_sockaddr.sin_port = htonl(_port);
+	_sockaddr.sin_port = htons(_port);
 	srsocket = socket(PF_INET, SOCK_STREAM, 0); //SOCK_STREAM - tcp proto, if tcp/udp - third param = 0
 	if (srsocket == -1)
 		throw(ErrorException("Unable to create socket"));
@@ -64,13 +65,15 @@ void Start(vector<Server*> Servers)
 {
 	fd_set readfd, writefd;
 	vector<int> readFd, writeFd;
+	map <int,Client*>Clients;
 
 	int max_fd = 0;;
-	for (size_t i; i < Servers.size(); i++)
+	for (size_t i = 0; i < Servers.size(); i++)
 	{
 		try
 		{
 			Servers[i]->Run();
+			Servers[i]->_isrunning  = true;
 		}
 		catch(const std::exception& e) // TODO if exception then delete Server from vector
 		{
@@ -79,60 +82,83 @@ void Start(vector<Server*> Servers)
 		
 
 	}
-	if (Servers.empty()) //if no listening servers exit
+	if (!Servers[0]->_isrunning || Servers.empty()) //if no listening servers exit
 		return ;
 	while (1)
 	{
 		int new_fd;
 		int first_client_fd;
 		t_time timeout;
-		vector <Client*> Clients;
 		FD_ZERO(&writefd);
 		FD_ZERO(&readfd);
+		readFd.clear();
+		writeFd.clear();
 		for (size_t i = 0; i < Servers.size(); i++)  //Add server fd to set for listeing connections
 		{
 			readFd.insert(readFd.end(), Servers[i]->getSocket());
-			if (max_fd < Servers[i]->getSocket())
-				max_fd = Servers[i]->getSocket();		
-		}
-		for (size_t i = 0; i < Clients.size(); i++) // Add client's fd into set for reading its request
-		{
-			readFd.insert(readFd.end(), Clients[i]->getSocket());
 			FD_SET(Servers[i]->getSocket(), &readfd);
 			if (max_fd < Servers[i]->getSocket())
 				max_fd = Servers[i]->getSocket();		
 		}
+		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++) // Add client's fd into set for reading its request
+		{
+			readFd.insert(readFd.begin(), (*i).first);
+			FD_SET((*i).first, &readfd);
+			if (max_fd < (*i).first)
+				max_fd = (*i).first;		
+		}
 		timeout.tv_sec = 1;
 		timeout.tv_usec = 50000;
-		int res = select(max_fd, &readfd, &writefd, NULL, &timeout);
-		errno = 0;
-		if (res < 1)
+		int res = select(max_fd + 1, &readfd, NULL, NULL, &timeout);
+		if (res == -1)
 		{
 			std::cerr << strerror(errno) << std::endl; 
 			continue;
 		}
-		else if (res = 0)
+		else if (res == 0)
 			continue ;
-		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end(), res > 0; start++) //
+		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && res > 0; start++) //
 		{
-			if (FD_ISSET(*start, &readfd)) // TODO client has info to read or server to accept connection
+			if (FD_ISSET(*start, &readfd)) //check triggered read fd
 			{
-				//if server ip then accept and create new client
-				//else
-				// read from socket
+				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd
+				 	try
+				 	{
+						 if ((*Clients.find(*start)).second->readRequest()) 
+							(*Clients.find(*start)).second->response();  //if we got all his request then we start to prepare his response
+						else if ((*Clients.find(*start)).second->isClosed()) //if client closes his connection we delete him from map 
+							Clients.erase(Clients.find(*start));
+						res--;
+				 	}
+				 	catch(const std::exception& e)
+				 	{
+						std::cerr << e.what() << '\n';
+				 	}	 
+				 }
+				 else  //else if triggered fd is not clients we accept new connection
+					for (size_t i = 0; i < Servers.size(); i++){
+						if (*start == Servers[i]->getSocket())
+						{
+							Client *newCl = new Client(Servers[i]->getSocket(), 10000);  // TODO spec body size by location struct
+							Clients.insert(std::pair<int, Client*>(newCl->getSocket(), newCl));
+							res--;
+						}
+					}
 			}
 		}
-		for (vector<Client*> :: iterator start = Clients.begin(); start != Clients.end(); start++)
+		for (map<int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++)
 		{
-			if ((*start)->toServe())  //if client's answer is ready then send part by part
-				// send((*start)->getSocket, ) 
-				;
+			try
+			{
+				if ((*i).second->toServe())
+					(*i).second->response();
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
 		}
-		// for (vector<Server*>::iterator start = Servers.begin(); start != Servers.end(); start++)
-		// {
 
-		// }
-		
 		
 
 	}

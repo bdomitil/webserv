@@ -43,8 +43,6 @@ bool	RequestBuffer::saveRequestData(void) {
 	ssize_t		recvRet;
 
 	data = _tmpBuffer;
-
-
 	newLinePos = data.find("\n");
 	for( ; newLinePos != std::string::npos; newLinePos = data.find("\n")) {
 		if (_callCount == START_LINE)

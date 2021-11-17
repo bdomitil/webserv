@@ -9,13 +9,7 @@
 
 using namespace std;
 #include "MainIncludes.hpp"
-#include <arpa/inet.h>
-#include <errno.h>
-#include <string>
-#include <fcntl.h>
-#include <sys/select.h>
-#include <sys/time.h>
-#include <span>
+
 
 // TODO make foo for checking if socket is one of servers socket  foo(int socket) { while (Servers){if socket == Servers[i].socket return true} return false}
 typedef struct sockaddr_in t_sockaddr_in;
@@ -44,8 +38,9 @@ public:
 	Server& operator= (const Server &second); //doesn't copy sockaddr_in struct
 	void Run(void);
 	t_sockaddr_in& getSockAddr(void) {return (_sockaddr);};
-	int getSocket(void) const {return (_fdSock);}
+	int& 	getSocket(void) {return (_fdSock);}
 	void	throwException(string msg)const;
+	bool 	_isrunning; // change it later
 
 
 };
@@ -60,6 +55,6 @@ public:
 class ErrorException : public std::exception {
 	public :
 		const char* errorMsg;
-		ErrorException(string msg){errorMsg = (const char *)&msg;};
+		ErrorException(string msg){errorMsg = msg.c_str();};
 		virtual const char* what(void) const throw (){return (this->errorMsg);};
 };

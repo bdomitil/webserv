@@ -13,6 +13,7 @@ int main(int ac, char **av) {
 //				TODO: добавить конструктор в Server
 				Servers.push_back(new Server(structServers[i]));
 			}
+			Start(Servers);
 		}
 		else {
 			std::cout << "ERROR parse config" << std::endl;
