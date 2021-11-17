@@ -1,9 +1,14 @@
-#include "../../includes/RequestBuffer.hpp"
+#include "../../includes/MainIncludes.hpp"
 
 RequestBuffer::RequestBuffer(std::uint32_t bodySize)
 : _maxBodySize(bodySize), _callCount(START_LINE),_reqStartLine(""),
-_reqBodyLines(""), _tmpBuffer(""), _isReqDone(false) {
+_reqBodyLines(""), _tmpBuffer(""), _isReqDone(false),
+_buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;
+}
+
+char	*RequestBuffer::getBuffer(void) const {
+	return _buffer;
 }
 
 void	RequestBuffer::saveStartLine(std::string startLine) {

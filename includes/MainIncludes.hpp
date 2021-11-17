@@ -12,11 +12,13 @@
 #include <cstdlib>
 #include <algorithm>
 #include <fstream>
+#include <cstdint>
 
 #include "Location.hpp"
 #include "SettingsServer.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+#include "RequestBuffer.hpp"
 
 //#include "ParseFile.hpp"
 int		startParser(char *fileName, std::vector<t_server> &servers);

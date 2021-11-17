@@ -1,10 +1,5 @@
 #ifndef REQUEST_BUFFER_HPP
 # define REQUEST_BUFFER_HPP
-# include <cstdint>
-# include <vector>
-# include <string>
-# include <iostream>
-
 # define START_LINE		0
 # define HEADER_LINE	1
 # define BODY_LINE		2
@@ -14,7 +9,7 @@ class RequestBuffer {
 public:
 
 	RequestBuffer(std::uint32_t);
-	~RequestBuffer() {}
+	~RequestBuffer() { delete [] _buffer; }
 
 	bool	saveRequestData();
 	void	showState() const ;
@@ -33,6 +28,7 @@ private:
 	std::string					_reqBodyLines;
 	std::string					_tmpBuffer;
 	bool						_isReqDone;
+	char						*_buffer;
 
 };
 
