@@ -1,8 +1,8 @@
-#include "RequestBuffer.hpp"
+#include "../../includes/RequestBuffer.hpp"
 
 RequestBuffer::RequestBuffer(std::uint32_t bodySize)
-: _maxBodySize(bodySize), _callCount(START_LINE), _tmpBuffer(""),
-_reqBodyLines(""), _reqStartLine(""), _isReqDone(false) {
+: _maxBodySize(bodySize), _callCount(START_LINE),_reqStartLine(""),
+_reqBodyLines(""), _tmpBuffer(""), _isReqDone(false) {
 	return;
 }
 
@@ -30,14 +30,15 @@ void	RequestBuffer::saveBodyPart(std::string bodyLine) {
 	return;
 }
 
-bool	RequestBuffer::saveRequestData(void *buffer, std::size_t len) {
+bool	RequestBuffer::saveRequestData(void) {
 
+	char		buffer[2049];
 	std::string	data;
 	std::size_t	newLinePos;
+	ssize_t		recvRet;
 
 	data = _tmpBuffer;
-	(static_cast<char *>(buffer))[len] = '\0';
-	data += static_cast<char *>(buffer);
+
 
 	newLinePos = data.find("\n");
 	for( ; newLinePos != std::string::npos; newLinePos = data.find("\n")) {
@@ -47,7 +48,7 @@ bool	RequestBuffer::saveRequestData(void *buffer, std::size_t len) {
 			saveHeaderLine(data.substr(0, newLinePos));
 		else
 			saveBodyPart(data.substr(0, newLinePos));
-		data.erase(0, newLinePos);
+		data.erase(0, newLinePos + 1);
 	}
 	_tmpBuffer = data;
 	return _isReqDone;
@@ -56,7 +57,7 @@ bool	RequestBuffer::saveRequestData(void *buffer, std::size_t len) {
 void	RequestBuffer::showState(void) const {
 
 	std::cout << "STATUS: "
-		<< (_isReqDone) ? "TRUE" : "FALSE";
+		<< ((_isReqDone) ? "TRUE" : "FALSE");
 	std::cout << std::endl;
 
 	std::cout << "START LINE: " << _reqStartLine << std::endl;

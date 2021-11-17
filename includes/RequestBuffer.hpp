@@ -16,8 +16,9 @@ public:
 	RequestBuffer(std::uint32_t);
 	~RequestBuffer() {}
 
-	bool	saveRequestData(void *, std::size_t);
+	bool	saveRequestData();
 	void	showState() const ;
+	char	*getBuffer() const ;
 
 private:
 
