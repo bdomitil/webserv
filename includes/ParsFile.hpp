@@ -5,7 +5,7 @@
 #ifndef WEBSERV_PARSFILE_HPP
 #define WEBSERV_PARSFILE_HPP
 
-//#include "MainIncludes.hpp"
+#include "MainIncludes.hpp"
 
 int		startParser(char *fileName, std::vector<t_server> &servers);
 void	printLocations(std::map<std::string, Location> locations);
