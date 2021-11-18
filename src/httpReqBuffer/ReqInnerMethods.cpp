@@ -64,7 +64,7 @@ void	Request::saveHeaderLine(std::string headerLine) {
 		throw std::exception();
 	if (headerValue[0] == ' ')
 		headerValue.erase(0, 1);
-	_headers.insert(headerName, headerValue);
+	_headers.insert(std::pair<string, string>(headerName, headerValue));
 	return;
 }
 

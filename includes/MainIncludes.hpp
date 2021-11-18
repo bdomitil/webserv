@@ -26,11 +26,13 @@
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Response.hpp"
 
 //#include "ParseFile.hpp"
 int		startParser(char *fileName, std::vector<t_server> &servers);
 void	printLocations(std::map<std::string, Location> locations);
 void	printServ(t_server serv);
 void	Start(vector<Server*> Servers);
+std::string	ft_itoa(int x);
 
 #endif //WEBSERV_MAININCLUDES_HPP
