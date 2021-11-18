@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
@@ -22,7 +23,7 @@
 
 #include "Location.hpp"
 #include "SettingsServer.hpp"
-#include "RequestBuffer.hpp"
+#include "Request.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
 
