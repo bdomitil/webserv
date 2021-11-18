@@ -7,6 +7,11 @@ _buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;
 }
 
+RequestBuffer::~RequestBuffer(void) {
+	delete [] _buffer;
+	return;
+}
+
 char	*RequestBuffer::getBuffer(void) const {
 	return _buffer;
 }
@@ -35,14 +40,15 @@ void	RequestBuffer::saveBodyPart(std::string bodyLine) {
 	return;
 }
 
-bool	RequestBuffer::saveRequestData(void) {
+bool	RequestBuffer::saveRequestData(ssize_t recvRet) {
 
-	char		buffer[2049];
 	std::string	data;
 	std::size_t	newLinePos;
-	ssize_t		recvRet;
 
 	data = _tmpBuffer;
+	_buffer[recvRet] = '\0';
+	data += _buffer;
+
 	newLinePos = data.find("\n");
 	for( ; newLinePos != std::string::npos; newLinePos = data.find("\n")) {
 		if (_callCount == START_LINE)
@@ -54,6 +60,7 @@ bool	RequestBuffer::saveRequestData(void) {
 		data.erase(0, newLinePos + 1);
 	}
 	_tmpBuffer = data;
+	this->showState();
 	return _isReqDone;
 }
 

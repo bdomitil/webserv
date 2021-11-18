@@ -38,15 +38,15 @@ int Client :: createSocket(void) {
 bool Client :: readRequest(void)
 {
 	#include <fstream>
-	int res = recv(_fdSock, _reqBuff.getBuffer(), RECV_BUFFER_SIZE, 0);
+	ssize_t res = recv(_fdSock, _reqBuff.getBuffer(), RECV_BUFFER_SIZE, 0);
 	if (res == 0)
 	{
 		_isClosed = true;
 		return (false);
 	}
 	_isRead = true;
-	_toServe = _reqBuff.saveRequestData();
-	return (_toServe); 
+	_toServe = _reqBuff.saveRequestData(res);
+	return (_toServe);
 }
 
 void Client :: response()

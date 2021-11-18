@@ -9,9 +9,9 @@ class RequestBuffer {
 public:
 
 	RequestBuffer(std::uint32_t);
-	~RequestBuffer() { delete [] _buffer; }
+	~RequestBuffer();
 
-	bool	saveRequestData();
+	bool	saveRequestData(ssize_t);
 	void	showState() const ;
 	char	*getBuffer() const ;
 
