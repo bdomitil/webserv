@@ -3,7 +3,7 @@
 //===============PRINT_RES================
 void	printLocations(std::map<std::string, Location> locations) {
 	std::cout << "\ncount LOCATION " << locations.size() << std::endl;
-	for (auto i = locations.begin(); i != locations.end() ; ++i) {
+	for (map<string, Location>::iterator  i = locations.begin(); i != locations.end() ; ++i) {
 		std::cout << "\n";
 		std::cout << "Location: " << i->first << std::endl;
 		std::cout << "ROOT\t" << i->second.getRoot() << std::endl;
@@ -13,7 +13,7 @@ void	printLocations(std::map<std::string, Location> locations) {
 		std::cout << "LIMIT\t" << i->second.getLimit() << std::endl;
 		std::cout << "RETURN\t" << i->second.getRedire().first << "<=>" << i->second.getRedire().second << std::endl;
 		std::map<std::string, bool> tmpMap = i->second.methods;
-		for (auto j = tmpMap.begin(); j != tmpMap.end() ; ++j) {
+		for (map<string, bool>::iterator j = tmpMap.begin(); j != tmpMap.end() ; ++j) {
 			std::cout << "\t\t" << j->first << " -> " << j->second << std::endl;
 		}
 	}
@@ -26,14 +26,14 @@ void	printServ(t_server serv) {
 	std::cout << serv.port << std::endl;
 	std::cout << serv.logFile << std::endl;
 	std::map<int, std::string> tmpMap = serv.errorPages;
-	for (auto i = tmpMap.begin(); i != tmpMap.end() ; ++i) {
+	for (map<int, std::string> :: iterator i  = tmpMap.begin(); i != tmpMap.end() ; ++i) {
 		std::cout << i->first << " -> " << i->second << std::endl;
 	}
 	printLocations(serv.locations);
 }
 
 void	printServers(std::vector<t_server> servers) {
-	for (auto i = servers.begin(); i != servers.end() ; ++i) {
+	for (vector<t_server> :: iterator i = servers.begin(); i != servers.end() ; ++i) {
 		printServ(*i);
 	}
 }

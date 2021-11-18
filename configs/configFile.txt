@@ -1,7 +1,7 @@
 server:
 	server_name: test
 	log_file_path: ../test.log
-	host: 127.0.0.1
+	host: 0.0.0.0
 	error_page: 404=/www/html/404.html 405=/www/html/405.html
 	port: 8000
 
@@ -23,7 +23,7 @@ server:
 		path_cgi: .bla /Users/ptycho/Documents/42cursus/web_server/CGI/cgi_tester
 
 server:
-	host: 127.0.0.1
+	host: 0.0.0.0
 	port: 8321
 	server_name: localhost
 	error_page: 404=/html/404.html 405=/html/405.html
