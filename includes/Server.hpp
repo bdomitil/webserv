@@ -17,6 +17,9 @@ typedef struct timeval t_time;
 class Server {
 
 private:
+
+	Server();
+	
 	std::string						_name;
 	std::string						_host;
 	int								_port;
@@ -27,7 +30,6 @@ private:
 	t_sockaddr_in					_sockaddr;
 	int 							_fdSock;
 	string							_logfile;
-	Server();
 	int							createSocket(void);
 
 public:

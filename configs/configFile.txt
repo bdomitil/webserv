@@ -41,7 +41,6 @@ server:
 		allow_methods: PUT POST
 		path_cgi: .bla /Users/ptycho/Documents/42cursus/web_server/CGI/cgi_tester
 
-
 	location: /post_body
 		root:						/Users/ptycho/Documents/42cursus/web_server/www
 		allow_methods:				POST

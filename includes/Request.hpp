@@ -1,65 +1,61 @@
-#ifndef REQUEST_HPP
-#define REQUEST_HPP
+#ifndef WEBSERV_UEST_HPP
+# define WEBSERV_UEST_HPP
 
-#include <sys/types.h>
-#include <cstdio>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <string>
-#include <map>
-#include <iostream>
-#include <cstdlib>
-#include <algorithm>
+/*
+	parse states
+*/
+# define START_LINE		0
+# define HEADER_LINE	1
+# define BODY_LINE		2
+# define END_STATE		3
 
-#define CRLF "\r\n"
-#define CRLF_END "\r\n\r\n"
+/*
+	default http request methods
+	and HTTP-protocol version
+*/
+# define GET			"GET"
+# define POST			"POST"
+# define DELELE			"DELETE"
+# define HTTP_PROTOCOL	"HTTP/1.1"
+
+/*
+	end of start line
+	or header fields
+	or request at all
+*/
+# define CR				"\r"
+# define LF				"\n"
 
 class Request {
-private:
-//	int			_result;
-    std::string _method;
-    std::string _uri;
-    std::string _proto;
-	
-
-	std::string                         _body;
-	std::string							_header;
-	std::map<std::string, std::string>  _mapHeaders;
-public:
-
-private:
-
-	size_t	_findNth(const std::string & str , unsigned int N, const std::string & find);
-	bool	_checkEndHeaders(std::string & buffer);
-	bool	_checkContentLength();
-	void	_parsHeaders(std::string & buffer);
 
 public:
-	void setUri(const std::string &uri);
 
-private:
-	void	_parsFirstHeader(const std::string& buffer);
-	void	_mapingHeaders(std::string & buffer);
-	std::string _Key(std::string& buffer);
-	std::string _Value(std::string& buffer);
-public:
-	Request();
+	Request(std::uint32_t,
+		std::map<std::string, Location> &);
 	~Request();
-	
-	std::string	getMethod() const;
-	std::string	getUri() const;
-	std::string getProto() const;
-	std::string	getValueMapHeader(std::string key);
-	std::string	getBody() const;
 
-	std::string getHeader() const;
-	
-	void	parsBody(std::string & buffer);
-	void	parsRequest(std::string & buffer);
-	void	printRequest();
-	void	printMap();
+	bool	saveRequestData(ssize_t);
+	void	showState() const ;
+	char	*getBuffer() const ;
 
+private:
 
+	bool	isStringHasWhiteSpaceChar(std::string &) const ;
+	void	saveStartLine(std::string);
+	void	saveHeaderLine(std::string);
+	void	saveBodyPart(std::string);
+
+	std::map<std::string, std::string>	_headers;
+	std::map<std::string, Location>		&_locationsMap;
+	std::uint32_t						_maxBodySize;
+	std::uint8_t						_parseState;
+	std::string							_method;
+	std::string							_protocol;
+	std::string							_target;
+	std::string							_body;
+	std::string							_tmpBuffer;
+	bool								_isReqDone;
+	char								*_buffer;
 
 };
 
