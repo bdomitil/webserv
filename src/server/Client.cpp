@@ -37,8 +37,9 @@ int Client :: createSocket(void) {
 
 bool Client :: readRequest(void)
 {
-	#include <fstream>
-	ssize_t res = recv(_fdSock, _reqBuff.getBuffer(), RECV_BUFFER_SIZE, 0);
+	ssize_t res;
+	
+	res = recv(_fdSock, _reqBuff.getBuffer(), RECV_BUFFER_SIZE, 0);
 	if (res == 0)
 	{
 		_isClosed = true;
@@ -53,3 +54,5 @@ void Client :: response()
 {
 	std::cerr << "TRYING TO RESPONSE FOR CLIENT" << std::endl;
 }
+
+
