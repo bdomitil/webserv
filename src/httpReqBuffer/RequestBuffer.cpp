@@ -60,6 +60,7 @@ bool	RequestBuffer::saveRequestData(ssize_t recvRet) {
 		data.erase(0, newLinePos + 1);
 	}
 	_tmpBuffer = data;
+	this->showState();
 	return _isReqDone;
 }
 
