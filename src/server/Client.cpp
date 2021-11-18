@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-Client :: Client(int srvSocket, uint32_t body_size) : _reqBuff(body_size)
+Client :: Client(int srvSocket)
 {
 	_srvSocket = srvSocket;
 	createSocket();

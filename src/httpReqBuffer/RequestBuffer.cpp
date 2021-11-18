@@ -1,5 +1,12 @@
 #include "../../includes/MainIncludes.hpp"
 
+RequestBuffer::RequestBuffer()
+: _maxBodySize(10000000000), _callCount(START_LINE),_reqStartLine(""),
+_reqBodyLines(""), _tmpBuffer(""), _isReqDone(false),
+_buffer(new char[RECV_BUFFER_SIZE + 1]) {
+	return;
+}
+
 RequestBuffer::RequestBuffer(std::uint32_t bodySize)
 : _maxBodySize(bodySize), _callCount(START_LINE),_reqStartLine(""),
 _reqBodyLines(""), _tmpBuffer(""), _isReqDone(false),

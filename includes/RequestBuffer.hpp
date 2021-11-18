@@ -9,6 +9,7 @@ class RequestBuffer {
 public:
 
 	RequestBuffer(std::uint32_t);
+	RequestBuffer();
 	~RequestBuffer();
 
 	bool	saveRequestData(ssize_t);
