@@ -42,9 +42,9 @@ t_server Server :: getSettings(void) const {
 
 
 int Server :: createSocket(void) {
+
 	int srsocket, reuseaddr = 1;
 	int res = -2;
-
 
 	_sockaddr = getSockAddr();
 	if ((res = inet_pton(AF_INET, _host.c_str(), &(_sockaddr.sin_addr.s_addr))) < 1)
@@ -75,9 +75,9 @@ int Server :: createSocket(void) {
 void Server :: Run(void) {
 	_fdSock =  createSocket();
 	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1)
-	{ 
+	{
 		std::cerr << "Error binding socket : " << strerror(errno) << std::endl;
-		throw (this);//binding socket 
+		throw (this);//binding socket
 	}
 	if (listen(_fdSock, 100) == -1)  //make core listen and wait connections
 	{
@@ -148,14 +148,14 @@ void Start(vector<Server*> Servers)
 			readFd.insert(readFd.end(), Servers[i]->getSocket());
 			FD_SET(Servers[i]->getSocket(), &readfd);
 			if (max_fd < Servers[i]->getSocket())
-				max_fd = Servers[i]->getSocket();		
+				max_fd = Servers[i]->getSocket();
 		}
 		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++) // Add client's fd into set for reading its request
 		{
 			readFd.insert(readFd.begin(), (*i).first);
 			FD_SET((*i).first, &readfd);
 			if (max_fd < (*i).first)
-				max_fd = (*i).first;		
+				max_fd = (*i).first;
 		}
 
 		select_res = select(max_fd + 1, &readfd, NULL, NULL, &timeout);
@@ -180,7 +180,7 @@ void Start(vector<Server*> Servers)
 				 	{
 						if ((*Clients.find(*start)).second->readRequest()) 
 							(*Clients.find(*start)).second->response();  //if we got all his request then we start to prepare his response
-						else if ((*Clients.find(*start)).second->isClosed()) //if client closes his connection we delete him from map 
+						else if ((*Clients.find(*start)).second->isClosed()) //if client closes his connection we delete him from map
 							Clients.erase(Clients.find(*start));
 						select_res--;
 				 	}
@@ -190,7 +190,7 @@ void Start(vector<Server*> Servers)
 				 	}
 				 }
 				 else  //else if triggered fd is not clients we accept new connection
-					for (size_t i = 0; i < Servers.size(); i++){
+					for (size_t i = 0; i < Servers.size(); i++) {
 						if (*start == Servers[i]->getSocket())
 						{
 							Clients.insert(std::pair<int, Client*>(newCl->getSocket(), new Client(Servers[i]->getSocket())));
@@ -217,7 +217,7 @@ void Start(vector<Server*> Servers)
 			}
 		}
 	}
-	
+
 }
 
 #endif

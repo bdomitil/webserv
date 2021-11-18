@@ -1,14 +1,14 @@
 #include "includes/MainIncludes.hpp"
 
+int main(int argc, char *argv[]) {
 
-int main(int ac, char **av) {
-	std::vector<t_server> structServers;
-	if (ac == 2) {
-		if (!startParser(av[1], structServers)){
+	std::vector<t_server>	structServers;
+
+	if (argc == 2) {
+		if (!startParser(argv[1], structServers)) {
 			std::vector<Server*> Servers;
-			for (size_t i = 0; i < structServers.size(); ++i) {
+			for (size_t i = 0; i < structServers.size(); ++i)
 				Servers.push_back(new Server(structServers[i]));
-			}
 			Start(Servers);
 		}
 		else {
