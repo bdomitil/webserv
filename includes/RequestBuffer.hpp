@@ -3,6 +3,7 @@
 # define START_LINE		0
 # define HEADER_LINE	1
 # define BODY_LINE		2
+# define CRLF			"\r\n"
 
 class RequestBuffer {
 
@@ -33,3 +34,5 @@ private:
 };
 
 #endif
+
+
