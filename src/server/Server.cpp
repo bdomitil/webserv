@@ -121,15 +121,13 @@ void Start(vector<Server*> Servers)
 			std::cerr << e.what() << '\n';
 		}
 	}
-	if (Servers.empty())
-		return ;
 
-
-	while (1)
+	while ( !Servers.empty() )
 	{
 		int new_fd, select_res = 0;
 		t_time timeout;
 
+		timeout.tv_usec = 50000;
 		timeout.tv_sec = 2;
 		FD_ZERO(&writefd);
 		FD_ZERO(&readfd);
@@ -193,7 +191,9 @@ void Start(vector<Server*> Servers)
 					for (size_t i = 0; i < Servers.size(); i++) {
 						if (*start == Servers[i]->getSocket())
 						{
-							Clients.insert(std::pair<int, Client*>(newCl->getSocket(), new Client(Servers[i]->getSocket())));
+							std::map <string, Location> loc = Servers[i]->getSettings().locations;
+							Client *cl =  new Client(Servers[i]->getSocket(), loc);
+							Clients.insert(std::pair<int, Client* >(Servers[i]->getSocket(), cl));
 							select_res--;
 						}
 					}
