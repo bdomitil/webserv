@@ -14,7 +14,7 @@ private:
 	Client();
 
 public :
-	Client(int srvSocket, uint32_t body_size);
+	Client(int srvSocket);
 	~Client();
 	// Client(const Client &copy); //doesn't copy sockaddr_in struct
 	// Client& operator= (const Client &second); //doesn't copy sockaddr_in struct
