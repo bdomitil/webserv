@@ -38,6 +38,7 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE)
 		_isReqDone = true;
+	showState();
 	return _isReqDone;
 }
 
