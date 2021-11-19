@@ -41,3 +41,4 @@ CMakeLists.txt
 test.cpp
 *.log
 a.out*
+webserv.dSYM
