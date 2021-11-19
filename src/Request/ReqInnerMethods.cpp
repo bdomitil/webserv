@@ -20,18 +20,17 @@ void	Request::saveStartLine(std::string startLine) {
 	_method = startLine.substr(0, lfPos);
 	if (_method != GET or _method != POST or _method != DELELE)
 		throw std::exception();
+	startLine.erase(0, lfPos + 1);
 
 //	save target
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw std::exception();
-	_target = startLine.substr(1, lfPos);
+	_target = startLine.substr(0, lfPos);
+	startLine.erase(0, lfPos + 1);
 
 //	save HTTP-protocol
-	lfPos = startLine.find(' ');
-	if (lfPos == std::string::npos)
-		throw std::exception();
-	_protocol = startLine.substr(1, lfPos);
+	_protocol = startLine;
 	if (_protocol != HTTP_PROTOCOL)
 		throw std::exception();
 
@@ -64,7 +63,8 @@ void	Request::saveHeaderLine(std::string headerLine) {
 		throw std::exception();
 	if (headerValue[0] == ' ')
 		headerValue.erase(0, 1);
-	_headers.insert(headerName, headerValue);
+	_headers.insert(std::pair<std::string, std::string>
+		(headerName, headerValue));
 	return;
 }
 
