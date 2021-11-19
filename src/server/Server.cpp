@@ -171,10 +171,10 @@ void Start(vector<Server*> Servers)
 		//#########################################//
 		//#########################################//
 		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && select_res > 0; start++)
-			if (FD_ISSET(*start, &readfd)) //check triggered read fd
-			{
-				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd
-				 	try
+		{
+			if (FD_ISSET(*start, &readfd)) { //check triggered read fd
+				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd				
+					 try
 				 	{
 						if ((*Clients.find(*start)).second->readRequest()) 
 							(*Clients.find(*start)).second->response();  //if we got all his request then we start to prepare his response
@@ -187,17 +187,19 @@ void Start(vector<Server*> Servers)
 						std::cerr << e.what() << '\n';
 				 	}
 				 }
-				 else  //else if triggered fd is not clients we accept new connection
+				 else {   //else if triggered fd is not clients we accept new connection
 					for (size_t i = 0; i < Servers.size(); i++) {
 						if (*start == Servers[i]->getSocket())
 						{
 							std::map <string, Location> loc = Servers[i]->getSettings().locations;
 							Client *cl =  new Client(Servers[i]->getSocket(), loc);
-							Clients.insert(std::pair<int, Client* >(Servers[i]->getSocket(), cl));
+							Clients.insert(std::pair<int, Client* >(cl->getSocket(), cl));
 							select_res--;
 						}
 					}
+				 }
 			}
+		}
 
 		//#########################################//
 		//#########################################//

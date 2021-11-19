@@ -44,6 +44,7 @@ bool Client :: readRequest(void) {
 	}
 	_isRead = true;
 	_toServe = this->_request.saveRequestData(res);
+	_request.showState();
 	return (_toServe);
 }
 
