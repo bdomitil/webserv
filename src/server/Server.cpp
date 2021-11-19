@@ -152,17 +152,19 @@ void Start(vector<Server*> Servers)
 		{
 			readFd.insert(readFd.begin(), (*i).first);
 			FD_SET((*i).first, &readfd);
+			if ((*i).second->toServe())
+				FD_SET((*i).first, &writefd);
 			if (max_fd < (*i).first)
 				max_fd = (*i).first;
 		}
 
-		select_res = select(max_fd + 1, &readfd, NULL, NULL, &timeout);
+		select_res = select(max_fd + 1, &readfd, &writefd, NULL, &timeout);
 		if (select_res == -1)
 		{
 			std::cerr << strerror(errno) << std::endl;
 			continue;
 		}
-		else if (select_res == 0)
+		else if (select_res == 0 )
 			continue ;
 
 		//#########################################//

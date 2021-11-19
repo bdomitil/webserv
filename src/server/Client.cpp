@@ -3,6 +3,9 @@
 Client :: Client(int srvSocket, std::map<std::string, Location> &locations) : _request(locations)
 {
 	_srvSocket = srvSocket;
+	_isClosed = false;
+	_toServe = false;
+	_isRead = false;
 	createSocket();
 }
 
@@ -44,7 +47,6 @@ bool Client :: readRequest(void) {
 	}
 	_isRead = true;
 	_toServe = this->_request.saveRequestData(res);
-	_request.showState();
 	return (_toServe);
 }
 

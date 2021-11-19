@@ -4,7 +4,7 @@
 
 #ifndef WEBSERV_SERVER_HPP
 #define WEBSERV_SERVER_HPP
-#define RECV_BUFFER_SIZE 512
+#define RECV_BUFFER_SIZE 2048
 #define SEND_BUFFER_SIZZ 2048
 
 using namespace std;
