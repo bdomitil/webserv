@@ -11,29 +11,28 @@ void	Request::saveStartLine(std::string startLine) {
 	std::size_t	lfPos;
 
 	if (!startLine.length())
-		throw std::exception();
+		throw ErrorException(400, "Bad request");
 
 //	save method
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
-		throw std::exception();
+		throw ErrorException(400, "Bad request");
 	_method = startLine.substr(0, lfPos);
-	if (_method != GET or _method != POST or _method != DELELE)
-		throw std::exception();
+	if (_method != GET and _method != POST and _method != DELELE)
+		throw ErrorException(405, "Method Not Allowed");
+	startLine.erase(0, lfPos + 1);
 
 //	save target
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
-		throw std::exception();
-	_target = startLine.substr(1, lfPos);
+		throw ErrorException(400, "Bad request");
+	_target = startLine.substr(0, lfPos);
+	startLine.erase(0, lfPos + 1);
 
 //	save HTTP-protocol
-	lfPos = startLine.find(' ');
-	if (lfPos == std::string::npos)
-		throw std::exception();
-	_protocol = startLine.substr(1, lfPos);
+	_protocol = startLine;
 	if (_protocol != HTTP_PROTOCOL)
-		throw std::exception();
+		throw ErrorException(505, "HTTP Version Not Supported");
 
 	_parseState = HEADER_LINE;
 	return;
@@ -57,20 +56,21 @@ void	Request::saveHeaderLine(std::string headerLine) {
 
 	colonPos = headerLine.find(":");
 	if (colonPos == std::string::npos)
-		throw std::exception();
+		throw ErrorException(400, "Bad request");
 	headerName = headerLine.substr(0, colonPos);
 	headerValue = headerLine.substr(colonPos + 1);
 	if (isStringHasWhiteSpaceChar(headerName))
-		throw std::exception();
+		throw ErrorException(400, "Bad request");
 	if (headerValue[0] == ' ')
 		headerValue.erase(0, 1);
-	_headers.insert(std::pair<string, string>(headerName, headerValue));
+	_headers.insert(std::pair<std::string, std::string>
+		(headerName, headerValue));
 	return;
 }
 
 void	Request::saveBodyPart(std::string bodyLine) {
 	if (bodyLine.length() + _body.length() > _maxBodySize)
-		throw std::exception();
+		throw ErrorException(413, "Request Entity Too Large");
 	if (!bodyLine.length())
 		_parseState = END_STATE;
 	_body += bodyLine + LF;

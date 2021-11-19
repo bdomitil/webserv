@@ -1,7 +1,8 @@
 NAME =	webserv
 
-SRCS =	src/httpReqBuffer/Request.cpp src/httpReqBuffer/ReqInnerMethods.cpp src/parser_config/ParseFile.cpp\
-		src/server/Client.cpp				src/server/Server.cpp
+SRCS =	src/Request/Request.cpp			src/parser_config/ParseFile.cpp\
+		src/server/Client.cpp			src/server/Server.cpp\
+		src/Request/ReqInnerMethods.cpp
 
 MAIN =	main.cpp
 

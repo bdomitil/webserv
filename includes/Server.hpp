@@ -19,7 +19,7 @@ class Server {
 private:
 
 	Server();
-	
+
 	std::string						_name;
 	std::string						_host;
 	int								_port;
@@ -55,8 +55,20 @@ public:
 
 
 class ErrorException : public std::exception {
-	public :
-		const char* errorMsg;
-		ErrorException(string msg){errorMsg = msg.c_str();};
-		virtual const char* what(void) const throw (){return (this->errorMsg);};
+
+public :
+
+	ErrorException(string msg) :
+		errorMsg(msg.c_str()), status(0) {}
+	ErrorException(int st, string msg) :
+		errorMsg(msg.c_str()), status(st) {}
+	virtual const char* what(void) const throw () {
+		return (this->errorMsg);
+	}
+
+private:
+
+	const char*	errorMsg;
+	const int	status;
+
 };

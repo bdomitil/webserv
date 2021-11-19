@@ -159,7 +159,7 @@ void Start(vector<Server*> Servers)
 		select_res = select(max_fd + 1, &readfd, NULL, NULL, &timeout);
 		if (select_res == -1)
 		{
-			std::cerr << strerror(errno) << std::endl; 
+			std::cerr << strerror(errno) << std::endl;
 			continue;
 		}
 		else if (select_res == 0)
@@ -176,7 +176,7 @@ void Start(vector<Server*> Servers)
 				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd				
 					 try
 				 	{
-						if ((*Clients.find(*start)).second->readRequest()) 
+						if ((*Clients.find(*start)).second->readRequest())
 							(*Clients.find(*start)).second->response();  //if we got all his request then we start to prepare his response
 						else if ((*Clients.find(*start)).second->isClosed()) //if client closes his connection we delete him from map
 							Clients.erase(Clients.find(*start));
