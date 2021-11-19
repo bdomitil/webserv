@@ -10,11 +10,10 @@ private:
 	int 					_fdSock;
 	char					_ip[32];
 	int 					_srvSocket;
-	Request					_reqBuff;
-	Client();
+	Request					_request;
 
 public :
-	Client(int srvSocket, uint32_t body_size);
+	Client(int srvSocket, std::map<std::string, Location> &locations);
 	~Client();
 	// Client(const Client &copy); //doesn't copy sockaddr_in struct
 	// Client& operator= (const Client &second); //doesn't copy sockaddr_in struct

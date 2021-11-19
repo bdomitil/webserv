@@ -30,8 +30,7 @@ class Request {
 
 public:
 
-	Request(std::uint32_t,
-		std::map<std::string, Location> &);
+	Request(std::map<std::string, Location> &);
 	~Request();
 
 	bool	saveRequestData(ssize_t);

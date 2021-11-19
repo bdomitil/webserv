@@ -41,3 +41,5 @@ CMakeLists.txt
 test.cpp
 *.log
 a.out*
+index.html
+*.dSYM

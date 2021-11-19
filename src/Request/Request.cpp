@@ -1,7 +1,7 @@
 #include "../../includes/MainIncludes.hpp"
 
-Request::Request(std::uint32_t bodySize, std::map<std::string, Location> &l)
-: _locationsMap(l), _maxBodySize(bodySize), _parseState(START_LINE),
+Request::Request(std::map<std::string, Location> &l)
+: _locationsMap(l), _parseState(START_LINE),
 _method(""), _protocol(""), _target(""),_body(""),
 _tmpBuffer(""), _isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;

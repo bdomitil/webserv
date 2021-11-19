@@ -1,10 +1,11 @@
 #include "../../includes/MainIncludes.hpp"
 
-Client :: Client(int srvSocket, uint32_t body_size) : _reqBuff(body_size)
+Client :: Client(int srvSocket, std::map<std::string, Location> &locations) : _request(locations)
 {
 	_srvSocket = srvSocket;
 	createSocket();
 }
+
 
 // Client :: Client(const Client &copy) : _reqBuff(2048){
 // 	*this = copy;
@@ -36,13 +37,13 @@ int Client :: createSocket(void) {
 }
 
 bool Client :: readRequest(void) {
-	ssize_t res = recv(_fdSock, _reqBuff.getBuffer(), RECV_BUFFER_SIZE, 0);
+	ssize_t res = recv(_fdSock, this->_request.getBuffer(), RECV_BUFFER_SIZE, 0);
 	if (res == 0) {
 		_isClosed = true;
 		return (false);
 	}
 	_isRead = true;
-	_toServe = _reqBuff.saveRequestData(res);
+	_toServe = this->_request.saveRequestData(res);
 	return (_toServe);
 }
 

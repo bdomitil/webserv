@@ -13,25 +13,33 @@ Server :: Server(const t_server &ServerSetting) {
 	_serverSettings = t_server(ServerSetting);
 }
 
+
+
 Server :: Server(const Server &copy) {
 	*this = copy;
 }
+
+
 
 Server :: ~Server()
 {
 	//Destruct if needed
 }
 
+
+
 Server& Server :: operator=(const Server &copy) {
 	*this = Server(copy.getSettings());
 	return (*this);
 }
 
+
+
 t_server Server :: getSettings(void) const {
 	return (this->_serverSettings);
 }
 
-// ##              SERVER.RUN()
+
 
 int Server :: createSocket(void) {
 
@@ -62,6 +70,8 @@ int Server :: createSocket(void) {
 	return (srsocket);
 }
 
+
+
 void Server :: Run(void) {
 	_fdSock =  createSocket();
 	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1)
@@ -80,10 +90,17 @@ void Server :: Run(void) {
 
 void Start(vector<Server*> Servers)
 {
-	fd_set				readfd, writefd;
-	vector<int>			readFd, writeFd;
-	map <int,Client*>	Clients;
-	int 				max_fd = 0;
+	fd_set readfd, writefd;
+	vector<int> readFd, writeFd;
+	map <int,Client*>Clients;
+	Client *newCl;
+	int max_fd = 0;
+
+	//#########################################//
+	//#########################################//
+	//______________RUN SERVERS_______________#//
+	//#########################################//
+	//#########################################//
 
 	for (size_t i = 0; i < Servers.size(); i++)
 	{
@@ -103,20 +120,27 @@ void Start(vector<Server*> Servers)
 		{
 			std::cerr << e.what() << '\n';
 		}
-
-
 	}
-	if (Servers.empty())
-		return ;
-	while (1)
+
+	while ( !Servers.empty() )
 	{
-		int new_fd;
-		int first_client_fd;
+		int new_fd, select_res = 0;
 		t_time timeout;
+
+		timeout.tv_usec = 50000;
+		timeout.tv_sec = 2;
 		FD_ZERO(&writefd);
 		FD_ZERO(&readfd);
 		readFd.clear();
 		writeFd.clear();
+
+
+		//#########################################//
+		//#########################################//
+		//___ADD SERVERS AND CLIENTS TO READ FDS__#//
+		//#########################################//
+		//#########################################//
+
 		for (size_t i = 0; i < Servers.size(); i++)  //Add server fd to set for listeing connections
 		{
 			readFd.insert(readFd.end(), Servers[i]->getSocket());
@@ -131,27 +155,32 @@ void Start(vector<Server*> Servers)
 			if (max_fd < (*i).first)
 				max_fd = (*i).first;
 		}
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 50000;
-		int res = select(max_fd + 1, &readfd, NULL, NULL, &timeout);
-		if (res == -1) {
-			std::cerr << strerror(errno) << std::endl;
+
+		select_res = select(max_fd + 1, &readfd, NULL, NULL, &timeout);
+		if (select_res == -1)
+		{
+			std::cerr << strerror(errno) << std::endl; 
 			continue;
 		}
-		else if (res == 0)
+		else if (select_res == 0)
 			continue ;
-		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && res > 0; start++) //
-		{
+
+		//#########################################//
+		//#########################################//
+		//__CHECKING FOR NEW COONECTING_OR DATA___#//
+		//#########################################//
+		//#########################################//
+		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && select_res > 0; start++)
 			if (FD_ISSET(*start, &readfd)) //check triggered read fd
 			{
 				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd
 				 	try
 				 	{
-						 if ((*Clients.find(*start)).second->readRequest())
+						if ((*Clients.find(*start)).second->readRequest()) 
 							(*Clients.find(*start)).second->response();  //if we got all his request then we start to prepare his response
 						else if ((*Clients.find(*start)).second->isClosed()) //if client closes his connection we delete him from map
 							Clients.erase(Clients.find(*start));
-						res--;
+						select_res--;
 				 	}
 				 	catch(const std::exception& e)
 				 	{
@@ -162,13 +191,19 @@ void Start(vector<Server*> Servers)
 					for (size_t i = 0; i < Servers.size(); i++) {
 						if (*start == Servers[i]->getSocket())
 						{
-							Client *newCl = new Client(Servers[i]->getSocket(), 10000);  // TODO spec body size by location struct
-							Clients.insert(std::pair<int, Client*>(newCl->getSocket(), newCl));
-							res--;
+							std::map <string, Location> loc = Servers[i]->getSettings().locations;
+							Client *cl =  new Client(Servers[i]->getSocket(), loc);
+							Clients.insert(std::pair<int, Client* >(Servers[i]->getSocket(), cl));
+							select_res--;
 						}
 					}
 			}
-		}
+
+		//#########################################//
+		//#########################################//
+		//__CHECKING FOR CLIENTS RESPPONSE READY__#//
+		//#########################################//
+		//#########################################//
 		for (map<int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++)
 		{
 			try

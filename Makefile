@@ -11,7 +11,7 @@ D_FILES = $(patsubst %.cpp,$(OBJS_DIR)/%.d, $(SRCS))
 OBJS_DIR = objs
 ALL_OBJS_DIRS = $(sort $(dir $(OBJS)))
 
-CC = clang++
+CC = clang++ -g
 #FLAGS = -Wall -Wextra -Werror -std=c++98
 
 #colors for beauty
