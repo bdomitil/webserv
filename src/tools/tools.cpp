@@ -6,7 +6,7 @@ std::string	ft_itoa(int x)
 	std::string		tmp;
 	buff << x;
 	buff >> tmp;
-	
+
 	return (tmp);
 }
 
@@ -15,17 +15,27 @@ string getExtension(string fPath)
 	std:: map<string, string> MIME;
 	string	ext = "application/octet-stream";
 
+
 	MIME.insert(pair<string, string>("mp3", "audio/mpeg"));
-	MIME.insert(pair<string, string>("weba", "audio/webm")); MIME.insert(pair<string, string>("aac", "audio/aac"));
+	MIME.insert(pair<string, string>("weba", "audio/webm"));
+	MIME.insert(pair<string, string>("aac", "audio/aac"));
 
-	MIME.insert(pair<string, string>("gif", "image/gif")); MIME.insert(pair<string, string>("jpeg", "image/jpeg"));
-	MIME.insert(pair<string, string>("png", "image/png")); MIME.insert(pair<string, string>("jpg", "image/jpeg"));
-	MIME.insert(pair<string, string>("image", "image/tiff")); MIME.insert(pair<string, string>("image", "image/webp"));
+	MIME.insert(pair<string, string>("gif", "image/gif"));
+	MIME.insert(pair<string, string>("jpeg", "image/jpeg"));
+	MIME.insert(pair<string, string>("png", "image/png"));
+	MIME.insert(pair<string, string>("jpg", "image/jpeg"));
+	MIME.insert(pair<string, string>("image", "image/tiff"));
+	MIME.insert(pair<string, string>("image", "image/webp"));
 
-	MIME.insert(pair<string, string>("js", "application/javascript")); MIME.insert(pair<string, string>("json", "application/json"));
-	MIME.insert(pair<string, string>("pdf", "application/pdf")); MIME.insert(pair<string, string>("application", "application/ps"));
-	MIME.insert(pair<string, string>("css", "text/css"));MIME.insert(pair<string, string>("html", "text/html"));
-	MIME.insert(pair<string, string>("csv", "text/csv"));MIME.insert(pair<string, string>("php", "text/php"));
+	MIME.insert(pair<string, string>("js", "application/javascript"));
+	MIME.insert(pair<string, string>("json", "application/json"));
+	MIME.insert(pair<string, string>("pdf", "application/pdf"));
+	MIME.insert(pair<string, string>("ps", "application/postscript"));
+
+	MIME.insert(pair<string, string>("css", "text/css"));
+	MIME.insert(pair<string, string>("html", "text/html"));
+	MIME.insert(pair<string, string>("csv", "text/csv"));
+	MIME.insert(pair<string, string>("php", "text/php"));
 
 	if (fPath.find_last_of('.') != std:: string :: npos)
 	{
@@ -35,7 +45,7 @@ string getExtension(string fPath)
 			if (find == (*i).first)
 			{
 				ext = (*i).second;
-				break ; 
+				break ;
 			}
 		}
 	}
