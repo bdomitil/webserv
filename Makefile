@@ -48,7 +48,7 @@ clean:
 	@echo "$(YELLOW)objs $(RED)deleted$(RESET)"
 
 fclean: clean
-	@rm -rf $(NAME)
+	@rm -rf $(NAME) $(NAME).dSYM
 	@echo "$(MAGENTA)$(NAME) $(RED)deleted$(RESET)"
 
 re: fclean all

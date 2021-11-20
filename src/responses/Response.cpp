@@ -41,8 +41,9 @@ std::string Response :: makeBody(){
 	if (!FILE.is_open())
 		throw ErrorException("ERROR OPENNING URL");
 	while (getline(FILE, line))
-			_body += line;
+			_body += line + "\n";
 	_body += string(CRLF);
+	FILE.close();
 	return (_body);
 }
 
@@ -61,7 +62,7 @@ void Response :: sendRes(int socket){
 	res = send(socket, _response.c_str(), _response.length(), 0);
 	if (res == -1)
 		throw ErrorException("ERROR SENDING DATA");
-	std::cerr << "LEFT AFTER SEND\n" << _response << std::endl; 
+	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl; 
 	_response = _response.substr(res);
 	_leftBytes -= res;
 	if (_leftBytes < 1)
