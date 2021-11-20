@@ -19,14 +19,41 @@
 #include <fcntl.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <sstream>
+#include <ctime>
+#include <unistd.h>
 
 #include "Location.hpp"
 #include "SettingsServer.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
-#include "Response.hpp"
+
+typedef enum	fileType
+{
+	DDIR  = 0,
+	FFILE  = 1,
+	NONEXIST = -1
+}	t_fileType;
+
+typedef struct s_fileInfo
+{
+	long long int	fLength;
+	t_fileType		fType;
+	string			fExtension;
+}		t_fileInfo;
+
+/*
+	end of start line
+	or header fields
+	or request at all
+*/
+#define CR				"\r"
+#define LF				"\n"
+#define CRLF			"\r\n"
+
 
 //#include "ParseFile.hpp"
 int		startParser(char *fileName, std::vector<t_server> &servers);
@@ -34,5 +61,6 @@ void	printLocations(std::map<std::string, Location> locations);
 void	printServ(t_server serv);
 void	Start(vector<Server*> Servers);
 std::string	ft_itoa(int x);
+bool	urlInfo(string fPath,t_fileInfo *fStruct);
 
 #endif //WEBSERV_MAININCLUDES_HPP

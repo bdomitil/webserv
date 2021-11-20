@@ -214,6 +214,7 @@ void Start(vector<Server*> Servers)
 			{
 				if ((*i).second->toServe())
 					(*i).second->response();
+
 			}
 			catch(const std::exception& e)
 			{
