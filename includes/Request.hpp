@@ -18,13 +18,7 @@
 # define DELELE			"DELETE"
 # define HTTP_PROTOCOL	"HTTP/1.1"
 
-/*
-	end of start line
-	or header fields
-	or request at all
-*/
-# define CR				"\r"
-# define LF				"\n"
+
 
 class Request {
 
@@ -36,6 +30,9 @@ public:
 	bool	saveRequestData(ssize_t);
 	void	showState() const ;
 	char	*getBuffer() const ;
+	std::string getUrl(){return "index.html";} //TODO DELETE IT OR FIX
+	std::string getMethod(){return _method;}
+
 
 private:
 

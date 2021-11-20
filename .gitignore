@@ -43,3 +43,5 @@ test.cpp
 a.out*
 index.html
 *.dSYM
+*.html
+*.jpeg

@@ -11,6 +11,7 @@ private:
 	char					_ip[32];
 	int 					_srvSocket;
 	Request					_request;
+	Response				_response;
 
 public :
 	Client(int srvSocket, std::map<std::string, Location> &locations);
@@ -27,7 +28,7 @@ public :
 	bool	toServe(){return _toServe;} //   tells whether the client's answer is ready
 	bool	isRead(){return _isRead;} // tells whether the client got new info
 	bool	isClosed(){return _isClosed;}  //tells whether the client closed his connection and we can delete it
-	void	response();
+	bool	response();
 
 
 };

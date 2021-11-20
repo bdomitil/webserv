@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-Client :: Client(int srvSocket, std::map<std::string, Location> &locations) : _request(locations)
+Client :: Client(int srvSocket, std::map<std::string, Location> &locations) : _request(locations), _response(_request)
 {
 	_srvSocket = srvSocket;
 	_isClosed = false;
@@ -50,6 +50,21 @@ bool Client :: readRequest(void) {
 	return (_toServe);
 }
 
-void Client :: response() {
+bool Client :: response() {
 	std::cerr << "TRYING TO RESPONSE FOR CLIENT" << std::endl;
+	try
+	{
+		_response.sendRes(_fdSock);
+		if (_response.isSent())
+		{
+			_toServe = false;
+			return (true);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
+	return (false);
 }
