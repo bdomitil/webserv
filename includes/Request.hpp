@@ -30,7 +30,7 @@ public:
 	bool	saveRequestData(ssize_t);
 	void	showState() const ;
 	char	*getBuffer() const ;
-	std::string getUrl(){return "imageasd.png";} //TODO DELETE IT OR FIX
+	std::string getUrl(){return "video2.mp4";} //TODO DELETE IT OR FIX
 	std::string getMethod(){return _method;}
 
 
