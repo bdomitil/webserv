@@ -27,11 +27,11 @@ public:
 	Request(std::map<std::string, Location> &);
 	~Request();
 
-	bool	saveRequestData(ssize_t);
-	void	showState() const ;
-	char	*getBuffer() const ;
-	std::string getUrl(){return "imageasd.png";} //TODO DELETE IT OR FIX
-	std::string getMethod(){return _method;}
+	std::string	getUrl(std::uint32_t &) const ;
+	std::string	getMethod() const ;
+	bool		saveRequestData(ssize_t);
+	void		showState() const ;
+	char		*getBuffer() const ;
 
 
 private:
@@ -47,7 +47,7 @@ private:
 	std::uint8_t						_parseState;
 	std::string							_method;
 	std::string							_protocol;
-	std::string							_target;
+	std::string							_uri;
 	std::string							_body;
 	std::string							_tmpBuffer;
 	bool								_isReqDone;

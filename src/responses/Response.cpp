@@ -3,7 +3,7 @@
 
 Response :: Response(Request &request){
 	t_fileInfo file;
-	if (urlInfo(request.getUrl(), &file))
+	if (urlInfo(request.getUrl(_statusCode), &file))
 	{
 		_statusCode = 200;
 		_bodySize = file.fLength;
@@ -11,7 +11,8 @@ Response :: Response(Request &request){
 	}
 	else
 		_statusCode = 404;
-	_url = request.getUrl();
+	_url = request.getUrl(_statusCode);
+	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 1;
 	_inProc = false;
 }
@@ -66,7 +67,7 @@ void Response :: sendRes(int socket){
 	res = send(socket, _response.c_str(), _response.length(), 0);
 	if (res == -1)
 		throw ErrorException("ERROR SENDING DATA");
-	std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
+	//std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
 	_response = _response.substr(res);
 	_leftBytes -= res;
 	if (_leftBytes < 1)

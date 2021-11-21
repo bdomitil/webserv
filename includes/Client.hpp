@@ -11,7 +11,7 @@ private:
 	char					_ip[32];
 	int 					_srvSocket;
 	Request					_request;
-	Response				_response;
+	Response				*_response;
 
 public :
 	Client(int srvSocket, std::map<std::string, Location> &locations);

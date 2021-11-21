@@ -22,12 +22,17 @@ void	Request::saveStartLine(std::string startLine) {
 		throw ErrorException(405, "Method Not Allowed");
 	startLine.erase(0, lfPos + 1);
 
+	std::cout << "startLine after first erase: " << startLine << std::endl;
+
 //	save target
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
-	_target = startLine.substr(0, lfPos);
+	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, lfPos + 1);
+
+	std::cout << "startLine after second erase: " << startLine << std::endl;
+	std::cout << "_uri: " << _uri << std::endl;
 
 //	save HTTP-protocol
 	_protocol = startLine;

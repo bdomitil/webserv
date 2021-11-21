@@ -19,7 +19,7 @@ private:
 public:
 	std::string						makeStatusLine();
 	std::string						makeHeaders();
-	std::string						makeBody();	
+	std::string						makeBody();
 	void						setStatusCode(int);
 	void						sendRes(int Socket);
 	bool						isSent(){return (!_leftBytes);}
