@@ -33,7 +33,6 @@ public:
 	void		showState() const ;
 	char		*getBuffer() const ;
 
-
 private:
 
 	bool	isStringHasWhiteSpaceChar(std::string &) const ;

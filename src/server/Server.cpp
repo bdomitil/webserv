@@ -175,13 +175,17 @@ void Start(vector<Server*> Servers)
 		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && select_res > 0; start++)
 		{
 			if (FD_ISSET(*start, &readfd)) { //check triggered read fd
-				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd
+
+				map<int, Client*> :: iterator cl  = Clients.find(*start);
+				 if ( cl  != Clients.end()){   //if triggered fd is one of clients fd
 					 try
 				 	{
-						if ((*Clients.find(*start)).second->readRequest())
-							(*Clients.find(*start)).second->response();  //if we got all his request then we start to prepare his response
-						else if ((*Clients.find(*start)).second->isClosed()) //if client closes his connection we delete him from map
+						if ((*cl).second->readRequest())
+							(*cl).second->response();  //if we got all his request then we start to prepare his response
+						else if ((*cl).second->isClosed()){ //if client closes his connection we delete him from map
 							Clients.erase(Clients.find(*start));
+							delete (*cl).second;
+						}
 						select_res--;
 				 	}
 				 	catch(const std::exception& e)
