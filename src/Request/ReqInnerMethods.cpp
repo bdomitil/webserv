@@ -31,9 +31,6 @@ void	Request::saveStartLine(std::string startLine) {
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, lfPos + 1);
 
-	std::cout << "startLine after second erase: " << startLine << std::endl;
-	std::cout << "_uri: " << _uri << std::endl;
-
 //	save HTTP-protocol
 	_protocol = startLine;
 	if (_protocol != HTTP_PROTOCOL)

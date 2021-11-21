@@ -35,7 +35,7 @@ Server& Server :: operator=(const Server &copy) {
 
 
 
-t_server Server :: getSettings(void) const {
+t_server const	&Server :: getSettings(void) const {
 	return (this->_serverSettings);
 }
 
@@ -175,7 +175,7 @@ void Start(vector<Server*> Servers)
 		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && select_res > 0; start++)
 		{
 			if (FD_ISSET(*start, &readfd)) { //check triggered read fd
-				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd				
+				 if (Clients.find(*start) != Clients.end()){   //if triggered fd is one of clients fd
 					 try
 				 	{
 						if ((*Clients.find(*start)).second->readRequest())
@@ -193,7 +193,7 @@ void Start(vector<Server*> Servers)
 					for (size_t i = 0; i < Servers.size(); i++) {
 						if (*start == Servers[i]->getSocket())
 						{
-							std::map <string, Location> loc = Servers[i]->getSettings().locations;
+							std::map <string, Location> const &loc = Servers[i]->getSettings().locations;
 							Client *cl =  new Client(Servers[i]->getSocket(), loc);
 							Clients.insert(std::pair<int, Client* >(cl->getSocket(), cl));
 							select_res--;

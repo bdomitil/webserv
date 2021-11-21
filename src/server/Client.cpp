@@ -1,6 +1,8 @@
 #include "../../includes/MainIncludes.hpp"
 
-Client :: Client(int srvSocket, std::map<std::string, Location> &locations) : _request(locations), _response(nullptr) {
+Client :: Client(int srvSocket, std::map<std::string, Location> const &locations) :
+	_request(locations), _response(nullptr) {
+
 	_srvSocket = srvSocket;
 	_isClosed = false;
 	_toServe = false;

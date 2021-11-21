@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-Request::Request(std::map<std::string, Location> &l)
+Request::Request(std::map<std::string, Location> const &l)
 : _locationsMap(l), _parseState(START_LINE),
 _method(""), _protocol(""), _uri(""), _body(""),
 _tmpBuffer(""), _isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
@@ -76,7 +76,7 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 	(void)status;
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos) {
-		return "hz";
+		return "lala";
 		//throw ErrorException(403, "Forbidden");
 	}
 
@@ -87,8 +87,8 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 		target = "";
 	}
 	else {
-		pathToTarget = _uri.substr(0, lastSlashPos);
-		target = _uri.substr(lastSlashPos);
+		pathToTarget = _uri.substr(0, lastSlashPos + 1);
+		target = _uri.substr(lastSlashPos + 1);
 	}
 
 //	check if location is present
