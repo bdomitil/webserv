@@ -5,11 +5,10 @@ Response :: Response(Request &request){
 	t_fileInfo file;
 	if (urlInfo(request.getUrl(_statusCode), &file))
 	{
-		_statusCode = 200;
 		_bodySize = file.fLength;
 		_contentType = file.fExtension;
 	}
-	else
+	else if (_statusCode != 301)
 		_statusCode = 404;
 	_url = request.getUrl(_statusCode);
 	std::cerr << "URL: " << _url << std::endl;
@@ -29,12 +28,11 @@ std::string Response :: makeHeaders(){
 	const std::time_t current_time = std::time(0);
 	_tmpHead += "Server: ~Server()" + string(CRLF);
 	_tmpHead += "Date: " + string(ctime(&current_time));
-	if (_statusCode == 200)
-	{
-		_tmpHead += "Content-Type: " + _contentType + string(CRLF);
-		_tmpHead += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
-		_tmpHead += "Accept-Ranges: bytes" + string(CRLF);
-	}
+	if (_statusCode == 301)
+		_tmpHead += "Location: " + _url + string(CRLF);
+	_tmpHead += "Content-Type: " + _contentType + string(CRLF);
+	_tmpHead += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
+	_tmpHead += "Accept-Ranges: bytes" + string(CRLF);
 	_tmpHead += "Connection: close" + string(CRLF);
 	return(_tmpHead);
 }
@@ -62,6 +60,7 @@ void Response :: sendRes(int socket){
 		_inProc = true;
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
+		std::cout << _response << std::endl;
 		_response.append(makeBody());
 		_leftBytes = _response.length();
 	}

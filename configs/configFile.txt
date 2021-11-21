@@ -30,11 +30,16 @@ server:
 
 	location: /
 		limits_client_body_size: 2000
+		return: 301 http://localhost:8321/redirect
 		autoindex: on
 		index: index.html
 		allow_methods: GET
 		root: /Users/ikael/Desktop/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
+
+	location: /redirect
+		root: /Users/ikael/Desktop/webserv
+		index: index.html
 
 	location: /put_test
 		root:			/Users/ikael/Desktop/webserv/www
