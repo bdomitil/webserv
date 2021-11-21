@@ -34,7 +34,7 @@ private:
 
 public:
 	Server(const t_server &ServSetting);
-	t_server getSettings(void) const;
+	t_server const	&getSettings(void) const;
 	Server(const Server &copy); //doesn't copy sockaddr_in struct
 	~Server();
 	Server& operator= (const Server &second); //doesn't copy sockaddr_in struct

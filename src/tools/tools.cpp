@@ -24,8 +24,9 @@ string getExtension(string fPath)
 	MIME.insert(pair<string, string>("jpeg", "image/jpeg"));
 	MIME.insert(pair<string, string>("png", "image/png"));
 	MIME.insert(pair<string, string>("jpg", "image/jpeg"));
-	MIME.insert(pair<string, string>("image", "image/tiff"));
-	MIME.insert(pair<string, string>("image", "image/webp"));
+	MIME.insert(pair<string, string>("tiff", "image/tiff"));
+	MIME.insert(pair<string, string>("webp", "image/webp"));
+	MIME.insert(pair<string, string>("ico", "image/x-icon"));
 
 	MIME.insert(pair<string, string>("js", "application/javascript"));
 	MIME.insert(pair<string, string>("json", "application/json"));

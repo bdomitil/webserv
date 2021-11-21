@@ -24,15 +24,14 @@ class Request {
 
 public:
 
-	Request(std::map<std::string, Location> &);
+	Request(std::map<std::string, Location> const &);
 	~Request();
 
-	bool	saveRequestData(ssize_t);
-	void	showState() const ;
-	char	*getBuffer() const ;
-	std::string getUrl(){return "video2.mp4";} //TODO DELETE IT OR FIX
-	std::string getMethod(){return _method;}
-
+	std::string	getUrl(std::uint32_t &) const ;
+	std::string	getMethod() const ;
+	bool		saveRequestData(ssize_t);
+	void		showState() const ;
+	char		*getBuffer() const ;
 
 private:
 
@@ -41,17 +40,17 @@ private:
 	void	saveHeaderLine(std::string);
 	void	saveBodyPart(std::string);
 
-	std::map<std::string, std::string>	_headers;
-	std::map<std::string, Location>		&_locationsMap;
-	std::uint32_t						_maxBodySize;
-	std::uint8_t						_parseState;
-	std::string							_method;
-	std::string							_protocol;
-	std::string							_target;
-	std::string							_body;
-	std::string							_tmpBuffer;
-	bool								_isReqDone;
-	char								*_buffer;
+	std::map<std::string, std::string>		_headers;
+	std::map<std::string, Location> const	&_locationsMap;
+	std::uint32_t							_maxBodySize;
+	std::uint8_t							_parseState;
+	std::string								_method;
+	std::string								_protocol;
+	std::string								_uri;
+	std::string								_body;
+	std::string								_tmpBuffer;
+	bool									_isReqDone;
+	char									*_buffer;
 
 };
 
