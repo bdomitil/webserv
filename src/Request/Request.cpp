@@ -94,11 +94,13 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 	for (std::map<std::string, Location>::const_iterator i = _locationsMap.begin();
 		i != _locationsMap.end(); i++) {
 		if (pathToTarget == i->first) {
+
 //	if redirect then return url for redirection
 			if (i->second.redirect.first) {
 				status = static_cast<std::uint32_t>(i->second.redirect.first);
 				return (i->second.redirect.second);
 			}
+
 //	else return actual path to target
 			if (!target.length())
 				target = i->second.index;
