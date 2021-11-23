@@ -1,8 +1,10 @@
 
 #include "../../includes/MainIncludes.hpp"
 
-Response :: Response(Request &request){
+Response :: Response(Request &request) : _response(""), _body("") {
+
 	t_fileInfo file;
+
 	if (urlInfo(request.getUrl(_statusCode), &file))
 	{
 		_bodySize = file.fLength;
@@ -14,6 +16,10 @@ Response :: Response(Request &request){
 	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 1;
 	_inProc = false;
+}
+
+std::string	Response::getResponse(void) const {
+	return _response;
 }
 
 string Response :: makeStatusLine(){
@@ -45,12 +51,11 @@ std::string Response :: makeBody(){
 	if (!FILE.is_open())
 		throw ErrorException("ERROR OPENNING URL");
 	while (getline(FILE, line))
-			_body += line + "\n";
+		_body += line + "\n";
 	_body += string(CRLF);
 	FILE.close();
 	return (_body);
 }
-
 
 void Response :: sendRes(int socket){
 
@@ -60,7 +65,6 @@ void Response :: sendRes(int socket){
 		_inProc = true;
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
-		std::cout << _response << std::endl;
 		_response.append(makeBody());
 		_leftBytes = _response.length();
 	}
@@ -69,6 +73,7 @@ void Response :: sendRes(int socket){
 		throw ErrorException("ERROR SENDING DATA");
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
+	std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
 
 	_response = _response.substr(res);
 	_leftBytes -= res;

@@ -4,14 +4,19 @@
 
 #ifndef WEBSERV_SERVER_HPP
 #define WEBSERV_SERVER_HPP
-#define RECV_BUFFER_SIZE 2048
-#define SEND_BUFFER_SIZZ 2046
+#define RECV_BUFFER_SIZE	2048
+#define SEND_BUFFER_SIZZ	2046
 
 using namespace std;
 #include "MainIncludes.hpp"
 
 
-// TODO make foo for checking if socket is one of servers socket  foo(int socket) { while (Servers){if socket == Servers[i].socket return true} return false}
+// TODO make foo for checking if socket is one of servers socket
+// foo(int socket) {
+// 	while (Servers) {
+// 		if socket == Servers[i].socket return true
+// 	} return false
+// }
 typedef struct sockaddr_in t_sockaddr_in;
 typedef struct timeval t_time;
 class Server {
@@ -58,10 +63,9 @@ class ErrorException : public std::exception {
 
 public :
 
-	ErrorException(string msg) :
-		errorMsg(msg.c_str()), status(0) {}
-	ErrorException(int st, string msg) :
-		errorMsg(msg.c_str()), status(st) {}
+	ErrorException(const char *msg) : errorMsg(msg), status(0) {}
+	ErrorException(int st, const char *msg) : errorMsg(msg), status(st) {}
+	
 	virtual const char* what(void) const throw () {
 		return (this->errorMsg);
 	}

@@ -1,36 +1,11 @@
 server:
-	server_name: test
-	log_file_path: ../test.log
-	host: 0.0.0.0
-	error_page: 404=/www/html/404.html 405=/www/html/405.html
-	port: 8001
-
-	location: /
-		limits_client_body_size: 2000
-		autoindex: on
-		index: index.html
-		allow_methods: POST DELETE GET PUT
-		root: /Users/ikael/Desktop/webserv
-		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
-
-	location: /data
-		limits_client_body_size: 1111
-		autoindex: on
-		return: 301 http://localhost:8000/Network/html/ass.jpg
-		index: /www/html/index.html
-		allow_methods: POST DELETE GET PUT
-		root: /Users/ikael/Desktop/webserv
-		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
-
-server:
 	host: 0.0.0.0
 	port: 8321
-	server_name: localhost
+	server_name: ikael
 	error_page: 404=/html/404.html 405=/html/405.html
 
 	location: /
 		limits_client_body_size: 2000
-		return: 301 http://localhost:8321/redirect
 		autoindex: on
 		index: index.html
 		allow_methods: GET
@@ -41,19 +16,20 @@ server:
 		root: /Users/ikael/Desktop/webserv
 		index: index.html
 
-	location: /put_test
-		root:			/Users/ikael/Desktop/webserv/www
-		allow_methods: PUT POST
+server:
+	host: 0.0.0.0
+	port: 8322
+	server_name: ikael
+	error_page: 404=/html/404.html 405=/html/405.html
+
+	location: /
+		limits_client_body_size: 2000
+		autoindex: on
+		index: index.html
+		allow_methods: GET
+		root: /Users/ikael/Desktop/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
-	location: /post_body
-		root:						/Users/ikael/Desktop/webserv/www
-		allow_methods:				POST
-		path_cgi:					.bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
-		limits_client_body_size:	100
-
-	location: /directory
-		root:			/Users/ikael/Desktop/webserv/www/YoupiBanane
-		index:			youpi.bad_extension
-		allow_methods: GET HEAD POST
-		path_cgi:		.bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
+	location: /redirect/
+		root: /Users/ikael/Desktop/webserv
+		index: index.html

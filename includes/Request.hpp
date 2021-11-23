@@ -35,10 +35,10 @@ public:
 
 private:
 
-	bool	isStringHasWhiteSpaceChar(std::string &) const ;
-	void	saveStartLine(std::string);
-	void	saveHeaderLine(std::string);
-	void	saveBodyPart(std::string);
+	bool		isStringHasWhiteSpaceChar(std::string const &) const ;
+	void		saveStartLine(std::string);
+	void		saveHeaderLine(std::string);
+	void		saveBodyPart(std::string);
 
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;

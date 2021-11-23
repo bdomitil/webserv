@@ -178,7 +178,7 @@ void Start(vector<Server*> Servers)
 
 				map<int, Client*> :: iterator cl  = Clients.find(*start);
 				 if ( cl  != Clients.end()){   //if triggered fd is one of clients fd
-					 try
+					try
 				 	{
 						if ((*cl).second->readRequest())
 							(*cl).second->response();  //if we got all his request then we start to prepare his response

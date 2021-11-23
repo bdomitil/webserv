@@ -1,9 +1,9 @@
 #include "../../includes/MainIncludes.hpp"
 
 Request::Request(std::map<std::string, Location> const &l)
-: _locationsMap(l), _parseState(START_LINE),
-_method(""), _protocol(""), _uri(""), _body(""),
-_tmpBuffer(""), _isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
+: _locationsMap(l), _parseState(START_LINE), _method(""),
+_protocol(""), _uri(""), _body(""), _tmpBuffer(""),
+_isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;
 }
 
@@ -48,22 +48,23 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 
 void	Request::showState(void) const {
 
-	std::cout << "STATUS: "
-		<< ((_isReqDone) ? "TRUE" : "FALSE");
+	std::cout << YELLOW "STATUS: "
+		<< ((_isReqDone) ? GREEN "TRUE" RESET : RED "FALSE" RESET);
 	std::cout << std::endl;
 
-	std::cout << ">>>> START LINE <<<<" << std::endl;
+	std::cout << MAGENTA ">>>> START LINE <<<<" RESET << std::endl;
 	std::cout << _method << " " << _uri << " " << _protocol << std::endl;
 
-	std::cout << ">>>> HEADERS <<<<" << std::endl;
+	std::cout << MAGENTA ">>>> HEADERS <<<<" RESET << std::endl;
 	for (std::map<std::string, std::string>::const_iterator i = _headers.begin();
 		i != _headers.end(); i++) {
 		std::cout << i->first << ": ";
 		std::cout << i->second << std::endl;
 	}
-	std::cout << ">>>> BODY <<<<" << std::endl;
+	std::cout << MAGENTA ">>>> BODY <<<<" RESET << std::endl;
 	std::cout << _body << std::endl;
-	std::cout << "________________________" << std::endl << std::endl;
+	std::cout << RED "________________________endOfRequest________________________" RESET
+		<< std::endl << std::endl;
 	return;
 }
 
@@ -91,17 +92,13 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 	}
 
 //	check if uri path is one of the locations
-	for (std::map<std::string, Location>::const_iterator i = _locationsMap.begin();
-		i != _locationsMap.end(); i++) {
+	std::map<std::string, Location>::const_iterator i = _locationsMap.begin();
+	for ( ; i != _locationsMap.end(); i++) {
 		if (pathToTarget == i->first) {
-
-//	if redirect then return url for redirection
 			if (i->second.redirect.first) {
 				status = static_cast<std::uint32_t>(i->second.redirect.first);
 				return (i->second.redirect.second);
 			}
-
-//	else return actual path to target
 			if (!target.length())
 				target = i->second.index;
 			status = 200;
