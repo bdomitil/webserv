@@ -18,6 +18,7 @@ Client :: Client(int srvSocket, std::map<std::string, Location> const &locations
 Client :: ~Client()
 {
 	delete _response;
+	std::cout << _fdSock << ((close(_fdSock) == -1) ? " not closed" : " closed") << std::endl;
 	//Destruct if needed
 }
 
@@ -65,6 +66,8 @@ bool Client :: response() {
 	}
 	catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;
+		_toServe = false;
+		_isClosed = true;
 	}
 
 	return (false);

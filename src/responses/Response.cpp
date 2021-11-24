@@ -73,7 +73,7 @@ void Response :: sendRes(int socket){
 		throw ErrorException("ERROR SENDING DATA");
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
-	std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
+	//std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
 
 	_response = _response.substr(res);
 	_leftBytes -= res;
