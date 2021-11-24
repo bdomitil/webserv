@@ -27,7 +27,7 @@ server:
 		autoindex: on
 		index: index.html
 		allow_methods: GET
-		root: /Users/ikael/Desktop/webserv
+		root: /Users/bdomitil/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
 	location: /redirect/
