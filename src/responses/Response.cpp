@@ -1,7 +1,7 @@
 
 #include "../../includes/MainIncludes.hpp"
 
-Response :: Response(Request &request) : _response(""), _body("") {
+Response :: Response(Request &request) : _response(""), _body(nullptr) {
 
 	t_fileInfo file;
 
@@ -14,7 +14,7 @@ Response :: Response(Request &request) : _response(""), _body("") {
 		_statusCode = 404;
 	_url = request.getUrl(_statusCode);
 	std::cerr << "URL: " << _url << std::endl;
-	_leftBytes = 1;
+	_leftBytes = 0;
 	_inProc = false;
 }
 
@@ -43,40 +43,61 @@ std::string Response :: makeHeaders(){
 	return(_tmpHead);
 }
 
-std::string Response :: makeBody(){
-	string line;
-	ifstream FILE(_url);
+char *Response :: makeBody(int &readSize){
 
-	_body += string(CRLF);
-	if (!FILE.is_open())
-		throw ErrorException("ERROR OPENNING URL");
-	while (getline(FILE, line))
-		_body += line + "\n";
-	_body += string(CRLF);
-	FILE.close();
+	if (!_inProc)
+	{
+		_FILE.open(_url);
+		if (!_FILE.is_open())
+			throw ErrorException("ERROR OPENNING URL");
+		_response.append("\r\n");
+	}
+	else
+	{
+		_body = new char[SEND_BUFFER_SIZZ];
+		memset(_body, 0, SEND_BUFFER_SIZZ);
+		_FILE.read(_body, SEND_BUFFER_SIZZ);
+		readSize = _FILE.gcount();
+		if (readSize == 0)
+			_FILE.close();
+	}
 	return (_body);
 }
 
 void Response :: sendRes(int socket){
 
-	int		res;
+	int		res = 0;
 
 	if (!_inProc){
-		_inProc = true;
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
-		_response.append(makeBody());
-		_leftBytes = _response.length();
+		makeBody(res);
+		_leftBytes = _bodySize;
+		res = send(socket, _response.c_str(), _response.length(), 0);
+		if (res == -1)
+			throw ErrorException("ERROR SENDING DATA");
+		_response = string();
+		_inProc = true;
 	}
-	res = send(socket, _response.c_str(), _response.length(), 0);
-	if (res == -1)
-		throw ErrorException("ERROR SENDING DATA");
+	else if (_FILE.is_open())
+	{
+		try
+		{
+			res = send(socket, makeBody(res) , res, 0);
+			if (res == -1)
+				throw ErrorException("ERROR SENDING DATA");
+			_leftBytes -= res;
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+		delete []    _body;
+	}
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
 	//std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
 
-	_response = _response.substr(res);
-	_leftBytes -= res;
 	if (_leftBytes < 1)
 	{
 		_inProc = false;
