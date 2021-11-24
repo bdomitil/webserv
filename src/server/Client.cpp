@@ -18,6 +18,7 @@ Client :: Client(int srvSocket, std::map<std::string, Location> const &locations
 Client :: ~Client()
 {
 	delete _response;
+	std::cout << _fdSock << ((close(_fdSock) == -1) ? " not closed" : " closed") << std::endl;
 	//Destruct if needed
 }
 
@@ -56,18 +57,17 @@ bool Client :: response() {
 	if (!_response)
 		_response = new Response(_request);
 	std::cerr << "TRYING TO RESPONSE FOR CLIENT" << std::endl;
-	try
-	{
+	try {
 		_response->sendRes(_fdSock);
-		if (_response->isSent())
-		{
+		if (_response->isSent()) {
 			_toServe = false;
 			return (true);
 		}
 	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
+	catch(const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		_toServe = false;
+		_isClosed = true;
 	}
 
 	return (false);

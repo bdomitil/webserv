@@ -17,6 +17,7 @@ private:
 	bool						_inProc;
 	long long int				_leftBytes;
 public:
+	std::string						getResponse() const ;
 	std::string						makeStatusLine();
 	std::string						makeHeaders();
 	std::string						makeBody();
@@ -25,6 +26,5 @@ public:
 	bool						isSent(){return (!_leftBytes);}
 	Response(Request &request);
 };
-
 
 #endif

@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-bool	Request::isStringHasWhiteSpaceChar(std::string &str) const {
+bool	Request::isStringHasWhiteSpaceChar(std::string const &str) const {
 	for(std::size_t i = 0; i < str.length(); i++)
 		if (std::isspace(str[i]) == 1)
 			return true;
@@ -21,8 +21,6 @@ void	Request::saveStartLine(std::string startLine) {
 	if (_method != GET and _method != POST and _method != DELELE)
 		throw ErrorException(405, "Method Not Allowed");
 	startLine.erase(0, lfPos + 1);
-
-	std::cout << "startLine after first erase: " << startLine << std::endl;
 
 //	save target
 	lfPos = startLine.find(' ');

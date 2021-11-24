@@ -31,6 +31,14 @@
 #include "Server.hpp"
 #include "Client.hpp"
 
+//colors for beauty
+#define YELLOW		"\033[33;1m"
+#define RESET		"\033[0m"
+#define RED			"\033[31;1m"
+#define GREEN		"\033[32;1m"
+#define MAGENTA		"\033[35;1m"
+
+
 typedef enum	fileType
 {
 	DDIR  = 0,
