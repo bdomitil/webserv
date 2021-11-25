@@ -13,7 +13,6 @@ void	Request::saveStartLine(std::string startLine) {
 	if (!startLine.length())
 		throw ErrorException(400, "Bad request");
 
-//	save method
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
@@ -22,18 +21,15 @@ void	Request::saveStartLine(std::string startLine) {
 		throw ErrorException(405, "Method Not Allowed");
 	startLine.erase(0, lfPos + 1);
 
-//	save target
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, lfPos + 1);
 
-//	save HTTP-protocol
 	_protocol = startLine;
 	if (_protocol != HTTP_PROTOCOL)
 		throw ErrorException(505, "HTTP Version Not Supported");
-
 	_parseState = HEADER_LINE;
 	return;
 }
@@ -63,16 +59,28 @@ void	Request::saveHeaderLine(std::string headerLine) {
 		throw ErrorException(400, "Bad request");
 	if (headerValue[0] == ' ')
 		headerValue.erase(0, 1);
-	_headers.insert(std::pair<std::string, std::string>
-		(headerName, headerValue));
+	_headers.insert(std::pair<std::string, std::string>(headerName, headerValue));
+	if (headerName == "Content-Length")
+		_bodySize = static_cast<std::uint32_t>(std::atol(headerValue.c_str()));
+	if (headerName == "Transfer-Encoding")
+		_transferEncoding = headerValue;
 	return;
 }
 
 void	Request::saveBodyPart(std::string bodyLine) {
+	if (_transferEncoding == "chunked") {
+		saveChunkedBody(bodyLine);
+		return;
+	}
 	if (bodyLine.length() + _body.length() > _maxBodySize)
 		throw ErrorException(413, "Request Entity Too Large");
-	if (!bodyLine.length())
+	if (!bodyLine.length() or bodyLine == CR)
 		_parseState = END_STATE;
-	_body += bodyLine + LF;
+	else
+		_body += bodyLine + LF;
 	return;
+}
+
+void	Request::saveChunkedBody(std::string bodyLine) {
+
 }
