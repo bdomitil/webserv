@@ -1,7 +1,7 @@
 #include "../../includes/MainIncludes.hpp"
 
 Request::Request(std::map<std::string, Location> const &l)
-: _locationsMap(l), _parseState(START_LINE), _method(""),
+: _locationsMap(l), _parseState(START_LINE), _maxBodySize(1000), _method(""),
 _protocol(""), _uri(""), _body(""), _tmpBuffer(""),
 _isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;

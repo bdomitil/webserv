@@ -35,7 +35,7 @@ private:
 	t_sockaddr_in					_sockaddr;
 	int 							_fdSock;
 	string							_logfile;
-	int							createSocket(void);
+	int								createSocket(void);
 
 public:
 	Server(const t_server &ServSetting);

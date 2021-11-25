@@ -216,7 +216,7 @@ void Start(vector<Server*> Servers)
 		{
 			try
 			{
-				if ((*i).second->toServe())
+				if (FD_ISSET((*i).first, &writefd) &&  (*i).second->toServe())
 					(*i).second->response();
 				else if ((*i).second->isClosed()){ //if client closes his connection we delete him from map
 						Clients.erase(i);

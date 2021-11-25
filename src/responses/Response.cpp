@@ -5,14 +5,28 @@ Response :: Response(Request &request) : _response(""), _body(nullptr) {
 
 	t_fileInfo file;
 
-	if (urlInfo(request.getUrl(_statusCode), &file))
+	_url = request.getUrl(_statusCode);
+	if (_statusCode == 200 && urlInfo(_url, &file))
 	{
 		_bodySize = file.fLength;
 		_contentType = file.fExtension;
+		_FILE.open(_url);
 	}
-	else if (_statusCode != 301)
+	if (!_FILE.is_open() && errno == EACCES)
+	{
+		_statusCode = 403;
+		_bodySize = 150;
+	}
+	else if (!_FILE.is_open() && errno == ENOENT)
+	{
 		_statusCode = 404;
-	_url = request.getUrl(_statusCode);
+		_bodySize = 150;
+	}
+	else if (!_FILE.is_open())
+	{
+		_statusCode = 404;
+		_bodySize = 150;
+	}
 	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 0;
 	_inProc = false;
@@ -40,26 +54,29 @@ std::string Response :: makeHeaders(){
 	_tmpHead += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
 	_tmpHead += "Accept-Ranges: bytes" + string(CRLF);
 	_tmpHead += "Connection: close" + string(CRLF);
+	_tmpHead += string(CRLF);
 	return(_tmpHead);
 }
 
 char *Response :: makeBody(int &readSize){
 
-	if (!_inProc)
+
+	if (_inProc)
 	{
-		_FILE.open(_url);
-		if (!_FILE.is_open())
-			throw ErrorException("ERROR OPENNING URL");
-		_response.append("\r\n");
-	}
-	else
-	{
-		_body = new char[SEND_BUFFER_SIZZ];
-		memset(_body, 0, SEND_BUFFER_SIZZ);
-		_FILE.read(_body, SEND_BUFFER_SIZZ);
-		readSize = _FILE.gcount();
-		if (readSize == 0)
-			_FILE.close();
+		if (_statusCode == 200)
+		{
+			_body = new char[SEND_BUFFER_SIZZ];
+			memset(_body, 0, SEND_BUFFER_SIZZ);
+			_FILE.read(_body, SEND_BUFFER_SIZZ);
+			readSize = _FILE.gcount();
+			if (readSize == 0)
+				_FILE.close();
+		}
+		else
+		{
+			_body = gen_def_page(_statusCode, _bodySize);
+			readSize = 150;
+		}
 	}
 	return (_body);
 }
@@ -68,18 +85,19 @@ void Response :: sendRes(int socket){
 
 	int		res = 0;
 
-	if (!_inProc){
+
+	if (!_inProc){		
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
-		makeBody(res);
 		_leftBytes = _bodySize;
 		res = send(socket, _response.c_str(), _response.length(), 0);
+		std::cout << "\n\n" << _response << std::endl;
 		if (res == -1)
 			throw ErrorException("ERROR SENDING DATA");
 		_response = string();
 		_inProc = true;
 	}
-	else if (_FILE.is_open())
+	else if (_FILE.is_open() || _statusCode != 200)
 	{
 		try
 		{
@@ -103,5 +121,6 @@ void Response :: sendRes(int socket){
 		_inProc = false;
 		_leftBytes = false;
 	}
+
 
 }
