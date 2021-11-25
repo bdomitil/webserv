@@ -7,9 +7,10 @@ class Response
 private:
 	std::string					_statusLine;
 	std::map <std::string, std::string>	_headers;
-	std::string					_body; 						// TODO make body class for chunks
+	char*						 _body; 						// TODO make body class for chunks
 	std::uint64_t				_bodySize;
 	uint32_t					_statusCode;
+	std::ifstream					_FILE;
 	std::string					_url;
 	std::string					_tmpHead;
 	std::string					_contentType;
@@ -20,7 +21,7 @@ public:
 	std::string						getResponse() const ;
 	std::string						makeStatusLine();
 	std::string						makeHeaders();
-	std::string						makeBody();
+	char							*makeBody(int &readSize);
 	void						setStatusCode(int);
 	void						sendRes(int Socket);
 	bool						isSent(){return (!_leftBytes);}

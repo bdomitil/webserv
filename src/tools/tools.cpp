@@ -70,3 +70,28 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct){
 		return (false);
 	return (true);
 }
+
+
+
+char	*gen_def_page(int statusCode, uint64_t &bodySize){
+
+	string line;
+	char *buff = new char[200];
+	memset(buff, 0, 200);
+	line = "<html>\n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	line = "<head><title>" + ft_itoa(statusCode) += " Not Found</title></head> \n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	line = "<body>\n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	line = "<center><h1>" + ft_itoa(statusCode)  + " ERROR! </h1></center>\n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	line = "<hr><center>SUPER SERVER TEAM</center>\n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	line = "</body>\n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	line = "</html>\n";
+	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
+	bodySize = strlen(buff);
+	return (buff);
+}

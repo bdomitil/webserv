@@ -56,7 +56,7 @@ bool Client :: readRequest(void) {
 bool Client :: response() {
 	if (!_response)
 		_response = new Response(_request);
-	std::cerr << "TRYING TO RESPONSE FOR CLIENT" << std::endl;
+	std::cerr << "TRYING TO RESPONSE FOR CLIENT " << this->_ip << std::endl;
 	try {
 		_response->sendRes(_fdSock);
 		if (_response->isSent()) {
