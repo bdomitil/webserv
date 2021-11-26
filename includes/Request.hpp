@@ -27,7 +27,6 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
-//getters
 	std::string	getUrl(std::uint32_t &) const ;
 	std::string	getMethod() const ;
 	char		*getBuffer() const ;
@@ -37,7 +36,11 @@ public:
 
 private:
 
+	int		getLimitBodySize() const ;
+
 	bool	isStringHasWhiteSpaceChar(std::string const &) const ;
+	void	saveStartLineHeaders(std::string &);
+	void	saveSimpleBody(std::string &);
 	void	saveStartLine(std::string);
 	void	saveHeaderLine(std::string);
 	void	saveBodyPart(std::string);

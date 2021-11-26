@@ -1,9 +1,8 @@
 #include "../../includes/MainIncludes.hpp"
 
 Request::Request(std::map<std::string, Location> const &l)
-: _locationsMap(l), _maxBodySize(1000), _bodySize(0),
-_parseState(START_LINE), _isReqDone(false),
-_buffer(new char[RECV_BUFFER_SIZE + 1]) {
+: _locationsMap(l), _bodySize(0), _parseState(START_LINE),
+_isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;
 }
 
@@ -28,30 +27,20 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	data = _tmpBuffer;
 	_buffer[recvRet] = '\0';
 	data += _buffer;
-	newLinePos = data.find(CR LF);
-	while (newLinePos != std::string::npos
-		and (_parseState == START_LINE or _parseState == HEADER_LINE)) {
 
-		if (_parseState == START_LINE)
-			saveStartLine(data.substr(0, newLinePos));
-		else if (_parseState == HEADER_LINE)
-			saveHeaderLine(data.substr(0, newLinePos));
-		data.erase(0, newLinePos + 2);
-		newLinePos = data.find(CR LF);
-	}
-
-	newLinePos = data.find(LF);
-	while (newLinePos != std::string::npos
-		and _parseState == BODY_LINE) {
-		saveBodyPart(data.substr(0, newLinePos));
-		data.erase(0, newLinePos + 1);
-		newLinePos = data.find(LF);
+	if (_parseState == START_LINE or _parseState == HEADER_LINE)
+		saveStartLineHeaders(data);
+	if (_parseState == BODY_LINE) {
+		if (_transferEncoding == "chunked")
+			saveChunkedBody(data);
+		else
+			saveSimpleBody(data);
 	}
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
+		showState();
 	}
-	showState();
 	return _isReqDone;
 }
 
@@ -63,12 +52,9 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 	size_t											lastSlashPos;
 
 	lastSlashPos = _uri.find_last_of("/");
-	if (lastSlashPos == std::string::npos)
-		return "bad url";
-
-	pathToTarget = _uri.substr(0, lastSlashPos + 1);
 	target = _uri.substr(lastSlashPos + 1);
-	tmp = pathToTarget.substr(0, lastSlashPos);
+	pathToTarget = _uri.substr(0, lastSlashPos + 1);
+	tmp = pathToTarget.substr(0, lastSlashPos + 1);
 	while (lastSlashPos != std::string::npos) {
 		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
 			if (tmp == i->first) {
@@ -85,8 +71,6 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 			}
 		}
 		lastSlashPos = pathToTarget.find_last_of("/", lastSlashPos - 1);
-		if (lastSlashPos == std::string::npos)
-			break;
 		tmp = pathToTarget.substr(0, lastSlashPos);
 	}
 	status = 404;
@@ -115,6 +99,7 @@ void	Request::showState(void) const {
 	std::cout << std::endl;
 	std::cout << MAGENTA ">>>> BODY <<<<" RESET << std::endl;
 	std::cout << YELLOW << "Body size: " GREEN << _bodySize << RESET << std::endl;
+	std::cout << YELLOW << "Max body size: " GREEN << _maxBodySize << RESET << std::endl;
 	std::cout << BLUE << _body << RESET;
 	std::cout << RED "________________________endOfRequest________________________" RESET
 		<< std::endl << std::endl;
