@@ -6,15 +6,18 @@ server:
 
 	location: /
 		limits_client_body_size: 2000
-		autoindex: on
+		index: static_site/index.html
+		allow_methods: GET
+		root: /Users/ikael/Desktop/webserv
+		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
+
+	location: /static_site
+		limits_client_body_size: 2000
 		index: index.html
 		allow_methods: GET
 		root: /Users/ikael/Desktop/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
-	location: /redirect
-		root: /Users/ikael/Desktop/webserv
-		index: index.html
 
 server:
 	host: 0.0.0.0
@@ -30,6 +33,6 @@ server:
 		root: /Users/ikael/Desktop/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
-	location: /redirect/
+	location: /redirect
 		root: /Users/ikael/Desktop/webserv
 		index: index.html

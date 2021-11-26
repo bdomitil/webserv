@@ -86,7 +86,7 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 
-	if (!_inProc){
+	if (!_inProc) {
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
@@ -97,8 +97,7 @@ void Response :: sendRes(int socket){
 		_response = string();
 		_inProc = true;
 	}
-	else if (_FILE.is_open() || _statusCode != 200)
-	{
+	else if (_FILE.is_open() || _statusCode != 200) {
 		try
 		{
 			res = send(socket, makeBody(res) , res, 0);
@@ -110,7 +109,7 @@ void Response :: sendRes(int socket){
 		{
 			std::cerr << e.what() << '\n';
 		}
-		delete []    _body;
+		delete [] _body;
 	}
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;

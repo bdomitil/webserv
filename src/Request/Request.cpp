@@ -40,7 +40,6 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 		newLinePos = data.find(CR LF);
 	}
 
-
 	newLinePos = data.find(LF);
 	while (newLinePos != std::string::npos
 		and _parseState == BODY_LINE) {
@@ -57,41 +56,41 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 }
 
 std::string	Request::getUrl(std::uint32_t &status) const {
-
-	std::string	pathToTarget;
-	std::string	target;
-	size_t		lastSlashPos;
+	std::map<std::string, Location>::const_iterator	i;
+	std::string										pathToTarget;
+	std::string										target;
+	std::string										tmp;
+	size_t											lastSlashPos;
 
 	lastSlashPos = _uri.find_last_of("/");
-	if (lastSlashPos == std::string::npos) {
+	if (lastSlashPos == std::string::npos)
 		return "bad url";
-		//throw ErrorException(403, "Forbidden");
-	}
 
-	if (lastSlashPos == _uri.length() - 1) {
-		pathToTarget = _uri;
-		target = "";
-	}
-	else {
-		pathToTarget = _uri.substr(0, lastSlashPos + 1);
-		target = _uri.substr(lastSlashPos + 1);
-	}
-
-	std::map<std::string, Location>::const_iterator i = _locationsMap.begin();
-	for ( ; i != _locationsMap.end(); i++) {
-		if (pathToTarget == i->first) {
-			if (i->second.redirect.first) {
-				status = static_cast<std::uint32_t>(i->second.redirect.first);
-				return (i->second.redirect.second);
+	pathToTarget = _uri.substr(0, lastSlashPos + 1);
+	target = _uri.substr(lastSlashPos + 1);
+	tmp = pathToTarget.substr(0, lastSlashPos);
+	while (lastSlashPos != std::string::npos) {
+		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
+			if (tmp == i->first) {
+				if (i->second.redirect.first) {
+					status = static_cast<std::uint32_t>(i->second.redirect.first);
+					return (i->second.redirect.second);
+				}
+				if (!target.length())
+					target = i->second.index;
+				status = 200;
+				pathToTarget = i->second.root + pathToTarget;
+				pathToTarget += ((pathToTarget[pathToTarget.length() - 1] == '/') ? target : "/" + target);
+				return (pathToTarget);
 			}
-			if (!target.length())
-				target = i->second.index;
-			status = 200;
-			return (i->second.root + pathToTarget + target);
 		}
+		lastSlashPos = pathToTarget.find_last_of("/", lastSlashPos - 1);
+		if (lastSlashPos == std::string::npos)
+			break;
+		tmp = pathToTarget.substr(0, lastSlashPos);
 	}
 	status = 404;
-	return "unknown url";
+	return ("unknown url");
 }
 
 void	Request::showState(void) const {
