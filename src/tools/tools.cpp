@@ -53,21 +53,30 @@ string getExtension(string fPath)
 	return (ext);
 }
 
-bool	urlInfo(string fPath,t_fileInfo *fStruct){
+bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 	struct stat buff;
 	int res;
 
 	res = stat(fPath.c_str(), &buff);
-	if (fStruct != nullptr)
+	if (fStruct != nullptr && res != -1)
 	{
 		fStruct->fType = static_cast<fileType>(res);
 		if (fStruct->fType == NONEXIST)
 			return(false);
+		FILE.open(fPath);
 		fStruct->fLength = buff.st_size;
 		fStruct->fExtension = getExtension(fPath);
+		if (FILE.is_open())
+			fStruct->fStatus = 200;
+		else {
+				fStruct->fStatus = 403;
+				FILE.close();
+			}
 	}
-	else if (res < 1)
+	else if (res < 1){
+		fStruct->fStatus = 404;
 		return (false);
+	}
 	return (true);
 }
 
