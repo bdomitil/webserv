@@ -65,7 +65,7 @@ public :
 
 	ErrorException(const char *msg) : errorMsg(msg), status(0) {}
 	ErrorException(int st, const char *msg) : errorMsg(msg), status(st) {}
-	
+
 	virtual const char* what(void) const throw () {
 		return (this->errorMsg);
 	}

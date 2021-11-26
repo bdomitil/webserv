@@ -40,8 +40,7 @@ CMakeLists.txt
 .vscode
 test.cpp
 *.log
-a.out*
-index.html
+a.out
 *.dSYM
 *.html
 *.jpeg
@@ -49,3 +48,4 @@ index.html
 *.ico
 
 redirect
+static_site

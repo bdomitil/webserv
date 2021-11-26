@@ -37,6 +37,7 @@
 #define RED			"\033[31;1m"
 #define GREEN		"\033[32;1m"
 #define MAGENTA		"\033[35;1m"
+#define BLUE		"\033[34;1m"
 
 
 typedef enum	fileType
