@@ -17,11 +17,12 @@ private:
 	std::string					_response;
 	bool						_inProc;
 	long long int				_leftBytes;
+
 public:
-	std::string						getResponse() const ;
-	std::string						makeStatusLine();
-	std::string						makeHeaders();
-	char							*makeBody(int &readSize);
+	std::string					getResponse() const ;
+	std::string					makeStatusLine();
+	std::string					makeHeaders();
+	char						*makeBody(int &readSize);
 	void						setStatusCode(int);
 	void						sendRes(int Socket);
 	bool						isSent(){return (!_leftBytes);}

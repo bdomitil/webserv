@@ -5,7 +5,7 @@
 #ifndef WEBSERV_SERVER_HPP
 #define WEBSERV_SERVER_HPP
 #define RECV_BUFFER_SIZE	2048
-#define SEND_BUFFER_SIZZ	2048
+#define SEND_BUFFER_SIZZ	8046
 
 using namespace std;
 #include "MainIncludes.hpp"
@@ -20,6 +20,12 @@ using namespace std;
 typedef struct sockaddr_in t_sockaddr_in;
 typedef struct timeval t_time;
 class Server {
+
+public:
+	Server(const t_server &ServSetting);
+	Server(const Server &copy);
+	Server& operator=	(const Server &second);
+	~Server();
 
 private:
 
@@ -38,15 +44,14 @@ private:
 	int								createSocket(void);
 
 public:
-	Server(const t_server &ServSetting);
-	t_server const	&getSettings(void) const;
-	Server(const Server &copy); //doesn't copy sockaddr_in struct
-	~Server();
-	Server& operator= (const Server &second); //doesn't copy sockaddr_in struct
-	void Run(void);
-	t_sockaddr_in& getSockAddr(void) {return (_sockaddr);};
-	int& 	getSocket(void) {return (_fdSock);}
-	void	throwException(string msg)const;
+
+	t_server const					&getSettings(void) const;
+	t_sockaddr_in&					getSockAddr(void) 			{return (_sockaddr);};
+	int								getSocket(void)				{return (_fdSock);}
+	std::map<int, std::string>& 	getErrorPages(void)					{return _errorPages;}
+	void							throwException(string msg)const;
+	void							Run(void);
+
 	bool 	_isrunning; // change it later
 
 
