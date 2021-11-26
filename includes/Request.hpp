@@ -27,23 +27,32 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
+//getters
 	std::string	getUrl(std::uint32_t &) const ;
 	std::string	getMethod() const ;
+	char		*getBuffer() const ;
+
 	bool		saveRequestData(ssize_t);
 	void		showState() const ;
-	char		*getBuffer() const ;
 
 private:
 
-	bool		isStringHasWhiteSpaceChar(std::string const &) const ;
-	void		saveStartLine(std::string);
-	void		saveHeaderLine(std::string);
-	void		saveBodyPart(std::string);
+	int		getLimitBodySize() const ;
+
+	bool	isStringHasWhiteSpaceChar(std::string const &) const ;
+	void	saveStartLineHeaders(std::string &);
+	void	saveSimpleBody(std::string &);
+	void	saveStartLine(std::string);
+	void	saveHeaderLine(std::string);
+	void	saveBodyPart(std::string);
+	void	saveChunkedBody(std::string);
 
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;
 	std::uint32_t							_maxBodySize;
+	std::uint32_t							_bodySize;
 	std::uint8_t							_parseState;
+	std::string								_transferEncoding;
 	std::string								_method;
 	std::string								_protocol;
 	std::string								_uri;
