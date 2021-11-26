@@ -5,6 +5,11 @@ using namespace std;
 
 class Client
 {
+public :
+	bool					_toServe;
+	bool					_isClosed;
+	bool					_isRead;
+
 private:
 	t_sockaddr_in			_sockaddr;
 	int 					_fdSock;
@@ -18,17 +23,15 @@ public :
 	~Client();
 	// Client(const Client &copy); //doesn't copy sockaddr_in struct
 	// Client& operator= (const Client &second); //doesn't copy sockaddr_in struct
-	t_sockaddr_in& getSockAddr(void) {return (_sockaddr);};
-	int 	getSocket(void){ return int(_fdSock);};
+	t_sockaddr_in& getSockAddr(void){return (_sockaddr);}
+	bool	toServe(){return _toServe;}
+	bool	isRead(){return _isRead;}
+	bool	isClosed(){return _isClosed;} 
+	int 	getSocket(void){return _fdSock;}
+	int 	getSrvSocket(void){return _srvSocket;}
+	void	response(std::map<int, std::string>		&errorPages);
 	int		createSocket(void);
-	bool					readRequest(); //handle exception whether body is too long
-	bool					_toServe;
-	bool					_isClosed;
-	bool					_isRead;
-	bool	toServe(){return _toServe;} //   tells whether the client's answer is ready
-	bool	isRead(){return _isRead;} // tells whether the client got new info
-	bool	isClosed(){return _isClosed;}  //tells whether the client closed his connection and we can delete it
-	bool	response();
+	bool	readRequest();
 
 
 };

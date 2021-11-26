@@ -23,28 +23,14 @@ struct Location {
 //		index = std::string();
 //		autoindex = std::string();
 //	}
-
-	std::string	getRoot() const {
-		return root;
-	}
-	const std::pair<std::string, std::string>&	getCgi() const {
-		return cgi;
-	}
-	std::string	getIndex() const {
-		return index;
-	}
-	std::string	getAutoIndex() const {
-		return autoindex;
-	}
-	int	getLimit() const {
-		return limit_client_body_size;
-	}
-	std::map<std::string, bool>	getMethods() const {
-		return methods;
-	}
-	const std::pair<int, std::string>&	getRedire() const {
-		return redirect;
-	}
+	
+	std::string									getRoot() { return root; }
+	const std::pair<std::string, std::string>&	getCgi() { return cgi; }
+	std::string									getIndex() { return index; }
+	std::string									getAutoIndex() { return autoindex; }
+	int											getLimit() { return limit_client_body_size; }
+	std::map<std::string, bool>					getMethods() { return methods; }
+	const std::pair<int, std::string>&			getRedire() { return redirect; }
 };
 
 #endif //WEBSERV_LOCATION_HPP

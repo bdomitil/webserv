@@ -2,36 +2,34 @@ server:
 	host: 0.0.0.0
 	port: 8321
 	server_name: ikael
-	error_page: 404=/html/404.html 405=/html/405.html
-
-	location: /
-		limits_client_body_size: 2000
-		index: index.html
-		allow_methods: GET
-		root: /Users/ikael/Desktop/webserv
-		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
-
-	location: /static_site
-		limits_client_body_size: 2000
-		index: index.html
-		allow_methods: GET
-		root: /Users/ikael/Desktop/webserv
-		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
-
-server:
-	host: 0.0.0.0
-	port: 8322
-	server_name: ikael
-	error_page: 404=/html/404.html 405=/html/405.html
+	error_page: 404=/Users/bdomitil/webserv/404page.html 403=/Users/bdomitil/webserv/403page.html
 
 	location: /
 		limits_client_body_size: 2000
 		autoindex: on
 		index: index.html
 		allow_methods: GET
-		root: /Users/ikael/Desktop/webserv
+		root: /Users/bdomitil/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
-	location: /redirect
+	location: /red-music/
+		root: /Users/bdomitil/webserv
+		index: index.html
+
+server:
+	host: 0.0.0.0
+	port: 8322
+	server_name: ikael
+	error_page: 404=/Users/bdomitil/webserv/4042page.html 405=/html/405.html
+
+	location: /
+		limits_client_body_size: 2000
+		autoindex: on
+		index: index.html
+		allow_methods: GET
+		root: /Users/bdomitil/webserv
+		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
+
+	location: /redirect/
 		root: /Users/ikael/Desktop/webserv
 		index: index.html
