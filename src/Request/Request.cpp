@@ -15,6 +15,10 @@ char	*Request::getBuffer(void) const {
 	return _buffer;
 }
 
+std::map<std::string, std::string> &Request::getHeaders() {
+	return _headers;
+}
+
 std::string	Request::getMethod() const {
 	return _method;
 }

@@ -64,8 +64,11 @@ void Client :: response(std::map<int, std::string> &errorPages) {
 	// std::cout << "TRYING TO RESPONSE FOR CLIENT " << this->_ip << std::endl;
 	try {
 		_response->sendRes(_fdSock);
-		if (_response->isSent())
+		if (_response->isSent()){
 			_toServe = false;
+			delete _response;
+			_response = nullptr;
+		}
 	}
 	catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;

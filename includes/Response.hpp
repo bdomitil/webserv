@@ -6,14 +6,14 @@ class Response
 {
 private:
 	std::string							_statusLine;
-	std::map <std::string, std::string>	_headers;
+	std::map <std::string, std::string>	_reqHeaders;
 	std::map<int, std::string>			_errorPages;
 	char*						 		_body; 						// TODO make body class for chunks
 	std::uint64_t						_bodySize;
 	uint32_t							_statusCode;
 	std::ifstream						_FILE;
 	std::string							_url;
-	std::string							_tmpHead;
+	std::string							_headers;
 	std::string							_contentType;
 	std::string							_response;
 	bool								_inProc;

@@ -5,15 +5,16 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 
 	t_fileInfo file;
 
+	_reqHeaders = request.getHeaders();
 	_url = request.getUrl(_statusCode);
-	if (_statusCode == 200) {
+	if (_statusCode < 399) {
 		urlInfo(_url, &file,  _FILE);
-		if (file.fStatus != 200){
+		if (file.fStatus < 200 && file.fStatus > 299){
 			_statusCode = file.fStatus;
 			_url = getErrorPage();
 			_contentType = "text/html";
 		}
-		else{
+		else if (_statusCode != 301) {
 			_bodySize = file.fLength;
 			_contentType = file.fExtension;
 		}
@@ -57,18 +58,19 @@ string Response :: makeStatusLine(){
 
 std::string Response :: makeHeaders(){
 	const std::time_t current_time = std::time(0);
-	_tmpHead += "Server: ~Server()" + string(CRLF);
-	_tmpHead += "Date: " + string(ctime(&current_time));
+	_headers += "Server: SuperServer 1.1" + string(CRLF);
+	_headers += "Date: " + string(ctime(&current_time));
 	if (_statusCode == 301)
-		_tmpHead += "Location: " + _url + string(CRLF);
-	_tmpHead += "Content-Type: " + _contentType + string(CRLF);
-	_tmpHead += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
-	_tmpHead += "Accept-Ranges: bytes" + string(CRLF);
-	_tmpHead += "Connection: close" + string(CRLF);
-	_tmpHead += string(CRLF);
+		_headers += "Location: " + _url + string(CRLF);
+	_headers += "Content-Type: " + _contentType + string(CRLF);
+	_headers += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
+	_headers += "Accept-Ranges: bytes" + string(CRLF);
+	// _headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
+	_headers += "Connection: close"  + string(CRLF);
+	_headers += string(CRLF);
 	if (DEBUG)
-		std::cout << _tmpHead << std::endl;
-	return(_tmpHead);
+		std::cout << _headers << std::endl;
+	return(_headers);
 }
 
 char *Response :: makeBody(int &readSize){
@@ -97,7 +99,8 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 
-	if (!_inProc){		
+	if (!_inProc){
+		
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;

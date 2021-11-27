@@ -4,6 +4,10 @@ server:
 	server_name: ikael
 	error_page: 404=/Users/bdomitil/webserv/404page.html 403=/Users/bdomitil/webserv/403page.html
 
+	location: /redir
+		root: /Users/bdomitil/webserv
+		return: 301  https://facebook.com
+
 	location: /
 		limits_client_body_size: 2000
 		index: index.html
@@ -18,8 +22,6 @@ server:
 		root: /Users/bdomitil/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
-	location: /facebook
-		return: 301 https://facebook.com
 
 server:
 	host: 0.0.0.0

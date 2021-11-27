@@ -20,6 +20,13 @@ string getExtension(string fPath)
 	MIME.insert(pair<string, string>("weba", "audio/webm"));
 	MIME.insert(pair<string, string>("aac", "audio/aac"));
 
+	MIME.insert(pair<string, string>("avi", "video/x-msvideo"));
+	MIME.insert(pair<string, string>("mpeg", "video/mpeg"));
+	MIME.insert(pair<string, string>("ogv", "video/ogg"));
+	MIME.insert(pair<string, string>("ts", "video/mp2t"));
+	MIME.insert(pair<string, string>("webm", "video/webm"));
+	MIME.insert(pair<string, string>("mp4", "video/mp4"));
+
 	MIME.insert(pair<string, string>("gif", "image/gif"));
 	MIME.insert(pair<string, string>("jpeg", "image/jpeg"));
 	MIME.insert(pair<string, string>("png", "image/png"));
@@ -27,16 +34,20 @@ string getExtension(string fPath)
 	MIME.insert(pair<string, string>("tiff", "image/tiff"));
 	MIME.insert(pair<string, string>("webp", "image/webp"));
 	MIME.insert(pair<string, string>("ico", "image/x-icon"));
+	MIME.insert(pair<string, string>("bmp", "image/bmp"));
 
 	MIME.insert(pair<string, string>("js", "application/javascript"));
 	MIME.insert(pair<string, string>("json", "application/json"));
 	MIME.insert(pair<string, string>("pdf", "application/pdf"));
 	MIME.insert(pair<string, string>("ps", "application/postscript"));
+	MIME.insert(pair<string, string>("doc", "application/msword"));
 
 	MIME.insert(pair<string, string>("css", "text/css"));
 	MIME.insert(pair<string, string>("html", "text/html"));
+	MIME.insert(pair<string, string>("htm", "text/html"));
 	MIME.insert(pair<string, string>("csv", "text/csv"));
 	MIME.insert(pair<string, string>("php", "text/php"));
+
 
 	if (fPath.find_last_of('.') != std:: string :: npos)
 	{

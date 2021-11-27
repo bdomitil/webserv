@@ -29,6 +29,7 @@ public:
 
 //getters
 	std::string	getUrl(std::uint32_t &) const ;
+	std::map<std::string, std::string>& getHeaders();
 	std::string	getMethod() const ;
 	char		*getBuffer() const ;
 
