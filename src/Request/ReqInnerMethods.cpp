@@ -137,27 +137,3 @@ int	Request::getLimitBodySize(void) const {
 	throw ErrorException(404, "Not Found");
 	return 0;
 }
-
-// int	Request::getLimitBodySize(void) const {
-
-// 	std::map<std::string, Location>::const_iterator	i;
-// 	std::string										tmp;
-// 	std::size_t										lastSlashPos;
-
-// 	lastSlashPos = _uri.find_last_of("/");
-// 	if (lastSlashPos == std::string::npos)
-// 		throw ErrorException(400, "Bad request");
-
-// 	tmp = _uri.substr(0, lastSlashPos);
-// 	while (lastSlashPos != std::string::npos) {
-// 		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
-// 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
-// 			if (tmp == i->first)
-// 				return i->second.getLimit();
-// 		}
-// 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
-// 		tmp = tmp.substr(0, lastSlashPos);
-// 	}
-// 	throw ErrorException(404, "Not Found");
-// 	return 0;
-// }

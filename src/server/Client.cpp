@@ -53,18 +53,22 @@ bool Client :: readRequest(void) {
 	return (_toServe);
 }
 
-void Client :: response(std::map<int, std::string> &errorPages) {
+bool Client :: response() {
 	if (!_response)
-		_response = new Response(_request, errorPages);
-	// std::cout << "TRYING TO RESPONSE FOR CLIENT " << this->_ip << std::endl;
+		_response = new Response(_request);
+	std::cerr << "TRYING TO RESPONSE FOR CLIENT " << this->_ip << std::endl;
 	try {
 		_response->sendRes(_fdSock);
-		if (_response->isSent())
+		if (_response->isSent()) {
 			_toServe = false;
+			return (true);
+		}
 	}
 	catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		_toServe = false;
 		_isClosed = true;
 	}
+
+	return (false);
 }

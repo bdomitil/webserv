@@ -1,25 +1,32 @@
 
 #include "../../includes/MainIncludes.hpp"
 
-Response :: Response(Request &request, std::map<int, std::string> errorPages) : _response(""), _body(nullptr), _errorPages(errorPages) {
+Response :: Response(Request &request) : _response(""), _body(nullptr) {
 
 	t_fileInfo file;
 
 	_url = request.getUrl(_statusCode);
-	if (_statusCode == 200) {
-		urlInfo(_url, &file,  _FILE);
-		if (file.fStatus != 200){
-			_statusCode = file.fStatus;
-			_url = getErrorPage();
-			_contentType = "text/html";
-		}
-		else{
-			_bodySize = file.fLength;
-			_contentType = file.fExtension;
-		}
+	if (_statusCode == 200 && urlInfo(_url, &file))
+	{
+		_bodySize = file.fLength;
+		_contentType = file.fExtension;
+		_FILE.open(_url);
 	}
-	else
-		_url = getErrorPage();
+	if (!_FILE.is_open() && errno == EACCES)
+	{
+		_statusCode = 403;
+		_bodySize = 150;
+	}
+	else if (!_FILE.is_open() && errno == ENOENT)
+	{
+		_statusCode = 404;
+		_bodySize = 150;
+	}
+	else if (!_FILE.is_open())
+	{
+		_statusCode = 404;
+		_bodySize = 150;
+	}
 	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 0;
 	_inProc = false;
@@ -27,24 +34,6 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 
 std::string	Response::getResponse(void) const {
 	return _response;
-}
-
-string Response :: getErrorPage() {
-
-	for (map <int, string> :: iterator i = _errorPages.begin(); i != _errorPages.end(); i++) {
-		if (i->first == _statusCode){
-			t_fileInfo file;
-			urlInfo(i->second, &file, _FILE);
-			if (file.fStatus == 200){
-				_bodySize = file.fLength;
-				_contentType = file.fExtension;
-				return i->second;
-			}
-		}
-	}
-	char *def_page = (gen_def_page(_statusCode, _bodySize));
-	delete def_page;
-	return ("");
 }
 
 string Response :: makeStatusLine(){
@@ -74,7 +63,8 @@ char *Response :: makeBody(int &readSize){
 
 	if (_inProc)
 	{
-		if (_url.size()) {
+		if (_statusCode == 200)
+		{
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
@@ -82,9 +72,10 @@ char *Response :: makeBody(int &readSize){
 			if (readSize == 0)
 				_FILE.close();
 		}
-		else {
+		else
+		{
 			_body = gen_def_page(_statusCode, _bodySize);
-			readSize = _bodySize;
+			readSize = 150;
 		}
 	}
 	return (_body);
@@ -95,19 +86,18 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 
-	if (!_inProc){		
+	if (!_inProc) {
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
 		res = send(socket, _response.c_str(), _response.length(), 0);
-		// std::cout << "\n\n" << _response << std::endl;
+		std::cout << "\n\n" << _response << std::endl;
 		if (res == -1)
 			throw ErrorException("ERROR SENDING DATA");
 		_response = string();
 		_inProc = true;
 	}
-	else if (_FILE.is_open() || _statusCode != 200)
-	{
+	else if (_FILE.is_open() || _statusCode != 200) {
 		try
 		{
 			res = send(socket, makeBody(res) , res, 0);
@@ -119,7 +109,7 @@ void Response :: sendRes(int socket){
 		{
 			std::cerr << e.what() << '\n';
 		}
-		delete []    _body;
+		delete [] _body;
 	}
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
