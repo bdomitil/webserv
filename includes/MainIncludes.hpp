@@ -52,7 +52,6 @@ typedef struct s_fileInfo
 	long long int	fLength;
 	t_fileType		fType;
 	string			fExtension;
-	int				fStatus;
 }		t_fileInfo;
 
 /*
@@ -71,7 +70,7 @@ void			printLocations(std::map<std::string, Location> locations);
 void			printServ(t_server serv);
 void			Start(vector<Server*> Servers);
 std::string			ft_itoa(int x);
-bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
+bool			urlInfo(string fPath,t_fileInfo *fStruct);
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
 
 #endif //WEBSERV_MAININCLUDES_HPP

@@ -40,8 +40,7 @@ CMakeLists.txt
 .vscode
 test.cpp
 *.log
-a.out*
-index.html
+a.out
 *.dSYM
 *.html
 *.jpeg
@@ -50,6 +49,3 @@ index.html
 
 redirect
 static_site
-webserv
-configs/*
-space-science
