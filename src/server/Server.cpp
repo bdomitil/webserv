@@ -116,7 +116,7 @@ void Start(vector<Server*> Serverss)
 			vector<Server*>::iterator i = Serverss.begin();
 			while (*i != serv)
 				i++;
-			Serverss.erase(i);
+			Serverss.erase(i); 
 		}
 		catch(const std::exception& e)
 		{
@@ -183,7 +183,7 @@ void Start(vector<Server*> Serverss)
 					try
 				 	{
 						if ((*cl).second->readRequest())
-							(*cl).second->response();  //if we got all his request then we start to prepare his response
+							(*cl).second->response(Servers[cl->second->getSrvSocket()]->getErrorPages());  //if we got all his request then we start to prepare his response
 						else if ((*cl).second->isClosed()){ //if client closes his connection we delete him from map
 							Clients.erase(cl);
 							delete (*cl).second;
@@ -219,7 +219,7 @@ void Start(vector<Server*> Serverss)
 			try
 			{
 				if (FD_ISSET(i->first, &writefd) &&  i->second->toServe())
-					i->second->response();
+					i->second->response(Servers[i->second->getSrvSocket()]->getErrorPages());
 				else if (i->second->isClosed()){ //if client closes his connection we delete him from map
 						Clients.erase(i);
 					delete i->second;

@@ -39,7 +39,8 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
-		showState();
+		if (DEBUG)
+			showState();
 	}
 	return _isReqDone;
 }
@@ -71,7 +72,7 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 			}
 		}
 		lastSlashPos = pathToTarget.find_last_of("/", lastSlashPos - 1);
-		tmp = pathToTarget.substr(0, lastSlashPos);
+		tmp = pathToTarget.substr(0, lastSlashPos + 1);
 	}
 	status = 404;
 	return "unknown url";
