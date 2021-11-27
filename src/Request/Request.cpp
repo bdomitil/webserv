@@ -67,6 +67,7 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 				status = 200;
 				pathToTarget = i->second.root + pathToTarget;
 				pathToTarget += ((pathToTarget[pathToTarget.length() - 1] == '/') ? target : "/" + target);
+				std::cout << "PATH " << pathToTarget << std::endl;
 				return (pathToTarget);
 			}
 		}
@@ -74,7 +75,7 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 		tmp = pathToTarget.substr(0, lastSlashPos);
 	}
 	status = 404;
-	return ("unknown url");
+	return "unknown url";
 }
 
 void	Request::showState(void) const {
