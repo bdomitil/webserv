@@ -27,11 +27,13 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
+//getters
 	std::string	getUrl(std::uint32_t &) const ;
 	std::string	getMethod() const ;
+	char		*getBuffer() const ;
+
 	bool		saveRequestData(ssize_t);
 	void		showState() const ;
-	char		*getBuffer() const ;
 
 private:
 
@@ -48,7 +50,9 @@ private:
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;
 	std::uint32_t							_maxBodySize;
+	std::uint32_t							_bodySize;
 	std::uint8_t							_parseState;
+	std::string								_transferEncoding;
 	std::string								_method;
 	std::string								_protocol;
 	std::string								_uri;

@@ -11,12 +11,15 @@ server:
 		root: /Users/bdomitil/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
-	location: /red-music/
+	location: /space-science
 		root: /Users/bdomitil/webserv
 		index: index.html
 		allow_methods: GET
-		root: /Users/ikael/Desktop/webserv
+		root: /Users/bdomitil/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
+
+	location: /facebook
+		return: 301 https://facebook.com
 
 server:
 	host: 0.0.0.0

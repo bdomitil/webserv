@@ -1,19 +1,20 @@
 #include "../../includes/MainIncludes.hpp"
 
 bool	Request::isStringHasWhiteSpaceChar(std::string const &str) const {
+
 	for(std::size_t i = 0; i < str.length(); i++)
-		if (std::isspace(str[i]) == 1)
+		if (std::isspace(str[i]) != 0)
 			return true;
 	return false;
 }
 
 void	Request::saveStartLine(std::string startLine) {
+
 	std::size_t	lfPos;
 
 	if (!startLine.length())
 		throw ErrorException(400, "Bad request");
 
-//	save method
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
@@ -22,23 +23,22 @@ void	Request::saveStartLine(std::string startLine) {
 		throw ErrorException(405, "Method Not Allowed");
 	startLine.erase(0, lfPos + 1);
 
-//	save target
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, lfPos + 1);
 
-//	save HTTP-protocol
 	_protocol = startLine;
 	if (_protocol != HTTP_PROTOCOL)
 		throw ErrorException(505, "HTTP Version Not Supported");
-
 	_parseState = HEADER_LINE;
+	_maxBodySize = getLimitBodySize();
 	return;
 }
 
 void	Request::saveHeaderLine(std::string headerLine) {
+
 	std::size_t	colonPos;
 	std::string	headerName;
 	std::string	headerValue;
@@ -91,7 +91,7 @@ void	Request::saveBodyPart(std::string bodyLine) {
 
 	if (_maxBodySize > 0 and bodyLine.length() + _body.length() > _maxBodySize)
 		throw ErrorException(413, "Request Entity Too Large");
-	if (!bodyLine.length())
+	if (!bodyLine.length() or bodyLine == CR)
 		_parseState = END_STATE;
 	else
 		_body += bodyLine + LF;
@@ -137,3 +137,27 @@ int	Request::getLimitBodySize(void) const {
 	throw ErrorException(404, "Not Found");
 	return 0;
 }
+
+// int	Request::getLimitBodySize(void) const {
+
+// 	std::map<std::string, Location>::const_iterator	i;
+// 	std::string										tmp;
+// 	std::size_t										lastSlashPos;
+
+// 	lastSlashPos = _uri.find_last_of("/");
+// 	if (lastSlashPos == std::string::npos)
+// 		throw ErrorException(400, "Bad request");
+
+// 	tmp = _uri.substr(0, lastSlashPos);
+// 	while (lastSlashPos != std::string::npos) {
+// 		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
+// 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
+// 			if (tmp == i->first)
+// 				return i->second.getLimit();
+// 		}
+// 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
+// 		tmp = tmp.substr(0, lastSlashPos);
+// 	}
+// 	throw ErrorException(404, "Not Found");
+// 	return 0;
+// }
