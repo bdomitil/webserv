@@ -6,7 +6,7 @@ server:
 
 	location: /
 		limits_client_body_size: 2000
-		index: static_site/index.html
+		index: index.html
 		allow_methods: GET
 		root: /Users/ikael/Desktop/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
@@ -17,7 +17,6 @@ server:
 		allow_methods: GET
 		root: /Users/ikael/Desktop/webserv
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
-
 
 server:
 	host: 0.0.0.0
