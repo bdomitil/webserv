@@ -40,7 +40,8 @@ CMakeLists.txt
 .vscode
 test.cpp
 *.log
-a.out
+a.out*
+index.html
 *.dSYM
 *.html
 *.jpeg
@@ -49,3 +50,5 @@ a.out
 
 redirect
 static_site
+webserv
+configs/*

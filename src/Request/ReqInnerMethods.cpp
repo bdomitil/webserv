@@ -1,20 +1,19 @@
 #include "../../includes/MainIncludes.hpp"
 
 bool	Request::isStringHasWhiteSpaceChar(std::string const &str) const {
-
 	for(std::size_t i = 0; i < str.length(); i++)
-		if (std::isspace(str[i]) != 0)
+		if (std::isspace(str[i]) == 1)
 			return true;
 	return false;
 }
 
 void	Request::saveStartLine(std::string startLine) {
-
 	std::size_t	lfPos;
 
 	if (!startLine.length())
 		throw ErrorException(400, "Bad request");
 
+//	save method
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
@@ -23,22 +22,23 @@ void	Request::saveStartLine(std::string startLine) {
 		throw ErrorException(405, "Method Not Allowed");
 	startLine.erase(0, lfPos + 1);
 
+//	save target
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, lfPos + 1);
 
+//	save HTTP-protocol
 	_protocol = startLine;
 	if (_protocol != HTTP_PROTOCOL)
 		throw ErrorException(505, "HTTP Version Not Supported");
+
 	_parseState = HEADER_LINE;
-	_maxBodySize = getLimitBodySize();
 	return;
 }
 
 void	Request::saveHeaderLine(std::string headerLine) {
-
 	std::size_t	colonPos;
 	std::string	headerName;
 	std::string	headerValue;
@@ -91,7 +91,7 @@ void	Request::saveBodyPart(std::string bodyLine) {
 
 	if (_maxBodySize > 0 and bodyLine.length() + _body.length() > _maxBodySize)
 		throw ErrorException(413, "Request Entity Too Large");
-	if (!bodyLine.length() or bodyLine == CR)
+	if (!bodyLine.length())
 		_parseState = END_STATE;
 	else
 		_body += bodyLine + LF;
