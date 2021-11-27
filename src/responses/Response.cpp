@@ -66,12 +66,14 @@ std::string Response :: makeHeaders(){
 	_tmpHead += "Accept-Ranges: bytes" + string(CRLF);
 	_tmpHead += "Connection: close" + string(CRLF);
 	_tmpHead += string(CRLF);
+	if (DEBUG)
+		std::cout << _tmpHead << std::endl;
 	return(_tmpHead);
 }
 
 char *Response :: makeBody(int &readSize){
 
-
+	char c;
 	if (_inProc)
 	{
 		if (_url.size()) {
@@ -79,7 +81,7 @@ char *Response :: makeBody(int &readSize){
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
 			readSize = _FILE.gcount();
-			if (readSize == 0)
+			if (readSize == 0) 
 				_FILE.close();
 		}
 		else {
@@ -100,7 +102,6 @@ void Response :: sendRes(int socket){
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
 		res = send(socket, _response.c_str(), _response.length(), 0);
-		// std::cout << "\n\n" << _response << std::endl;
 		if (res == -1)
 			throw ErrorException("ERROR SENDING DATA");
 		_response = string();
@@ -108,9 +109,17 @@ void Response :: sendRes(int socket){
 	}
 	else if (_FILE.is_open() || _statusCode != 200)
 	{
+		int to_send, pos, tries;
+		res = 0, pos = 0, tries = 0;
+		char *body = makeBody(to_send);
 		try
 		{
-			res = send(socket, makeBody(res) , res, 0);
+			while (pos != to_send){
+				res = send(socket, &(body[pos]) , to_send, 0);
+				pos += res;
+				if (tries++ == 5)
+					throw ErrorException("TOO MANY ATTEMPTS TO SEND DATA");
+			}
 			if (res == -1)
 				throw ErrorException("ERROR SENDING DATA");
 			_leftBytes -= res;

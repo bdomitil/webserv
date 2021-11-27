@@ -39,6 +39,8 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
+#define DEBUG			0
+
 
 typedef enum	fileType
 {

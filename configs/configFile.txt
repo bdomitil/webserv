@@ -8,7 +8,7 @@ server:
 		limits_client_body_size: 2000
 		index: index.html
 		allow_methods: GET
-		root: /Users/bdomitil/webserv
+		root: /Users/bdomitil/webserv/www
 		path_cgi: .bla /Users/ikael/Desktop/webserv/CGI/cgi_tester
 
 	location: /space-science
