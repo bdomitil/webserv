@@ -27,6 +27,7 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
+//getters
 	std::string	getUrl(std::uint32_t &) const ;
 	std::string	getMethod() const ;
 	char		*getBuffer() const ;

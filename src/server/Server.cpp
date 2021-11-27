@@ -88,11 +88,12 @@ void Server :: Run(void) {
 
 
 
-void Start(vector<Server*> Servers)
+void Start(vector<Server*> Serverss)
 {
 	fd_set readfd, writefd;
 	vector<int> readFd, writeFd;
 	map <int,Client*>Clients;
+	map <int,Server*>Servers;
 	Client *newCl;
 	int max_fd = 0;
 
@@ -102,19 +103,20 @@ void Start(vector<Server*> Servers)
 	//#########################################//
 	//#########################################//
 
-	for (size_t i = 0; i < Servers.size(); i++)
+	for (size_t i = 0; i < Serverss.size(); i++)
 	{
 		try
 		{
-			Servers[i]->Run();
-			Servers[i]->_isrunning  = true;
+			Serverss[i]->Run();
+			Serverss[i]->_isrunning  = true;
+			Servers.insert(pair<int, Server*> (Serverss[i]->getSocket(), Serverss[i]));
 		}
 		catch (Server *serv)
 		{
-			vector<Server*>::iterator i = Servers.begin();
+			vector<Server*>::iterator i = Serverss.begin();
 			while (*i != serv)
 				i++;
-			Servers.erase(i);
+			Serverss.erase(i);
 		}
 		catch(const std::exception& e)
 		{
@@ -141,21 +143,21 @@ void Start(vector<Server*> Servers)
 		//#########################################//
 		//#########################################//
 
-		for (size_t i = 0; i < Servers.size(); i++)  //Add server fd to set for listeing connections
+		for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++)  //Add server fd to set for listeing connections
 		{
-			readFd.insert(readFd.end(), Servers[i]->getSocket());
-			FD_SET(Servers[i]->getSocket(), &readfd);
-			if (max_fd < Servers[i]->getSocket())
-				max_fd = Servers[i]->getSocket();
+			readFd.insert(readFd.end(), i->first );
+			FD_SET(i->first, &readfd);
+			if (max_fd < i->first)
+				max_fd = i->first;
 		}
 		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++) // Add client's fd into set for reading its request
 		{
-			readFd.insert(readFd.begin(), (*i).first);
-			FD_SET((*i).first, &readfd);
-			if ((*i).second->toServe())
-				FD_SET((*i).first, &writefd);
-			if (max_fd < (*i).first)
-				max_fd = (*i).first;
+			readFd.insert(readFd.begin(), i->first);
+			FD_SET(i->first, &readfd);
+			if (i->second->toServe())
+				FD_SET(i->first, &writefd);
+			if (max_fd < i->first)
+				max_fd = i->first;
 		}
 
 		select_res = select(max_fd + 1, &readfd, &writefd, NULL, &timeout);
@@ -194,11 +196,11 @@ void Start(vector<Server*> Servers)
 				 	}
 				 }
 				 else {   //else if triggered fd is not clients we accept new connection
-					for (size_t i = 0; i < Servers.size(); i++) {
-						if (*start == Servers[i]->getSocket())
+					for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++) {
+						if (*start == i->first)
 						{
-							std::map <string, Location> const &loc = Servers[i]->getSettings().locations;
-							Client *cl =  new Client(Servers[i]->getSocket(), loc);
+							std::map <string, Location> const &loc = i->second->getSettings().locations;
+							Client *cl =  new Client(i->second->getSocket(), loc);
 							Clients.insert(std::pair<int, Client* >(cl->getSocket(), cl));
 							select_res--;
 						}
@@ -216,11 +218,11 @@ void Start(vector<Server*> Servers)
 		{
 			try
 			{
-				if (FD_ISSET((*i).first, &writefd) &&  (*i).second->toServe())
-					(*i).second->response();
-				else if ((*i).second->isClosed()){ //if client closes his connection we delete him from map
+				if (FD_ISSET(i->first, &writefd) &&  i->second->toServe())
+					i->second->response();
+				else if (i->second->isClosed()){ //if client closes his connection we delete him from map
 						Clients.erase(i);
-					delete (*i).second;
+					delete i->second;
 					i = Clients.begin();
 				}
 
