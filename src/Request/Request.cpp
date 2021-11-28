@@ -50,33 +50,31 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 }
 
 std::string	Request::getUrl(std::uint32_t &status) const {
-	std::map<std::string, Location>::const_iterator	i;
-	std::string										pathToTarget;
-	std::string										target;
-	std::string										tmp;
-	size_t											lastSlashPos;
+
+	std::string	pathToTarget;
+	std::string	target;
+	size_t		lastSlashPos;
 
 	lastSlashPos = _uri.find_last_of("/");
 	target = _uri.substr(lastSlashPos + 1);
-	pathToTarget = _uri.substr(0, lastSlashPos + 1);
-	tmp = pathToTarget.substr(0, lastSlashPos + 1);
-	while (lastSlashPos != std::string::npos) {
-		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
-			if (tmp == i->first) {
-				if (i->second.redirect.first) {
-					status = static_cast<std::uint32_t>(i->second.redirect.first);
-					return (i->second.redirect.second);
+	pathToTarget = _uri.substr(0, lastSlashPos);
+	for (std::size_t i = 0; i < std::count(_uri.begin(), _uri.end(), '/'); i++) {
+		std::map<std::string, Location>::const_iterator	j = _locationsMap.begin();
+		for (; j != _locationsMap.end(); j++) {
+			if (pathToTarget.substr(0, lastSlashPos) == j->first) {
+				if (j->second.redirect.first) {
+					status = static_cast<std::uint32_t>(j->second.redirect.first);
+					return (j->second.redirect.second);
 				}
 				if (!target.length())
-					target = i->second.index;
+					target = j->second.index;
 				status = 200;
-				pathToTarget = i->second.root + pathToTarget;
+				pathToTarget = j->second.root + pathToTarget;
 				pathToTarget += ((pathToTarget[pathToTarget.length() - 1] == '/') ? target : "/" + target);
 				return (pathToTarget);
 			}
 		}
-		lastSlashPos = pathToTarget.find_last_of("/", lastSlashPos - 1);
-		tmp = pathToTarget.substr(0, lastSlashPos + 1);
+		lastSlashPos = _uri.find_last_of("/", lastSlashPos - 1);
 	}
 	status = 404;
 	return "unknown url";

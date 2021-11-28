@@ -116,20 +116,21 @@ void	Request::saveChunkedBody(std::string bodyLine) {
 
 int	Request::getLimitBodySize(void) const {
 
-	std::map<std::string, Location>::const_iterator	i;
-	std::string										tmp;
-	std::size_t										lastSlashPos;
+	std::string	tmp;
+	std::size_t	lastSlashPos;
 
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
 
 	tmp = _uri.substr(0, lastSlashPos);
-	while (lastSlashPos != std::string::npos) {
-		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
+	size_t	len = std::count(_uri.begin(), _uri.end(), '/');
+	for (std::size_t i = 0; i < std::count(_uri.begin(), _uri.end(), '/'); i++) {
+		std::map<std::string, Location>::const_iterator j = _locationsMap.begin();
+		for (; j != _locationsMap.end(); j++) {
 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
-			if (tmp == i->first)
-				return i->second.getLimit();
+			if (tmp == j->first)
+				return j->second.getLimit();
 		}
 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
 		tmp = tmp.substr(0, lastSlashPos);
@@ -137,27 +138,3 @@ int	Request::getLimitBodySize(void) const {
 	throw ErrorException(404, "Not Found");
 	return 0;
 }
-
-// int	Request::getLimitBodySize(void) const {
-
-// 	std::map<std::string, Location>::const_iterator	i;
-// 	std::string										tmp;
-// 	std::size_t										lastSlashPos;
-
-// 	lastSlashPos = _uri.find_last_of("/");
-// 	if (lastSlashPos == std::string::npos)
-// 		throw ErrorException(400, "Bad request");
-
-// 	tmp = _uri.substr(0, lastSlashPos);
-// 	while (lastSlashPos != std::string::npos) {
-// 		for (i = _locationsMap.begin(); i != _locationsMap.end(); i++) {
-// 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
-// 			if (tmp == i->first)
-// 				return i->second.getLimit();
-// 		}
-// 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
-// 		tmp = tmp.substr(0, lastSlashPos);
-// 	}
-// 	throw ErrorException(404, "Not Found");
-// 	return 0;
-// }
