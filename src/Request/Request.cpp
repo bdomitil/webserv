@@ -53,6 +53,7 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 
 	std::string	pathToTarget;
 	std::string	target;
+	std::string	tmp;
 	size_t		lastSlashPos;
 
 	lastSlashPos = _uri.find_last_of("/");
@@ -61,7 +62,10 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 	for (std::size_t i = 0; i < std::count(_uri.begin(), _uri.end(), '/'); i++) {
 		std::map<std::string, Location>::const_iterator	j = _locationsMap.begin();
 		for (; j != _locationsMap.end(); j++) {
-			if (pathToTarget.substr(0, lastSlashPos) == j->first) {
+			tmp = (j->first != "/" and j->first[j->first.length() - 1] == '/') ?
+				j->first.substr(0, j->first.find_last_of("/")) : j->first;
+			if (((!pathToTarget.substr(0, lastSlashPos).length()) ?
+				"/" : pathToTarget.substr(0, lastSlashPos)) == tmp) {
 				if (j->second.redirect.first) {
 					status = static_cast<std::uint32_t>(j->second.redirect.first);
 					return (j->second.redirect.second);
