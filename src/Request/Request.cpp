@@ -74,7 +74,8 @@ std::string	Request::getUrl(std::uint32_t &status) const {
 					target = j->second.index;
 				status = 200;
 				pathToTarget = j->second.root + pathToTarget;
-				pathToTarget += ((pathToTarget[pathToTarget.length() - 1] == '/') ? target : "/" + target);
+				pathToTarget += ((pathToTarget[pathToTarget.length() - 1] == '/') ?
+					target : "/" + target);
 				return (pathToTarget);
 			}
 		}
