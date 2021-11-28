@@ -117,6 +117,7 @@ void	Request::saveChunkedBody(std::string bodyLine) {
 int	Request::getLimitBodySize(void) const {
 
 	std::string	tmp;
+	std::string	tmp1;
 	std::size_t	lastSlashPos;
 
 	lastSlashPos = _uri.find_last_of("/");
@@ -129,7 +130,9 @@ int	Request::getLimitBodySize(void) const {
 		std::map<std::string, Location>::const_iterator j = _locationsMap.begin();
 		for (; j != _locationsMap.end(); j++) {
 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
-			if (tmp == j->first)
+			(j->first != "/" and j->first[j->first.length() - 1] == '/') ?
+				tmp1 = j->first.substr(0, j->first.find_last_of("/")) : tmp1 = j->first;
+			if (tmp == tmp1)
 				return j->second.getLimit();
 		}
 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
