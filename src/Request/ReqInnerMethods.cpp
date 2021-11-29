@@ -141,3 +141,45 @@ int	Request::getLimitBodySize(void) const {
 	throw ErrorException(404, "Not Found");
 	return 0;
 }
+
+void	Request::parseUri(void) {
+
+	std::size_t	pos;
+
+	pos = _uri.find("?");
+	if (pos != std::string::npos) {
+		_query = _uri.substr(pos + 1);
+		_uri.erase(pos);
+	}
+
+	parsePercent(_uri);
+	/*
+		probably add some parsing for _query
+	*/
+	return;
+}
+
+void	Request::parsePercent(std::string &strRef) {
+
+	std::stringstream	ss;
+	std::string			tmp;
+	int					c;
+
+	for (std::size_t i = 0; i < strRef.length(); i++) {
+		if (strRef[i] == '%') {
+			try {
+				ss << std::hex << strRef.substr(i + 1, 2);
+				ss >> c;
+				tmp = strRef.substr(i + 3);
+				strRef.erase(i);
+				strRef.push_back(static_cast<char>(c));
+				strRef.append(tmp);
+				ss.clear();
+			}
+			catch(std::exception &e) {
+				throw ErrorException(400, "Bad Request");
+			}
+		}
+	}
+	return;
+}

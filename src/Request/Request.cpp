@@ -15,7 +15,7 @@ char	*Request::getBuffer(void) const {
 	return _buffer;
 }
 
-std::map<std::string, std::string> &Request::getHeaders() {
+std::map<std::string, std::string>	&Request::getHeaders() {
 	return _headers;
 }
 
@@ -43,8 +43,8 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
-		if (DEBUG)
-			showState();
+		parseUri();
+		showState();
 	}
 	return _isReqDone;
 }

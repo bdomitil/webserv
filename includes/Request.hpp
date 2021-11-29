@@ -47,6 +47,8 @@ private:
 	void	saveHeaderLine(std::string);
 	void	saveBodyPart(std::string);
 	void	saveChunkedBody(std::string);
+	void	parseUri();
+	void	parsePercent(std::string &);
 
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;
@@ -57,6 +59,7 @@ private:
 	std::string								_method;
 	std::string								_protocol;
 	std::string								_uri;
+	std::string								_query;
 	std::string								_body;
 	std::string								_tmpBuffer;
 	bool									_isReqDone;
