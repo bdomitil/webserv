@@ -51,7 +51,6 @@ index.html
 redirect
 static_site
 webserv
-configs/*
+configs
 space-science
 www
-configs
