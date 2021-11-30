@@ -39,7 +39,7 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
-#define DEBUG			0
+#define DEBUG			1
 
 static std::map <int, std::string> g_errors;
 
