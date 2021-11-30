@@ -9,7 +9,7 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 	_url = request.getUrl(_statusCode);
 	if (_statusCode < 399) {
 		urlInfo(_url, &file,  _FILE);
-		if (file.fStatus < 200 && file.fStatus > 299){
+		if (file.fStatus < 200 || file.fStatus > 299){
 			_statusCode = file.fStatus;
 			_url = getErrorPage();
 			_contentType = "text/html";
@@ -56,7 +56,7 @@ string Response :: makeStatusLine(){
 	return (_statusLine);
 }
 
-std::string Response :: makeHeaders(){
+std::string Response :: makeHeaders() {
 	const std::time_t current_time = std::time(0);
 	_headers += "Server: SuperServer 1.1" + string(CRLF);
 	_headers += "Date: " + string(ctime(&current_time));
@@ -73,17 +73,16 @@ std::string Response :: makeHeaders(){
 	return(_headers);
 }
 
-char *Response :: makeBody(int &readSize){
+char *Response :: makeBody(int &readSize) {
 
 	char c;
-	if (_inProc)
-	{
+	if (_inProc) {
 		if (_url.size()) {
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
 			readSize = _FILE.gcount();
-			if (readSize == 0) 
+			if (readSize == 0)
 				_FILE.close();
 		}
 		else {
@@ -99,8 +98,7 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 
-	if (!_inProc){
-		
+	if (!_inProc) {
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
@@ -110,35 +108,33 @@ void Response :: sendRes(int socket){
 		_response = string();
 		_inProc = true;
 	}
-	else if (_FILE.is_open() || _statusCode != 200)
-	{
+	else if (_FILE.is_open() || _statusCode != 200) {
 		int to_send, pos, tries;
 		res = 0, pos = 0, tries = 0;
-		char *body = makeBody(to_send);
-		try
-		{
-			while (pos != to_send){
-				res = send(socket, &(body[pos]) , to_send, 0);
+		makeBody(to_send);
+		try {
+			while (pos != to_send) {
+				res = send(socket, &(_body[pos]) , to_send, 0);
 				pos += res;
-				if (tries++ == 5)
+				if (tries++ == 8) {
+					_leftBytes = 0;
 					throw ErrorException("TOO MANY ATTEMPTS TO SEND DATA");
+				}
 			}
 			if (res == -1)
 				throw ErrorException("ERROR SENDING DATA");
 			_leftBytes -= res;
 		}
-		catch(const std::exception& e)
-		{
+		catch(const std::exception& e) {
 			std::cerr << e.what() << '\n';
 		}
-		delete []    _body;
+		delete [] _body;
 	}
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
 	//std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
 
-	if (_leftBytes < 1)
-	{
+	if (_leftBytes < 1) {
 		_inProc = false;
 		_leftBytes = false;
 	}

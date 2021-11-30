@@ -5,7 +5,7 @@
 #ifndef WEBSERV_SERVER_HPP
 #define WEBSERV_SERVER_HPP
 #define RECV_BUFFER_SIZE	2048
-#define SEND_BUFFER_SIZZ	2040
+#define SEND_BUFFER_SIZZ	2048
 
 using namespace std;
 #include "MainIncludes.hpp"
@@ -70,7 +70,7 @@ public :
 
 	ErrorException(const char *msg) : errorMsg(msg), status(0) {}
 	ErrorException(int st, const char *msg) : errorMsg(msg), status(st) {}
-	
+
 	virtual const char* what(void) const throw () {
 		return (this->errorMsg);
 	}
