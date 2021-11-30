@@ -137,6 +137,8 @@ void Start(vector<Server*> Serverss)
 		}
 		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++)
 		{
+			if (!i->second->isClosed)
+				i->second->isClosed = i->second->SessionIsOver();
 			readFd.insert(readFd.begin(), i->first);
 			FD_SET(i->first, &readfd);
 			if (i->second->toServe())
@@ -159,7 +161,7 @@ void Start(vector<Server*> Serverss)
 					i->second->response(Servers[i->second->getSrvSocket()]->getErrorPages());
 					select_res--;
 				}
-				else if (i->second->isClosed()){
+				else if (i->second->isClosed){
 						Clients.erase(i);
 					delete i->second;
 					i = Clients.begin();
@@ -181,7 +183,7 @@ void Start(vector<Server*> Serverss)
 				 	{
 						if ((*cl).second->readRequest())
 							(*cl).second->response(Servers[cl->second->getSrvSocket()]->getErrorPages());
-						else if ((*cl).second->isClosed()){ 
+						else if ((*cl).second->isClosed){ 
 							Clients.erase(cl);
 							delete (*cl).second;
 						}
