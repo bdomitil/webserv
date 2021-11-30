@@ -32,7 +32,6 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_buffer[recvRet] = '\0';
 	data.append(_buffer);
 
-	std::cout << "data\n" << data << std::endl;
 	if (_parseState == START_LINE or _parseState == HEADER_LINE)
 		saveStartLineHeaders(data);
 	if (_parseState == BODY_LINE) {
