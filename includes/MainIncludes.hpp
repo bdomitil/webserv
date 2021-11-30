@@ -41,6 +41,7 @@
 
 #define DEBUG			0
 
+static std::map <int, std::string> g_errors;
 
 typedef enum	fileType
 {
