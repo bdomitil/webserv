@@ -7,7 +7,7 @@ class Client
 {
 public :
 	bool					_toServe;
-	bool					_isClosed;
+	bool					isClosed;
 	bool					_isRead;
 
 private:
@@ -17,6 +17,8 @@ private:
 	int 					_srvSocket;
 	Request					_request;
 	Response				*_response;
+	std::time_t				_session_start;
+	std::time_t				_session_end;
 
 public :
 	Client(int srvSocket, std::map<std::string, Location> const &locations);
@@ -26,12 +28,12 @@ public :
 	t_sockaddr_in& getSockAddr(void){return (_sockaddr);}
 	bool	toServe(){return _toServe;}
 	bool	isRead(){return _isRead;}
-	bool	isClosed(){return _isClosed;} 
 	int 	getSocket(void){return _fdSock;}
 	int 	getSrvSocket(void){return _srvSocket;}
-	void	response(std::map<int, std::string>		&errorPages);
+	void	response(std::map<int, std::string> &errorPages);
 	int		createSocket(void);
 	bool	readRequest();
+	bool	SessionIsOver();
 
 
 };

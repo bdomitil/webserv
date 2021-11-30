@@ -32,6 +32,8 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_buffer[recvRet] = '\0';
 	data.append(_buffer);
 
+	if (_parseState == START_LINE)
+		_headers.clear();
 	if (_parseState == START_LINE or _parseState == HEADER_LINE)
 		saveStartLineHeaders(data);
 	if (_parseState == BODY_LINE) {
@@ -47,7 +49,6 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 		_body.clear();
 		parseUri();
 		showState();
-		_headers.clear();
 		_parseState = START_LINE;
 	}
 	return _isReqDone;

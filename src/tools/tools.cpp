@@ -122,3 +122,11 @@ char	*gen_def_page(int statusCode, uint64_t &bodySize){
 	buff.read(def_page, bodySize);
 	return (def_page);
 }
+
+std::time_t increase_session_time(){
+	time_t curr = std::time(0);
+	std::tm *tmp  = localtime(&curr);
+	tmp->tm_hour += 1;
+	curr = std::mktime(tmp);
+	return (curr);
+}
