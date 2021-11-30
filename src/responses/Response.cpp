@@ -9,6 +9,8 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 	_url = request.getUrl(_statusCode);
 	if (_statusCode < 399) {
 		urlInfo(_url, &file,  _FILE);
+		if (file.fType == DDIR)
+			file.fStatus = 404;
 		if (file.fStatus < 200 || file.fStatus > 299){
 			_statusCode = file.fStatus;
 			_url = getErrorPage();

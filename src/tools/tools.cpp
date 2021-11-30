@@ -71,7 +71,7 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 	res = stat(fPath.c_str(), &buff);
 	if (fStruct != nullptr && res != -1)
 	{
-		fStruct->fType = static_cast<fileType>(res);
+		fStruct->fType = static_cast<fileType>(S_ISREG(buff.st_mode));
 		if (fStruct->fType == NONEXIST)
 			return(false);
 		FILE.open(fPath);

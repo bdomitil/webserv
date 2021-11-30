@@ -45,7 +45,6 @@ private:
 	void	saveSimpleBody(std::string &);
 	void	saveStartLine(std::string);
 	void	saveHeaderLine(std::string);
-	void	saveBodyPart(std::string);
 	void	saveChunkedBody(std::string);
 	void	parseUri();
 	void	parsePercent(std::string &);

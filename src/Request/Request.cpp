@@ -109,7 +109,7 @@ void	Request::showState(void) const {
 	std::cout << MAGENTA ">>>> BODY <<<<" RESET << std::endl;
 	std::cout << YELLOW << "Body size: " GREEN << _bodySize << RESET << std::endl;
 	std::cout << YELLOW << "Max body size: " GREEN << _maxBodySize << RESET << std::endl;
-	std::cout << BLUE << _body << RESET;
+	std::cout << BLUE << _body << RESET << std::endl;
 	std::cout << RED "________________________endOfRequest________________________" RESET
 		<< std::endl << std::endl;
 	return;

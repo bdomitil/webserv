@@ -87,27 +87,23 @@ void	Request::saveStartLineHeaders(std::string &data) {
 	return;
 }
 
-void	Request::saveBodyPart(std::string bodyLine) {
-
-	if (_maxBodySize > 0 and bodyLine.length() + _body.length() > _maxBodySize)
-		throw ErrorException(413, "Request Entity Too Large");
-	if (!bodyLine.length() or bodyLine == CR)
-		_parseState = END_STATE;
-	else
-		_body += bodyLine + LF;
-	return;
-}
-
 void	Request::saveSimpleBody(std::string &data) {
 
-	std::size_t	newLinePos;
+	std::size_t	bodySize;
+	std::size_t	prevSize;
+	std::size_t	lastCrlf;
 
-	newLinePos = data.find(LF);
-	while (newLinePos != std::string::npos and _parseState == BODY_LINE) {
-		saveBodyPart(data.substr(0, newLinePos));
-		data.erase(0, newLinePos + 1);
-		newLinePos = data.find(LF);
-	}
+	bodySize = static_cast<std::size_t>(std::atol(_headers["Content-Length"].c_str()));
+	if (bodySize > _maxBodySize)
+		throw ErrorException(413, "Request Entity Too Large");
+
+	prevSize = _body.length();
+	_body.append(data);
+	data.clear();
+	if (_body.length() + prevSize > _maxBodySize)
+		throw ErrorException(413, "Request Entity Too Large");
+	if (_body.length() == bodySize)
+		_parseState = END_STATE;
 	return;
 }
 
@@ -119,14 +115,15 @@ int	Request::getLimitBodySize(void) const {
 	std::string	tmp;
 	std::string	tmp1;
 	std::size_t	lastSlashPos;
+	std::size_t	len;
 
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
 
 	tmp = _uri.substr(0, lastSlashPos);
-	size_t	len = std::count(_uri.begin(), _uri.end(), '/');
-	for (std::size_t i = 0; i < std::count(_uri.begin(), _uri.end(), '/'); i++) {
+	len = std::count(_uri.begin(), _uri.end(), '/');
+	for (std::size_t i = 0; i < len; i++) {
 		std::map<std::string, Location>::const_iterator j = _locationsMap.begin();
 		for (; j != _locationsMap.end(); j++) {
 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
