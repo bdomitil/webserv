@@ -44,8 +44,12 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
+		_tmpBuffer.clear();
+		_body.clear();
 		parseUri();
 		showState();
+		_headers.clear();
+		_parseState = START_LINE;
 	}
 	return _isReqDone;
 }

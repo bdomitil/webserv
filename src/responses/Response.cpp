@@ -67,8 +67,10 @@ std::string Response :: makeHeaders() {
 	_headers += "Content-Type: " + _contentType + string(CRLF);
 	_headers += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
 	_headers += "Accept-Ranges: bytes" + string(CRLF);
-	// _headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
-	_headers += "Connection: close"  + string(CRLF);
+	if (!_reqHeaders["Connection"].size())
+		_headers += "Connection: close" + string(CRLF);
+	else
+	_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
 	_headers += string(CRLF);
 	if (DEBUG)
 		std::cout << _headers << std::endl;
