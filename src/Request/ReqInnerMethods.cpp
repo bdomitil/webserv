@@ -76,7 +76,7 @@ void	Request::saveStartLineHeaders(std::string &data) {
 	std::size_t	newLinePos;
 
 	newLinePos = data.find(CR LF);
-	while (newLinePos != std::string::npos) {
+	while (newLinePos != std::string::npos and _parseState != BODY_LINE) {
 		if (_parseState == START_LINE)
 			saveStartLine(data.substr(0, newLinePos));
 		else if (_parseState == HEADER_LINE)
@@ -180,6 +180,8 @@ void	Request::parsePercent(std::string &strRef) {
 				throw ErrorException(400, "Bad Request");
 			}
 		}
+		else if (strRef[i] == '+')
+			strRef = strRef.substr(0, i) + " " + strRef.substr(i + 1);
 	}
 	return;
 }
