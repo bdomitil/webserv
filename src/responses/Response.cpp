@@ -45,7 +45,7 @@ string Response :: getErrorPage() {
 	}
 	char *def_page = (gen_def_page(_statusCode, _bodySize));
 	delete def_page;
-	return ("");
+	return ("ERROR");
 }
 
 string Response :: makeStatusLine(){
@@ -77,7 +77,7 @@ char *Response :: makeBody(int &readSize) {
 
 	char c;
 	if (_inProc) {
-		if (_url.size()) {
+		if (_url != "ERROR") {
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
