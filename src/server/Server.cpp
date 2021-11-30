@@ -95,13 +95,6 @@ void Start(vector<Server*> Serverss)
 	map <int,Client*>Clients;
 	map <int,Server*>Servers;
 	Client *newCl;
-	int max_fd = 0;
-
-	//#########################################//
-	//#########################################//
-	//______________RUN SERVERS_______________#//
-	//#########################################//
-	//#########################################//
 
 	for (size_t i = 0; i < Serverss.size(); i++)
 	{
@@ -126,7 +119,7 @@ void Start(vector<Server*> Serverss)
 
 	while ( !Servers.empty() )
 	{
-		int new_fd, select_res = 0;
+		int max_fd, select_res = 0;
 		t_time timeout;
 
 		timeout.tv_usec = 50000;
@@ -135,22 +128,14 @@ void Start(vector<Server*> Serverss)
 		FD_ZERO(&readfd);
 		readFd.clear();
 		writeFd.clear();
-
-
-		//#########################################//
-		//#########################################//
-		//___ADD SERVERS AND CLIENTS TO READ FDS__#//
-		//#########################################//
-		//#########################################//
-
-		for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++)  //Add server fd to set for listeing connections
+		for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++)
 		{
 			readFd.insert(readFd.end(), i->first );
 			FD_SET(i->first, &readfd);
 			if (max_fd < i->first)
 				max_fd = i->first;
 		}
-		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++) // Add client's fd into set for reading its request
+		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++)
 		{
 			readFd.insert(readFd.begin(), i->first);
 			FD_SET(i->first, &readfd);
@@ -159,7 +144,6 @@ void Start(vector<Server*> Serverss)
 			if (max_fd < i->first)
 				max_fd = i->first;
 		}
-
 		select_res = select(max_fd + 1, &readfd, &writefd, NULL, &timeout);
 		if (select_res == -1)
 		{
@@ -168,23 +152,36 @@ void Start(vector<Server*> Serverss)
 		}
 		else if (select_res == 0 )
 			continue ;
+		for (map<int, Client*> :: iterator i = Clients.begin(); Clients.size() && i != Clients.end(); i++){
+			try
+			{
+				if (FD_ISSET(i->first, &writefd) &&  i->second->toServe()){
+					i->second->response(Servers[i->second->getSrvSocket()]->getErrorPages());
+					select_res--;
+				}
+				else if (i->second->isClosed()){
+						Clients.erase(i);
+					delete i->second;
+					i = Clients.begin();
+				}
 
-		//#########################################//
-		//#########################################//
-		//__CHECKING FOR NEW COONECTING_OR DATA___#//
-		//#########################################//
-		//#########################################//
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
+		}
 		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && select_res > 0; start++)
 		{
-			if (FD_ISSET(*start, &readfd)) { //check triggered read fd
+			if (FD_ISSET(*start, &readfd)){
 
 				map<int, Client*> :: iterator cl  = Clients.find(*start);
-				 if ( cl  != Clients.end()){   //if triggered fd is one of clients fd
+				 if ( cl  != Clients.end()){
 					try
 				 	{
 						if ((*cl).second->readRequest())
-							(*cl).second->response(Servers[cl->second->getSrvSocket()]->getErrorPages());  //if we got all his request then we start to prepare his response
-						else if ((*cl).second->isClosed()){ //if client closes his connection we delete him from map
+							(*cl).second->response(Servers[cl->second->getSrvSocket()]->getErrorPages());
+						else if ((*cl).second->isClosed()){ 
 							Clients.erase(cl);
 							delete (*cl).second;
 						}
@@ -195,7 +192,7 @@ void Start(vector<Server*> Serverss)
 						std::cerr << e.what() << '\n';
 				 	}
 				 }
-				 else {   //else if triggered fd is not clients we accept new connection
+				 else {
 					for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++) {
 						if (*start == i->first)
 						{
@@ -208,32 +205,7 @@ void Start(vector<Server*> Serverss)
 				 }
 			}
 		}
-
-		//#########################################//
-		//#########################################//
-		//__CHECKING FOR CLIENTS RESPPONSE READY__#//
-		//#########################################//
-		//#########################################//
-		for (map<int, Client*> :: iterator i = Clients.begin(); Clients.size() && i != Clients.end(); i++)
-		{
-			try
-			{
-				if (FD_ISSET(i->first, &writefd) &&  i->second->toServe())
-					i->second->response(Servers[i->second->getSrvSocket()]->getErrorPages());
-				else if (i->second->isClosed()){ //if client closes his connection we delete him from map
-						Clients.erase(i);
-					delete i->second;
-					i = Clients.begin();
-				}
-
-			}
-			catch(const std::exception& e)
-			{
-				std::cerr << e.what() << '\n';
-			}
-		}
 	}
-
 }
 
 #endif

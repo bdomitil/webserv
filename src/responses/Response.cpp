@@ -75,7 +75,7 @@ std::string Response :: makeHeaders() {
 	if (!_reqHeaders["Connection"].size())
 		_headers += "Connection: close" + string(CRLF);
 	else
-	_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
+		_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
 	_headers += string(CRLF);
 	return(_headers);
 }
