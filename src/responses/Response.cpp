@@ -5,11 +5,14 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 
 	t_fileInfo file;
 
+	_bodySize = 0;
 	_reqHeaders = request.getHeaders();
 	_url = request.getUrl(_statusCode);
 	if (_statusCode < 399) {
 		urlInfo(_url, &file,  _FILE);
-		if (file.fStatus < 200 || file.fStatus > 299){
+		if (file.fType == DDIR)
+			file.fStatus = 404;
+		if ((file.fStatus < 200 || file.fStatus > 299) && _statusCode != 301){
 			_statusCode = file.fStatus;
 			_url = getErrorPage();
 			_contentType = "text/html";
@@ -45,12 +48,14 @@ string Response :: getErrorPage() {
 	}
 	char *def_page = (gen_def_page(_statusCode, _bodySize));
 	delete def_page;
-	return ("");
+	return ("ERROR");
 }
 
 string Response :: makeStatusLine(){
 	if (_statusCode == 200)
 		_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + "OK" + "\n";
+	else if (_statusCode == 301)
+		_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + "Moved Permanently" + "\n";
 	else
 		_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + "ERROR" + "\n";
 	return (_statusLine);
@@ -62,14 +67,16 @@ std::string Response :: makeHeaders() {
 	_headers += "Date: " + string(ctime(&current_time));
 	if (_statusCode == 301)
 		_headers += "Location: " + _url + string(CRLF);
-	_headers += "Content-Type: " + _contentType + string(CRLF);
+	if (_statusCode < 300 || _statusCode > 399){
+		_headers += "Content-Type: " + _contentType + string(CRLF);
+		_headers += "Accept-Ranges: bytes" + string(CRLF);
+	}
 	_headers += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
-	_headers += "Accept-Ranges: bytes" + string(CRLF);
-	// _headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
-	_headers += "Connection: close"  + string(CRLF);
+	if (!_reqHeaders["Connection"].size())
+		_headers += "Connection: close" + string(CRLF);
+	else
+		_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
 	_headers += string(CRLF);
-	if (DEBUG)
-		std::cout << _headers << std::endl;
 	return(_headers);
 }
 
@@ -77,7 +84,7 @@ char *Response :: makeBody(int &readSize) {
 
 	char c;
 	if (_inProc) {
-		if (_url.size()) {
+		if (_url != "ERROR") {
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
@@ -98,15 +105,18 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 
-	if (!_inProc) {
+	if (!_inProc){		
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
 		res = send(socket, _response.c_str(), _response.length(), 0);
 		if (res == -1)
 			throw ErrorException("ERROR SENDING DATA");
+		if (DEBUG)
+			std::cout << "\n\n" << _response << std::endl << std::endl;
 		_response = string();
 		_inProc = true;
+
 	}
 	else if (_FILE.is_open() || _statusCode != 200) {
 		int to_send, pos, tries;
@@ -128,7 +138,7 @@ void Response :: sendRes(int socket){
 		catch(const std::exception& e) {
 			std::cerr << e.what() << '\n';
 		}
-		delete [] _body;
+		delete []    _body;
 	}
 
 	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;

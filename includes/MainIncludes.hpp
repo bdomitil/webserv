@@ -39,8 +39,9 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
-#define DEBUG			0
+#define DEBUG			1
 
+static std::map <int, std::string> g_errors;
 
 typedef enum	fileType
 {
@@ -72,8 +73,8 @@ int				startParser(char *fileName, std::vector<t_server> &servers);
 void			printLocations(std::map<std::string, Location> locations);
 void			printServ(t_server serv);
 void			Start(vector<Server*> Servers);
-std::string			ft_itoa(int x);
+std::string		ft_itoa(int x);
 bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
-
+std::time_t		increase_session_time();
 #endif //WEBSERV_MAININCLUDES_HPP

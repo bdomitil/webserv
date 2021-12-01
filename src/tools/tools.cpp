@@ -71,7 +71,7 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 	res = stat(fPath.c_str(), &buff);
 	if (fStruct != nullptr && res != -1)
 	{
-		fStruct->fType = static_cast<fileType>(res);
+		fStruct->fType = static_cast<fileType>(S_ISREG(buff.st_mode));
 		if (fStruct->fType == NONEXIST)
 			return(false);
 		FILE.open(fPath);
@@ -95,23 +95,38 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 
 char	*gen_def_page(int statusCode, uint64_t &bodySize){
 
-	string line;
-	char *buff = new char[200];
-	memset(buff, 0, 200);
-	line = "<html>\n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	line = "<head><title>" + ft_itoa(statusCode) += " Not Found</title></head> \n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	line = "<body>\n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	line = "<center><h1>" + ft_itoa(statusCode)  + " ERROR! </h1></center>\n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	line = "<hr><center>SUPER SERVER TEAM</center>\n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	line = "</body>\n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	line = "</html>\n";
-	strncpy(&(buff[strlen(buff)]), line.c_str(), line.size());
-	bodySize = strlen(buff);
-	return (buff);
+	std::stringstream buff;
+	if (!g_errors.size()){
+		g_errors.insert(std::pair<int, std::string>(200, " Ok"));
+		g_errors.insert(std::pair<int, std::string>(201, " Created"));
+		g_errors.insert(std::pair<int, std::string>(301, " Moved Permanently"));
+		g_errors.insert(std::pair<int, std::string>(400, " Bad Request"));
+		g_errors.insert(std::pair<int, std::string>(403, " Forbidden"));
+		g_errors.insert(std::pair<int, std::string>(404, " Not Found"));
+		g_errors.insert(std::pair<int, std::string>(405, " Method Not Allowed"));
+		g_errors.insert(std::pair<int, std::string>(500, " Internal Server Error"));
+		g_errors.insert(std::pair<int, std::string>(502, " Bad Gateway"));
+		g_errors.insert(std::pair<int, std::string>(503, " Service Unavailable"));
+	}
+	buff << "<html>\n";
+	buff << "<head><title>" + ft_itoa(statusCode) + g_errors[statusCode] + "</title>\n";
+	buff << "<body>\n";
+	buff << "<center><h1>" + ft_itoa(statusCode)  + g_errors[statusCode] + "</h1></center>\n";
+	buff << "<hr><center>SUPER SERVER TEAM</center>\n";
+	buff << "</body>\n";
+	buff << "</html>\n";
+	buff.seekg(0, buff.end);
+	bodySize = buff.tellg();
+	buff.seekg(0, buff.beg);
+	char *def_page = new char[bodySize];
+	buff.read(def_page, bodySize);
+	return (def_page);
+}
+
+std::time_t increase_session_time(){
+	time_t curr = std::time(0);
+	std::tm *tmp  = localtime(&curr);
+	tmp->tm_hour += 1;
+	curr = std::mktime(tmp);
+	return (curr);
 }

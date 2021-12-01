@@ -3,8 +3,15 @@
 Client :: Client(int srvSocket, std::map<std::string, Location> const &locations) :
 	_request(locations), _response(nullptr) {
 
+	setenv("TZ", "/usr/share/zoneinfo/Europe/Moscow", 1);
+	_session_start = std::time(0);
+	tm *tmp = std::localtime(&_session_start);
+	_session_start = std::mktime(tmp);
+	// tmp->tm_hour += 30;
+	tmp->tm_min += 1;
+	_session_end = std::mktime(tmp);
 	_srvSocket = srvSocket;
-	_isClosed = false;
+	isClosed = false;
 	_toServe = false;
 	_isRead = false;
 	createSocket();
@@ -48,9 +55,10 @@ int Client :: createSocket(void) {
 }
 
 bool Client :: readRequest(void) {
+	_session_end =  increase_session_time();
 	ssize_t res = recv(_fdSock, this->_request.getBuffer(), RECV_BUFFER_SIZE, 0);
 	if (res == 0) {
-		_isClosed = true;
+		isClosed = true;
 		return (false);
 	}
 	_isRead = true;
@@ -73,6 +81,16 @@ void Client :: response(std::map<int, std::string> &errorPages) {
 	catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		_toServe = false;
-		_isClosed = true;
+		isClosed = true;
 	}
+}
+
+bool Client :: SessionIsOver(){
+		uint32_t tmp;
+	if (_session_end <= _session_start){
+		std::cerr << BLUE << "Session of " << _ip << " recuesting " << _request.getUrl(tmp)  << " is timed out" << RESET <<std::endl;
+		return (true);
+	}
+	_session_start = std::time(0);
+	return (false);
 }
