@@ -3,7 +3,7 @@
 Request::Request(std::map<std::string, Location> const &l)
 : _locationsMap(l), _bodySize(0), _chunkSize(0),
 _parseState(START_LINE), _isReqDone(false), _isChunkSize(false),
-_buffer(new char[RECV_BUFFER_SIZE + 1]) {
+_buffer(new char[RECV_BUFFER_SIZE + 1]), _errorStatus(0) {
 	return;
 }
 
@@ -26,6 +26,18 @@ std::string	Request::getMethod(void) const {
 
 std::string	Request::getBody(void) {
 	return _body;
+}
+
+std::string	Request::getQueryString(void) {
+	return _query;
+}
+
+int		Request::getErrorStatus(void) const {
+	return _errorStatus;
+}
+
+void	Request::setErrorStatus(const int s) {
+	_errorStatus = s;
 }
 
 bool	Request::saveRequestData(ssize_t recvRet) {
@@ -137,6 +149,7 @@ void	Request::resetRequest(void) {
 	_tmpBuffer.clear();
 	_isChunkSize = false;
 	_isReqDone = false;
+	_errorStatus = 0;
 
 	return;
 }

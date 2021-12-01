@@ -29,15 +29,18 @@ public:
 
 	std::string								getUrl(std::uint32_t &) const ;
 	std::map<std::string, std::string>		&getHeaders();
+	std::map<int, std::string>		 		&getErrorPages();
 	std::string								getMethod() const ;
 	std::string								getBody();
+	std::string								getQueryString();
+	void									setErrorStatus(int const);
 	char									*getBuffer() const ;
-	std::map<int, std::string>		 		&getErrorPages();
+	int										getErrorStatus() const ;
 
 
-	bool								saveRequestData(ssize_t);
-	void								showState() const ;
-	void								resetRequest();
+	bool									saveRequestData(ssize_t);
+	void									showState() const ;
+	void									resetRequest();
 
 private:
 
@@ -70,6 +73,7 @@ private:
 	bool									_isChunkSize;
 	bool									_isReqDone;
 	char									*_buffer;
+	int										_errorStatus;
 
 };
 

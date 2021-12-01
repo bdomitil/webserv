@@ -26,7 +26,7 @@ void	Request::saveStartLine(std::string startLine) {
 	i = lfPos;
 	while (i < startLine.length() and ikael::isCharWhiteSpace(i))
 		i++;
-	startLine.erase(0, i);
+	startLine.erase(0, i + 1);
 
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
@@ -36,7 +36,7 @@ void	Request::saveStartLine(std::string startLine) {
 	i = lfPos;
 	while (i < startLine.length() and ikael::isCharWhiteSpace(i))
 		i++;
-	startLine.erase(0, i);
+	startLine.erase(0, i + 1);
 
 	_protocol = startLine;
 	_protocol.erase(std::remove_if(_protocol.begin(),
@@ -86,12 +86,14 @@ void	Request::saveStartLineHeaders(std::string &data) {
 	std::size_t	newLinePos;
 
 	newLinePos = data.find(LF);
-	while (newLinePos != std::string::npos and _parseState != BODY_LINE) {
+	while (newLinePos != std::string::npos
+		and (_parseState != BODY_LINE or _parseState != END_STATE)) {
 		if (_parseState == START_LINE) {
 			saveStartLine(data.substr(0, newLinePos));
 			data.erase(0, newLinePos + 1);
 		}
 		if (_parseState == HEADER_LINE) {
+			newLinePos = data.find(LF);
 			saveHeaderLine(data.substr(0, newLinePos));
 			data.erase(0, newLinePos + 1);
 		}
