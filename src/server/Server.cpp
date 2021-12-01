@@ -1,8 +1,4 @@
-#ifndef SERVER_CPP
-#define SERVER_CPP
 #include "../../includes/MainIncludes.hpp"
-
-//#####             CANNONICAL PART
 
 Server :: Server(const t_server &ServerSetting) {
 	_name = ServerSetting.name;
@@ -21,8 +17,7 @@ Server :: Server(const Server &copy) {
 
 
 
-Server :: ~Server()
-{
+Server :: ~Server() {
 	//Destruct if needed
 }
 
@@ -51,19 +46,16 @@ int Server :: createSocket(void) {
 			throw(ErrorException(strerror(errno)));
 	_sockaddr.sin_family = PF_INET;
 	_sockaddr.sin_port = htons(_port);
-	srsocket = socket(PF_INET, SOCK_STREAM, 0); //SOCK_STREAM - tcp proto, if tcp/udp - third param = 0
-	if (srsocket == -1)
-	{
+	srsocket = socket(PF_INET, SOCK_STREAM, 0);
+	if (srsocket == -1) {
 		std::cerr << "Unable to create socket" << std::endl;
 		throw(this);
 	}
-	if (setsockopt(srsocket ,SOL_SOCKET ,SO_REUSEADDR , &reuseaddr,sizeof(int)) == -1)  //allow to reuse socket after crash
-	{
+	if (setsockopt(srsocket ,SOL_SOCKET ,SO_REUSEADDR , &reuseaddr,sizeof(int)) == -1) {
 		std::cerr << "Error setting sockopt" << std::endl;
 		throw(this);
 	}
-	if (fcntl(srsocket, F_SETFL, O_NONBLOCK) == -1)  //unblocking listening socket
-	{
+	if (fcntl(srsocket, F_SETFL, O_NONBLOCK) == -1) {
 		std::cerr << "Error using fcntl" << std::endl;
 		throw(this);
 	}
@@ -74,13 +66,11 @@ int Server :: createSocket(void) {
 
 void Server :: Run(void) {
 	_fdSock =  createSocket();
-	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1)
-	{
+	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1) {
 		std::cerr << "Error binding socket : " << strerror(errno) << std::endl;
 		throw (this);//binding socket
 	}
-	if (listen(_fdSock, 100) == -1)  //make core listen and wait connections
-	{
+	if (listen(_fdSock, 100) == -1) {
 		std::cerr << "Error listening socket : " << strerror(errno) << std::endl;
 		throw(this);
 	}
@@ -96,12 +86,10 @@ void Start(vector<Server*> Serverss)
 	map <int,Server*>Servers;
 	Client *newCl;
 
-	for (size_t i = 0; i < Serverss.size(); i++)
-	{
+	for (size_t i = 0; i < Serverss.size(); i++) {
 		try
 		{
 			Serverss[i]->Run();
-			Serverss[i]->_isrunning  = true;
 			Servers.insert(pair<int, Server*> (Serverss[i]->getSocket(), Serverss[i]));
 		}
 		catch (Server *serv)
@@ -117,8 +105,7 @@ void Start(vector<Server*> Serverss)
 		}
 	}
 
-	while ( !Servers.empty() )
-	{
+	while ( !Servers.empty() ) {
 		int max_fd, select_res = 0;
 		t_time timeout;
 
@@ -128,33 +115,30 @@ void Start(vector<Server*> Serverss)
 		FD_ZERO(&readfd);
 		readFd.clear();
 		writeFd.clear();
-		for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++)
-		{
+		for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++) {
 			readFd.insert(readFd.end(), i->first );
 			FD_SET(i->first, &readfd);
 			if (max_fd < i->first)
 				max_fd = i->first;
 		}
-		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++)
-		{
-			if (!i->second->isClosed)
-				i->second->isClosed = i->second->SessionIsOver();
-			readFd.insert(readFd.begin(), i->first);
-			FD_SET(i->first, &readfd);
+		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++) {
+			if (!(i->second->isClosed = i->second->SessionIsOver())){
+				readFd.insert(readFd.begin(), i->first);
+				FD_SET(i->first, &readfd);
+			}
 			if (i->second->toServe())
 				FD_SET(i->first, &writefd);
 			if (max_fd < i->first)
 				max_fd = i->first;
 		}
 		select_res = select(max_fd + 1, &readfd, &writefd, NULL, &timeout);
-		if (select_res == -1)
-		{
+		if (select_res == -1) {
 			std::cerr << strerror(errno) << std::endl;
 			continue;
 		}
 		else if (select_res == 0 )
 			continue ;
-		for (map<int, Client*> :: iterator i = Clients.begin(); Clients.size() && i != Clients.end(); i++){
+		for (map<int, Client*> :: iterator i = Clients.begin(); Clients.size() && i != Clients.end(); i++) {
 			try
 			{
 				if (FD_ISSET(i->first, &writefd) &&  i->second->toServe()){
@@ -175,8 +159,7 @@ void Start(vector<Server*> Serverss)
 		}
 		for (vector<int> :: iterator start = readFd.begin(); start != readFd.end() && select_res > 0; start++)
 		{
-			if (FD_ISSET(*start, &readfd)){
-
+			if (FD_ISSET(*start, &readfd)) {
 				map<int, Client*> :: iterator cl  = Clients.find(*start);
 				 if ( cl  != Clients.end()){
 					try
@@ -196,8 +179,7 @@ void Start(vector<Server*> Serverss)
 				 }
 				 else {
 					for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++) {
-						if (*start == i->first)
-						{
+						if (*start == i->first) {
 							std::map <string, Location> const &loc = i->second->getSettings().locations;
 							Client *cl =  new Client(i->second->getSocket(), loc);
 							Clients.insert(std::pair<int, Client* >(cl->getSocket(), cl));
@@ -209,5 +191,3 @@ void Start(vector<Server*> Serverss)
 		}
 	}
 }
-
-#endif

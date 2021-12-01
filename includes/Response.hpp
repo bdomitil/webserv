@@ -8,7 +8,7 @@ private:
 	std::string							_statusLine;
 	std::map <std::string, std::string>	_reqHeaders;
 	std::map<int, std::string>			_errorPages;
-	char*						 		_body; 						// TODO make body class for chunks
+	char*						 		_body;
 	std::uint64_t						_bodySize;
 	uint32_t							_statusCode;
 	std::ifstream						_FILE;
