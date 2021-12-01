@@ -1,8 +1,9 @@
 #include "../../includes/MainIncludes.hpp"
 
 Request::Request(std::map<std::string, Location> const &l)
-: _locationsMap(l), _bodySize(0), _parseState(START_LINE),
-_isReqDone(false), _buffer(new char[RECV_BUFFER_SIZE + 1]) {
+: _locationsMap(l), _bodySize(0), _chunkSize(0),
+_parseState(START_LINE), _isReqDone(false), _isChunkSize(false),
+_buffer(new char[RECV_BUFFER_SIZE + 1]) {
 	return;
 }
 
@@ -15,12 +16,16 @@ char	*Request::getBuffer(void) const {
 	return _buffer;
 }
 
-std::map<std::string, std::string>	&Request::getHeaders() {
+std::map<std::string, std::string>	&Request::getHeaders(void) {
 	return _headers;
 }
 
-std::string	Request::getMethod() const {
+std::string	Request::getMethod(void) const {
 	return _method;
+}
+
+std::string	Request::getBody(void) {
+	return _body;
 }
 
 bool	Request::saveRequestData(ssize_t recvRet) {
@@ -32,8 +37,8 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_buffer[recvRet] = '\0';
 	data.append(_buffer);
 
-	if (_parseState == START_LINE)
-		_headers.clear();
+	if (_parseState == END_STATE)
+		resetRequest();
 	if (_parseState == START_LINE or _parseState == HEADER_LINE)
 		saveStartLineHeaders(data);
 	if (_parseState == BODY_LINE) {
@@ -45,11 +50,8 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
-		_tmpBuffer.clear();
-		_body.clear();
 		parseUri();
 		showState();
-		_parseState = START_LINE;
 	}
 	return _isReqDone;
 }
@@ -116,5 +118,25 @@ void	Request::showState(void) const {
 	std::cout << BLUE << _body << RESET << std::endl;
 	std::cout << RED "________________________endOfRequest________________________" RESET
 		<< std::endl << std::endl;
+	return;
+}
+
+void	Request::resetRequest(void) {
+
+	_headers.clear();
+	_maxBodySize = 0;
+	_bodySize = 0;
+	_chunkSize = 0;
+	_parseState = START_LINE;
+	_transferEncoding.clear();
+	_method.clear();
+	_protocol.clear();
+	_uri.clear();
+	_query.clear();
+	_body.clear();
+	_tmpBuffer.clear();
+	_isChunkSize = false;
+	_isReqDone = false;
+
 	return;
 }
