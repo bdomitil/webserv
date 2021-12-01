@@ -30,6 +30,7 @@
 #include "Response.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Cgi.hpp"
 
 //colors for beauty
 #define YELLOW		"\033[33;1m"
@@ -39,7 +40,7 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
-#define DEBUG		1
+#define DEBUG		0
 
 static std::map <int, std::string> g_errors;
 
@@ -85,25 +86,5 @@ bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
 const char		***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers);
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
 std::time_t		increase_session_time();
-
-
-class ErrorException : public std::exception {
-
-public :
-
-	ErrorException(const char *msg) : errorMsg(msg), status(0) {}
-	ErrorException(int st, const char *msg) : errorMsg(msg), status(st) {}
-	int getStatus() const {return status;}
-
-	virtual const char* what(void) const throw () {
-		return (this->errorMsg);
-	}
-
-private:
-
-	const char*	errorMsg;
-	const int	status;
-
-};
 
 #endif //WEBSERV_MAININCLUDES_HPP
