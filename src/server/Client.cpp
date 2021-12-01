@@ -25,7 +25,7 @@ Client :: Client(int srvSocket, std::map<std::string, Location> const &locations
 Client :: ~Client()
 {
 	delete _response;
-	if (DEBUG){
+	if (DEBUG) {
 		unsigned int code;
 		std::cout << MAGENTA "Client : " << _ip << " (";
 		std::cout << _fdSock << ((close(_fdSock) == -1) ? " not closed)" : " closed)") << std::endl;
@@ -62,7 +62,13 @@ bool Client :: readRequest(void) {
 		return (false);
 	}
 	_isRead = true;
-	_toServe = this->_request.saveRequestData(res);
+	try {
+		_toServe = this->_request.saveRequestData(res);
+	}
+	catch (ErrorException &e) {
+		_toServe = true;
+		_request.setErrorStatus(e.getStatus());
+	}
 	return (_toServe);
 }
 

@@ -39,9 +39,15 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
-#define DEBUG			1
+#define DEBUG		1
 
 static std::map <int, std::string> g_errors;
+
+namespace ikael {
+	static bool	isCharWhiteSpace(unsigned char c) {
+		return std::isspace(c);
+	}
+}
 
 typedef enum	fileType
 {

@@ -27,14 +27,20 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
-//getters
-	std::string	getUrl(std::uint32_t &) const ;
-	std::map<std::string, std::string>& getHeaders();
-	std::string	getMethod() const ;
-	char		*getBuffer() const ;
+	std::string								getUrl(std::uint32_t &) const ;
+	std::map<std::string, std::string>		&getHeaders();
+	std::map<int, std::string>		 		&getErrorPages();
+	std::string								getMethod() const ;
+	std::string								getBody();
+	std::string								getQueryString();
+	void									setErrorStatus(int const);
+	char									*getBuffer() const ;
+	int										getErrorStatus() const ;
 
-	bool		saveRequestData(ssize_t);
-	void		showState() const ;
+
+	bool									saveRequestData(ssize_t);
+	void									showState() const ;
+	void									resetRequest();
 
 private:
 
@@ -43,16 +49,19 @@ private:
 	bool	isStringHasWhiteSpaceChar(std::string const &) const ;
 	void	saveStartLineHeaders(std::string &);
 	void	saveSimpleBody(std::string &);
+	void	saveChunkedBody(std::string &);
 	void	saveStartLine(std::string);
 	void	saveHeaderLine(std::string);
-	void	saveChunkedBody(std::string);
 	void	parseUri();
 	void	parsePercent(std::string &);
+	void	parseChunkSize(std::string &);
+	void	parseChunkedBody(std::string &);
 
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;
 	std::uint32_t							_maxBodySize;
 	std::uint32_t							_bodySize;
+	std::uint32_t							_chunkSize;
 	std::uint8_t							_parseState;
 	std::string								_transferEncoding;
 	std::string								_method;
@@ -61,8 +70,10 @@ private:
 	std::string								_query;
 	std::string								_body;
 	std::string								_tmpBuffer;
+	bool									_isChunkSize;
 	bool									_isReqDone;
 	char									*_buffer;
+	int										_errorStatus;
 
 };
 
