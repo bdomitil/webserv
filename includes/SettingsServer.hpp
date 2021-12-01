@@ -14,6 +14,6 @@ typedef struct	s_server {
 	std::string 					logFile;
 	std::map<int, std::string>		errorPages;
 	std::map<std::string, Location>	locations;
-}				t_server;
+}	t_server;
 
 #endif //WEBSERV_SETTINGSSERVER_HPP

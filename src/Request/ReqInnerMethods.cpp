@@ -11,6 +11,7 @@ bool	Request::isStringHasWhiteSpaceChar(std::string const &str) const {
 void	Request::saveStartLine(std::string startLine) {
 
 	std::size_t	lfPos;
+	std::size_t	i;
 
 	if (!startLine.length())
 		throw ErrorException(400, "Bad request");
@@ -21,15 +22,25 @@ void	Request::saveStartLine(std::string startLine) {
 	_method = startLine.substr(0, lfPos);
 	if (_method != GET and _method != POST and _method != DELELE)
 		throw ErrorException(405, "Method Not Allowed");
-	startLine.erase(0, lfPos + 1);
+
+	i = lfPos;
+	while (i < startLine.length() and ikael::isCharWhiteSpace(i))
+		i++;
+	startLine.erase(0, i + 1);
 
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
 		throw ErrorException(400, "Bad request");
 	_uri = startLine.substr(0, lfPos);
-	startLine.erase(0, lfPos + 1);
+
+	i = lfPos;
+	while (i < startLine.length() and ikael::isCharWhiteSpace(i))
+		i++;
+	startLine.erase(0, i + 1);
 
 	_protocol = startLine;
+	_protocol.erase(std::remove_if(_protocol.begin(),
+		_protocol.end(), &ikael::isCharWhiteSpace), _protocol.end());
 	if (_protocol != HTTP_PROTOCOL)
 		throw ErrorException(505, "HTTP Version Not Supported");
 	_parseState = HEADER_LINE;
@@ -43,6 +54,8 @@ void	Request::saveHeaderLine(std::string headerLine) {
 	std::string	headerName;
 	std::string	headerValue;
 
+	headerLine.erase(std::remove_if(headerLine.begin(),
+		headerLine.end(), &ikael::isCharWhiteSpace), headerLine.end());
 	if (!headerLine.length()) {
 		if (_headers.find("Host") == std::end(_headers))
 			throw std::exception();
@@ -59,11 +72,8 @@ void	Request::saveHeaderLine(std::string headerLine) {
 		throw ErrorException(400, "Bad request");
 	headerName = headerLine.substr(0, colonPos);
 	headerValue = headerLine.substr(colonPos + 1);
-	if (isStringHasWhiteSpaceChar(headerName))
-		throw ErrorException(400, "Bad request");
-	if (headerValue[0] == ' ')
-		headerValue.erase(0, 1);
-	_headers.insert(std::pair<std::string, std::string>(headerName, headerValue));
+	_headers.insert(std::pair<std::string,
+		std::string>(headerName, headerValue));
 	if (headerName == "Content-Length")
 		_bodySize = static_cast<std::uint32_t>(std::atol(headerValue.c_str()));
 	if (headerName == "Transfer-Encoding")
@@ -75,14 +85,19 @@ void	Request::saveStartLineHeaders(std::string &data) {
 
 	std::size_t	newLinePos;
 
-	newLinePos = data.find(CR LF);
-	while (newLinePos != std::string::npos and _parseState != BODY_LINE) {
-		if (_parseState == START_LINE)
+	newLinePos = data.find(LF);
+	while (newLinePos != std::string::npos
+		and (_parseState != BODY_LINE or _parseState != END_STATE)) {
+		if (_parseState == START_LINE) {
 			saveStartLine(data.substr(0, newLinePos));
-		else if (_parseState == HEADER_LINE)
+			data.erase(0, newLinePos + 1);
+		}
+		if (_parseState == HEADER_LINE) {
+			newLinePos = data.find(LF);
 			saveHeaderLine(data.substr(0, newLinePos));
-		data.erase(0, newLinePos + 2);
-		newLinePos = data.find(CR LF);
+			data.erase(0, newLinePos + 1);
+		}
+		newLinePos = data.find(LF);
 	}
 	return;
 }
@@ -90,24 +105,66 @@ void	Request::saveStartLineHeaders(std::string &data) {
 void	Request::saveSimpleBody(std::string &data) {
 
 	std::size_t	bodySize;
-	std::size_t	prevSize;
 	std::size_t	lastCrlf;
 
 	bodySize = static_cast<std::size_t>(std::atol(_headers["Content-Length"].c_str()));
 	if (bodySize > _maxBodySize)
 		throw ErrorException(413, "Request Entity Too Large");
+	if (_body.length() + data.length() > _maxBodySize)
+		throw ErrorException(413, "Request Entity Too Large");
 
-	prevSize = _body.length();
 	_body.append(data);
 	data.clear();
-	if (_body.length() + prevSize > _maxBodySize)
-		throw ErrorException(413, "Request Entity Too Large");
 	if (_body.length() == bodySize)
 		_parseState = END_STATE;
 	return;
 }
 
-void	Request::saveChunkedBody(std::string bodyLine) {
+void	Request::parseChunkSize(std::string &data) {
+
+	std::stringstream	ss;
+	std::size_t			pos;
+
+	pos = data.find(CR LF);
+	if (pos == std::string::npos)
+		return;
+	ss << std::hex << data.substr(0, pos);
+	ss >> _chunkSize;
+	if (!_chunkSize)
+		_parseState = END_STATE;
+	_isChunkSize = true;
+	data.erase(0, pos + 2);
+	return;
+}
+
+void	Request::parseChunkedBody(std::string &data) {
+
+	std::size_t	pos;
+	std::string	tmp;
+
+	pos = data.find(CR LF);
+	if (pos == std::string::npos)
+		return;
+
+	tmp = data.substr(0, pos);
+	if (tmp.length() > _chunkSize)
+		throw ErrorException(400, "Bad Request");
+	_body.append(tmp);
+	data.erase(0, pos + 2);
+	_isChunkSize = false;
+}
+
+void	Request::saveChunkedBody(std::string &data) {
+
+	while (data.find(CR LF) != std::string::npos and _parseState == BODY_LINE) {
+		if (!_isChunkSize)
+			parseChunkSize(data);
+		if (_isChunkSize and _parseState == BODY_LINE) {
+			if (_body.length() + _chunkSize > _maxBodySize)
+				throw ErrorException(413, "Request Entity Too Large");
+			parseChunkedBody(data);
+		}
+	}
 }
 
 int	Request::getLimitBodySize(void) const {

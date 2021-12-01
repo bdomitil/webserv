@@ -47,6 +47,7 @@ index.html
 *.jpeg
 *.mp4
 *.ico
+*.css
 
 redirect
 static_site

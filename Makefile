@@ -31,7 +31,6 @@ $(NAME): $(ALL_OBJS_DIRS) $(OBJS) $(MAIN)
 	@$(CC) $(FLAGS) $(MAIN) $(OBJS) -o $(NAME)
 	@echo "\n$(MAGENTA)$(NAME) $(GREEN)compiled$(RESET)"
 
-
 $(ALL_OBJS_DIRS): $(OBJS_DIR)
 	@mkdir -p $@
 
