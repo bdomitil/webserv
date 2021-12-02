@@ -42,8 +42,6 @@
 
 #define DEBUG		0
 
-static std::map <int, std::string> g_errors;
-
 namespace ikael {
 	static bool	isCharWhiteSpace(unsigned char c) {
 		return std::isspace(c);
@@ -86,5 +84,6 @@ bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
 const char		***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers);
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
 std::time_t		increase_session_time();
+std::map <int, std::string> &error_map();
 
 #endif //WEBSERV_MAININCLUDES_HPP
