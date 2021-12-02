@@ -62,46 +62,40 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
-		parseUri();
 		showState();
 	}
 	return _isReqDone;
 }
 
-std::string	Request::getUrl(std::uint32_t &status) const {
+/* переделать */
+std::string	Request::getUrl(std::uint32_t &status) {
 
-	std::string	pathToTarget;
 	std::string	target;
-	std::string	tmp;
-	size_t		lastSlashPos;
+	std::size_t	pos;
+	std::string	path;
+	std::string	fullPath;
 
-	lastSlashPos = _uri.find_last_of("/");
-	target = _uri.substr(lastSlashPos + 1);
-	pathToTarget = _uri.substr(0, lastSlashPos);
-	for (std::size_t i = 0; i < std::count(_uri.begin(), _uri.end(), '/'); i++) {
-		std::map<std::string, Location>::const_iterator	j = _locationsMap.begin();
-		for (; j != _locationsMap.end(); j++) {
-			tmp = (j->first != "/" and j->first[j->first.length() - 1] == '/') ?
-				j->first.substr(0, j->first.find_last_of("/")) : j->first;
-			if (((!pathToTarget.substr(0, lastSlashPos).length()) ?
-				"/" : pathToTarget.substr(0, lastSlashPos)) == tmp) {
-				if (j->second.redirect.first) {
-					status = static_cast<std::uint32_t>(j->second.redirect.first);
-					return (j->second.redirect.second);
-				}
-				if (!target.length())
-					target = j->second.index;
-				status = 200;
-				pathToTarget = j->second.root + pathToTarget;
-				pathToTarget += ((pathToTarget[pathToTarget.length() - 1] == '/') ?
-					target : "/" + target);
-				return (pathToTarget);
-			}
-		}
-		lastSlashPos = _uri.find_last_of("/", lastSlashPos - 1);
-	}
+	pos = _uri.find_last_of("/");
 	status = 404;
-	return "unknown url";
+	if (pos == std::string::npos)
+		return "unknown url";
+	target = _uri.substr(pos + 1);
+	if (!target.length())
+		target = _location->getIndex();
+	_uri.erase(pos);
+	path = _location->path;
+	if (path[path.length() - 1] == '/')
+		path.erase(path.length() - 1);
+	pos = _uri.find(path);
+	if (pos == std::string::npos)
+		return "unknown url";
+	fullPath = _location->getRoot() + path;
+	fullPath += _uri.substr(path.length()) + "/" + target;
+	for (std::size_t i = 0; i < fullPath.length() - 1; i++)
+		if (fullPath[i] == '/' and fullPath[i + 1] == '/')
+			fullPath.erase(i + 1, 1);
+	status = 200;
+	return fullPath;
 }
 
 void	Request::showState(void) const {
