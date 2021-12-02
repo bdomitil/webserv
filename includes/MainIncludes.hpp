@@ -86,24 +86,4 @@ const char		***makeData_for_exec(std::string &path, std::map <std::string, std::
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
 std::time_t		increase_session_time();
 
-
-class ErrorException : public std::exception {
-
-public :
-
-	ErrorException(const char *msg) : errorMsg(msg), status(0) {}
-	ErrorException(int st, const char *msg) : errorMsg(msg), status(st) {}
-	int getStatus() const {return status;}
-
-	virtual const char* what(void) const throw () {
-		return (this->errorMsg);
-	}
-
-private:
-
-	const char*	errorMsg;
-	const int	status;
-
-};
-
 #endif //WEBSERV_MAININCLUDES_HPP
