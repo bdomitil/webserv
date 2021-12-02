@@ -7,7 +7,10 @@ void	printLocations(std::map<std::string, Location> locations) {
 		std::cout << "\n";
 		std::cout << "Location: " << i->first << std::endl;
 		std::cout << "ROOT\t" << i->second.getRoot() << std::endl;
-		std::cout << "CGI\t\t" << i->second.getCgi().first << "<=>" << i->second.getCgi().second << std::endl;
+		std::cout << "CGI\t\t" << std::endl;
+		for (map<string, string>::iterator j = i->second.cgi.begin(); j != i->second.cgi.end() ; ++j) {
+			std::cout << j->first << " -> " << j->second << std::endl;
+		}
 		std::cout << "INDEX\t" << i->second.getIndex() << std::endl;
 		std::cout << "AUTOI\t" << i->second.getAutoIndex() << std::endl;
 		std::cout << "LIMIT\t" << i->second.getLimit() << std::endl;
@@ -37,16 +40,21 @@ void	printServers(std::vector<t_server> servers) {
 		printServ(*i);
 	}
 }
+
 //============INIT_STRUCTS=======
 void initServer(t_server &t) {
 	t.name = "";
 	t.host = "";
 	t.port = 0;
+	t.logFile = "";
 }
 
 void	initLocation(Location &l) {
 	l.root = "";
-	l.cgi = std::pair<std::string, std::string>("", "");
+	std::map<std::string, std::string> tmpMap = l.cgi;
+	for (map<std::string, std::string> :: iterator i  = tmpMap.begin(); i != tmpMap.end() ; ++i) {
+		std::cout << i->first << " -> " << i->second << std::endl;
+	}
 	l.redirect = std::pair<int, std::string>(0, "");
 	l.index = "";
 	l.autoindex = "off";
@@ -92,6 +100,10 @@ std::string value(std::string &str, char delim) {
 
 void	mapingErrorPage(std::map<int, std::string> &ep, std::string &str, char delim) {
 	ep.insert(std::pair<int, std::string>(atoi(key(str, delim).c_str()), value(str, delim)));
+}
+
+void	mapingCGI(std::map<std::string, std::string> &ep, std::string &str, char delim) {
+	ep.insert(std::pair<std::string, std::string>(key(str, delim).c_str(), value(str, delim)));
 }
 
 void	mapingMethods(std::map<std::string, bool> &methods, std::string &str) {
@@ -140,12 +152,15 @@ void	getValueLocation(std::string & str, Location & loc) {
 		loc.root = value;
 	}
 	if (str.find("path_cgi:") != std::string::npos) {
-		std::string value = str.substr(str.find("path_cgi:") + strlen("path_cgi:"));
-		trimSpaces(value);
-		std::string extn = value.substr(0, value.find(' '));
-		std::string path = value.substr(value.find(extn) + extn.length());
-		trimSpaces(path);
-		loc.cgi = std::pair<std::string, std::string>(extn, path);
+		str.erase(0, str.find(' ') + 1);
+		std::map<std::string, std::string> cgies;
+		while(str.length() != 0) {
+			trimSpaces(str);
+			std::string subString = str.substr(0, str.find(' '));
+			str.erase(0, str.find(' '));
+			mapingCGI(cgies, subString, '=');
+		}
+		loc.cgi = cgies;
 	}
 	if (str.find("allow_methods:") != std::string::npos) {
 		str.erase(0, str.find(' ') + 1);
@@ -282,374 +297,3 @@ int	startParser(char *fileName, std::vector<t_server> &servers) {
 	parsFile.close();
 	return (0);
 }
-
-//int main(int ac, char **av) {
-//	std::vector<t_server> structServers;
-//	if (ac == 2) {
-//		if (!startParser(av[1], structServers)){
-//			std::vector<Server> Servers;
-//			for (int i = 0; i < structServers.size(); ++i) {
-//				Server obj(structServers[i]);
-//				Servers.push_back(obj);
-//			}
-//		pthread_t s;
-//		for (unsigned long i = 0; i < Servers.size(); ++i)
-//		{
-//			std::cout << i << std::endl;
-//			Servers[i].ready();
-//			pthread_create(&s, NULL, &runServer, &Servers[i]);
-//		}
-//		while (1)
-//			;
-//		}
-//		else {
-//			std::cout << "ERROR parse config" << std::endl;
-//			return (1);
-//		}
-//	}
-//	else {
-//		std::cout << "wrong arguments" << std::endl;
-//		return (1);
-//	}
-//	return (0);
-//}
-
-//std::string pars_one_arg(std::string &line)
-//{
-//	line.erase(0, line.find(":") + 1);
-//	line.erase(0, line.find_first_not_of(" \t"));
-//	int i;
-//	if ((i = line.find(" ")) != -1)
-//	{
-//		std::string between = line;
-//		between.erase(0, i);
-//		between.erase(0, between.find_first_not_of(" "));
-//		if (!between.empty())
-//		{
-//			std::cout << "Error: wrong argument in config" << std::endl;
-//			return "";
-//		}
-//		else
-//			line.erase(i, line.length());
-//	}
-//	return line;
-//}
-//
-//std::vector<Server*> parser(std::string path)
-//{
-//	std::vector<std::vector<std::string> > servs;
-//	std::vector<Server *> serv = std::vector<Server *>();
-//	std::string line;
-//	std::ifstream file(path);
-//	if (file.fail())
-//	{
-//		std::cout << "Error: file is wrong" << std::endl;
-//	}
-//	else
-//	{
-//		while (1)
-//		{
-//			std::vector<std::string> ser;
-//			while (getline(file, line) &&
-//				   line.find("server:") == std::string::npos)
-//			{
-//				ser.push_back(line);
-//			}
-//			if (file.fail())
-//			{
-//				servs.push_back(ser);
-//				break;
-//			}
-//			if (line.find("server:") != std::string::npos)
-//			{
-//				if (ser.size())
-//					servs.push_back(ser);
-//				continue;
-//			}
-//		}
-//		for (unsigned long i = 0; i < servs.size(); ++i)
-//		{
-//			if (i == 3)
-//				NULL;
-//			int lflg = 0;
-//			std::string locPath;
-//			std::map<std::string, Location> location;
-//			std::map<int, std::string> erPage;
-//			Location loc;
-//			Server *s = new Server();
-//			for (unsigned long j = 0; j < servs[i].size(); ++j)
-//			{
-//				line = servs[i][j];
-//				if (line[0] == ' ')
-//				{
-//					std::cout << "Space in config in line: " << i * j
-//							  << std::endl;
-//				}
-//				if (line[0] == '\t' && line[1] != '\t')
-//				{
-//					line.erase(0, 1);
-//					if (line.find("server_name:") != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						s->setName(line);
-//					} else if (line.find("host:") != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						s->setHost(line);
-//					} else if (line.find("port:") != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						s->setPort(atoi(line.c_str()));
-//					} else if (line.find("error_page:") != std::string::npos)
-//					{
-//						std::string first, second;
-//						line.erase(0, line.find(":") + 1);
-//						line.erase(0, line.find_first_not_of(" \t"));
-//						int l;
-//						if ((l = line.find(" ")) != -1)
-//						{
-//							first = std::string(line);
-//							second = std::string(line);
-//							first.erase(l, line.length());
-//							second.erase(0, l + 1);
-//							second.erase(0, second.find_first_not_of(" \t"));
-//							if ((l = second.find_first_of(" \t")) != -1)
-//								second.erase(l, second.length());
-//						}
-//						erPage.insert(
-//								std::pair<int, std::string>(atoi(first.c_str()),
-//															second));
-//						s->setErrorPages(erPage);
-//					} else if (line.find("location:") != std::string::npos)
-//					{
-//						lflg = 1;
-//						line = pars_one_arg(line);
-//						locPath = line;
-//					}
-//				} else if (lflg == 1 && line[0] == '\t' && line[1] == '\t')
-//				{
-//					if (i == 3)
-//						NULL;
-//					if (line.find("root:") != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						loc.root = std::string(line);
-//					} else if (line.find("path_cgi:") != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						loc.pathCgi = std::string(line);
-//					}
-//					else if (line.find("autoindex:", 2, 10) != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						loc.autoindex = std::string(line);
-//					}
-//					else if (line.find("index:", 2, 6) != std::string::npos)
-//					{
-//						line = pars_one_arg(line);
-//						loc.index = std::string(line);
-//					}
-//
-//					else if (line.find("allow_methods:") != std::string::npos)
-//					{
-//						std::map<std::string, bool> methods = std::map<std::string, bool>();
-//						if (line.find("GET") != std::string::npos &&
-//							loc.index != "")
-//							methods.insert(
-//									std::make_pair<std::string, bool>("GET",
-//																	  1));
-//						else if (line.find("GET") != std::string::npos &&
-//								 loc.index == "")
-//							std::cout << "No indes for GET" << std::endl;
-//						if (line.find("POST") != std::string::npos)
-//							methods.insert(
-//									std::make_pair<std::string, bool>("POST",
-//																	  1));
-//						if (line.find("DELETE") != std::string::npos)
-//							methods.insert(
-//									std::make_pair<std::string, bool>("DELETE",
-//																	  1));
-//						loc.methods = methods;
-//					}
-//				}
-//				else if ((lflg == 1 && line.empty()) ||
-//						 (lflg == 1 && j == servs[i].size() - 1))
-//				{
-//					lflg = 0;
-//					location.insert(std::make_pair(locPath, loc));
-//					loc.reset();
-//					s->setLocations(location);
-//				}
-//			}
-//			serv.push_back(s);
-//		}
-//	}
-//	file.close();
-//	return serv;
-//}
-
-//int main(int ac, char **av)
-//{
-//	(void)ac;
-//	std::vector<Server*> serv;
-//	serv = parser(av[1]);
-//	pthread_t s;
-//	for (unsigned long i = 0; i < serv.size(); ++i)
-//	{
-//		std::cout << i << std::endl;
-//		serv[i]->ready();
-//		pthread_create(&s, NULL, &runServer, serv[i]);
-//	}
-//	while (1)
-//		;
-//}
-
-//int main(int ac, char **av)
-//{
-//	std::vector<std::vector<std::string> > servs;
-//	if (ac != 2)
-//		return 0;
-//	std::ifstream file(av[1]);
-//	if (file.fail())
-//	{
-//		std::cout << "Error: file is wrong" << std::endl;
-//		return -1;
-//	}
-//	std::string line;
-//	while (1)
-//	{
-//		std::vector<std::string> ser;
-//		while (getline(file, line) && line.find("server:") == std::string::npos)
-//		{
-//			ser.push_back(line);
-//		}
-//		if (file.fail())
-//		{
-//			servs.push_back(ser);
-//			break;
-//		}
-//		if (line.find("server:") != std::string::npos)
-//		{
-//			if (ser.size())
-//				servs.push_back(ser);
-//			continue;
-//		}
-//	}
-//	std::vector<Server*> serv = std::vector<Server*>();
-//	for (unsigned long i = 0; i < servs.size(); ++i)
-//	{
-//		if (i == 3)
-//			NULL;
-//		int lflg = 0;
-//		std::string locPath;
-//		std::map<std::string, Location> location;
-//		std::map<int, std::string> erPage;
-//		Location loc;
-//		Server *s = new Server();
-//		for (unsigned long j = 0; j < servs[i].size(); ++j)
-//		{
-//			line = servs[i][j];
-//			if (line[0] == ' '){
-//				std::cout << "Space in config in line: " << i * j << std::endl;
-//			}
-//			if (line[0] == '\t' && line[1] != '\t')
-//			{
-//				line.erase(0, 1);
-//				if (line.find("server_name:") != std::string::npos)
-//				{
-//					line = pars_one_arg(line);
-//					s->setName(line);
-//				}
-//				else if (line.find("host:") != std::string::npos)
-//				{
-//					line = pars_one_arg(line);
-//					s->setHost(line);
-//				}
-//				else if (line.find("port:") != std::string::npos)
-//				{
-//					line = pars_one_arg(line);
-//					s->setPort(atoi(line.c_str()));
-//				}
-//				else if (line.find("error_page:") != std::string::npos)
-//				{
-//					std::string first, second;
-//					line.erase(0, line.find(":") + 1);
-//					line.erase(0, line.find_first_not_of(" \t"));
-//					int l;
-//					if ((l = line.find(" ")) != -1)
-//					{
-//						first = std::string(line);
-//						second = std::string(line);
-//						first.erase(l, line.length());
-//						second.erase(0, l + 1);
-//						second.erase(0, second.find_first_not_of(" \t"));
-//						if ((l = second.find_first_of(" \t")) != -1)
-//							second.erase(l, second.length());
-//					}
-//					erPage.insert(std::pair<int, std::string>(atoi(first.c_str()), second));
-//					s->setErrorPages(erPage);
-//				}
-//				else if (line.find("location:") != std::string::npos)
-//				{
-//					lflg = 1;
-//					line = pars_one_arg(line);
-//					locPath = line;
-//				}
-//			}
-//			else if (lflg == 1 && line[0] == '\t' && line[1] == '\t')
-//			{
-//				if (i == 3)
-//					NULL;
-//				if (line.find("root:") != std::string::npos)
-//				{
-//					line = pars_one_arg(line);
-//					loc.root = std::string(line);
-//				}
-//				else if (line.find("path_cgi:") != std::string::npos)
-//				{
-//					line = pars_one_arg(line);
-//					loc.pathCgi = std::string(line);
-//				}
-//				else if (line.find("index:") != std::string::npos)
-//				{
-//					line = pars_one_arg(line);
-//					loc.index = std::string(line);
-//				}
-//				else if (line.find("allow_methods:") != std::string::npos)
-//				{
-//					std::map<std::string, bool> methods = std::map<std::string, bool>();
-//					if (line.find("GET") != std::string::npos && loc.index != "")
-//						methods.insert(std::make_pair<std::string, bool>("GET", 1));
-//					else if (line.find("GET") != std::string::npos && loc.index == "")
-//						return -1;
-//					if (line.find("POST") != std::string::npos)
-//						methods.insert(std::make_pair<std::string, bool>("POST", 1));
-//					if (line.find("DELETE") != std::string::npos)
-//						methods.insert(std::make_pair<std::string, bool>("DELETE", 1));
-//					loc.methods = methods;
-//				}
-//			}
-//			if (i == 3 && j == 23)
-//				NULL;
-//			else if ((lflg == 1 && line.empty()) || (lflg == 1 && j == servs[i].size() - 1))
-//			{
-//				lflg = 0;
-//				location.insert(std::make_pair(locPath, loc));
-//				loc.reset();
-//				s->setLocations(location);
-//			}
-//		}
-//		serv.push_back(s);
-//	}
-//	pthread_t s;
-//	for (unsigned long i = 0; i < serv.size(); ++i)
-//	{
-//		std::cout << i << std::endl;
-//		serv[i]->ready();
-//		pthread_create(&s, NULL, &runServer, serv[i]);
-//	}
-//	file.close();
-//	while (1)
-//	 ;
-//	return 0;
-//}
