@@ -121,15 +121,22 @@ void Start(vector<Server*> Serverss)
 			if (max_fd < i->first)
 				max_fd = i->first;
 		}
-		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end(); i++) {
+		for (map <int, Client*> :: iterator i = Clients.begin(); i != Clients.end();) {
 			if (!(i->second->isClosed = i->second->SessionIsOver())){
 				readFd.insert(readFd.begin(), i->first);
 				FD_SET(i->first, &readfd);
+			}
+			else if (i->second->isClosed){
+					Clients.erase(i);
+					delete i->second;
+					i = Clients.begin();
+					continue ;
 			}
 			if (i->second->toServe())
 				FD_SET(i->first, &writefd);
 			if (max_fd < i->first)
 				max_fd = i->first;
+			i++;
 		}
 		select_res = select(max_fd + 1, &readfd, &writefd, NULL, &timeout);
 		if (select_res == -1) {
@@ -144,11 +151,6 @@ void Start(vector<Server*> Serverss)
 				if (FD_ISSET(i->first, &writefd) &&  i->second->toServe()){
 					i->second->response(Servers[i->second->getSrvSocket()]->getErrorPages());
 					select_res--;
-				}
-				else if (i->second->isClosed){
-						Clients.erase(i);
-					delete i->second;
-					i = Clients.begin();
 				}
 			}
 			catch(const std::exception& e)
