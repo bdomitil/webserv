@@ -15,11 +15,9 @@ std::size_t	Request::skipWhiteSpaces(std::string const &str, std::size_t start =
 	while (start < str.length() and ikael::isCharWhiteSpace(str[start]))
 		start++;
 	return start;
-	// one line mode
-	// return (start >= str.length() ? str.length() : ikael::isCharWhiteSpace(str[start]) ? skipWhiteSpaces(str, start + 1) : start);
 }
 
-Location const	*Request::getLocation(void) const {
+const Location	*Request::getLoc(void) const {
 
 	std::string	tmp;
 	std::string	tmp1;
@@ -49,7 +47,7 @@ Location const	*Request::getLocation(void) const {
 
 void	Request::validateStartLine(void) {
 
-	_location = getLocation();
+	_location = getLoc();
 	if (!_location)
 		throw ErrorException(404, "Not Found");
 

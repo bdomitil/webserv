@@ -1,7 +1,7 @@
 #include "../../includes/MainIncludes.hpp"
 
 Request::Request(std::map<std::string, Location> const &l)
-: _locationsMap(l), _bodySize(0), _chunkSize(0),
+: _locationsMap(l), _location(nullptr), _bodySize(0), _chunkSize(0),
 _parseState(START_LINE), _isReqDone(false), _isChunkSize(false),
 _buffer(new char[RECV_BUFFER_SIZE + 1]), _errorStatus(0) {
 	return;
@@ -10,6 +10,10 @@ _buffer(new char[RECV_BUFFER_SIZE + 1]), _errorStatus(0) {
 Request::~Request(void) {
 	delete [] _buffer;
 	return;
+}
+
+const Location	*Request::getLocation(void) const {
+	return _location;
 }
 
 char	*Request::getBuffer(void) const {
@@ -75,6 +79,10 @@ std::string	Request::getUrl(std::uint32_t &status) {
 	std::string	path;
 	std::string	fullPath;
 
+	if (_location and _location->redirect.second.length()) {
+		status = _location->redirect.first;
+		return _location->redirect.second;
+	}
 	pos = _uri.find_last_of("/");
 	status = 404;
 	if (pos == std::string::npos)
