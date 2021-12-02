@@ -91,10 +91,14 @@ void Client :: response(std::map<int, std::string> &errorPages) {
 	}
 }
 
-bool Client :: SessionIsOver() {
-		uint32_t tmp;
-	if (_session_end <= _session_start) {
+bool Client :: SessionIsOver(){
+	uint32_t tmp;
+
+	if (isClosed)
+		return (true);
+	if (_session_end <= _session_start){
 		std::cerr << BLUE << "Session of " << _ip << " recuesting " << _request.getUrl(tmp)  << " is timed out" << RESET <<std::endl;
+		close(_fdSock);
 		return (true);
 	}
 	_session_start = std::time(0);
