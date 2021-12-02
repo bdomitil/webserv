@@ -10,5 +10,6 @@
 int		startParser(char *fileName, std::vector<t_server> &servers);
 void	printLocations(std::map<std::string, Location> locations);
 void	printServ(t_server serv);
+void	printServers(std::vector<t_server> servers);
 
 #endif //WEBSERV_PARSFILE_HPP
