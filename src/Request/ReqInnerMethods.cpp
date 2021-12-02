@@ -41,8 +41,8 @@ void	Request::saveStartLine(std::string startLine) {
 	_protocol = startLine;
 	_protocol.erase(std::remove_if(_protocol.begin(),
 		_protocol.end(), &ikael::isCharWhiteSpace), _protocol.end());
-	if (_protocol != HTTP_PROTOCOL)
-		throw ErrorException(505, "HTTP Version Not Supported");
+	// if (_protocol != HTTP_PROTOCOL) //TODO delete it and fix pars
+	// 	throw ErrorException(505, "HTTP Version Not Supported");
 	_parseState = HEADER_LINE;
 	_maxBodySize = getLimitBodySize();
 	return;

@@ -126,7 +126,36 @@ char	*gen_def_page(int statusCode, uint64_t &bodySize){
 std::time_t increase_session_time(){
 	time_t curr = std::time(0);
 	std::tm *tmp  = localtime(&curr);
-	tmp->tm_hour += 1;
+	// tmp->tm_hour += 1;
+	tmp->tm_sec += 10;
 	curr = std::mktime(tmp);
 	return (curr);
+}
+
+const char ***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers){
+	const char **env = new const char*[headers.size() + 1];
+	const char **args = new const char*[2];
+	const char ***to_ret =  new const char**[2];
+
+	env[headers.size()] = nullptr;
+	args[1] = nullptr;
+	args[0] = strdup(path.c_str());
+	std::map <std::string, std::string> :: iterator i = headers.begin();
+	for (int j = 0; i != headers.end(); i++, j++){
+		env[j] = strdup((i->first + "=" + i->second).c_str());
+	}
+	to_ret[0] = args;
+	to_ret[1] = env;
+	return (to_ret);
+}
+
+void free_execData(const char ***execData){
+	delete execData[0][0];
+	delete execData[0][1];
+	delete execData[0];
+	for (int i = 0; execData[1][i] != nullptr; i++){
+		delete execData[1][i];
+	}
+	delete execData[1];
+	delete execData;
 }

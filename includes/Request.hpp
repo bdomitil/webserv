@@ -35,7 +35,7 @@ public:
 	std::string								getQueryString();
 	void									setErrorStatus(int const);
 	char									*getBuffer() const ;
-	int										getErrorStatus() const ;
+	uint32_t								getErrorStatus() const ;
 
 
 	bool									saveRequestData(ssize_t);
@@ -73,7 +73,7 @@ private:
 	bool									_isChunkSize;
 	bool									_isReqDone;
 	char									*_buffer;
-	int										_errorStatus;
+	uint32_t								_errorStatus;
 
 };
 

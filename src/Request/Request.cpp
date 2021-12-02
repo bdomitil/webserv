@@ -32,7 +32,7 @@ std::string	Request::getQueryString(void) {
 	return _query;
 }
 
-int		Request::getErrorStatus(void) const {
+uint32_t	Request::getErrorStatus(void) const {
 	return _errorStatus;
 }
 

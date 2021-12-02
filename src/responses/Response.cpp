@@ -5,9 +5,11 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 
 	t_fileInfo file;
 
-	_bodySize = 0;
-	_reqHeaders = request.getHeaders();
-	_url = request.getUrl(_statusCode);
+	if ((_statusCode  = request.getErrorStatus()) == 0){
+		_bodySize = 0;
+		_reqHeaders = request.getHeaders();
+		_url = request.getUrl(_statusCode);
+	}
 	if (_statusCode < 399) {
 		urlInfo(_url, &file,  _FILE);
 		if (file.fType == DDIR)
@@ -71,11 +73,9 @@ std::string Response :: makeHeaders() {
 		_headers += "Content-Type: " + _contentType + string(CRLF);
 		_headers += "Accept-Ranges: bytes" + string(CRLF);
 	}
+	_headers += "Set-Cookie: lastsess=" + string(ctime(&current_time));
 	_headers += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
-	if (!_reqHeaders["Connection"].size())
-		_headers += "Connection: close" + string(CRLF);
-	else
-		_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
+	_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
 	_headers += string(CRLF);
 	return(_headers);
 }
@@ -103,7 +103,6 @@ char *Response :: makeBody(int &readSize) {
 void Response :: sendRes(int socket){
 
 	int		res = 0;
-
 
 	if (!_inProc){		
 		_response.append(makeStatusLine());
