@@ -2,7 +2,8 @@ NAME =	webserv
 
 SRCS =	src/Request/Request.cpp			src/parser_config/ParseFile.cpp\
 		src/server/Client.cpp			src/server/Server.cpp\
-		src/Request/ReqInnerMethods.cpp src/Response/Response.cpp src/tools/tools.cpp
+		src/Request/ReqInnerMethods.cpp src/Response/Response.cpp src/tools/tools.cpp\
+		src/Response/Cgi.cpp
 
 MAIN =	main.cpp
 

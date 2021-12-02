@@ -6,12 +6,14 @@ class Cgi {
 
 public:
 		uint32_t editResponce(std::stringstream &st);
-		Cgi(Request &_request,  std::map<std::string, std::string> &cgiPath , std::string &method);
+		Cgi(Request &_request, const std::map<std::string, std::string> &cgiPath);
+		const char ***makeData_for_exec(std::string &path, std::string &addHeaders);
 private:
 		Cgi();
 		Request &_request;
-		std::map<std::string, std::string> _cgiPath;
-		std::string _method;
+		void free_execData(const char ***execData);
+		const std::map<std::string, std::string> _cgiPath;
+		std::map <std::string, std::string> _reqHeaders;
 };
 
 

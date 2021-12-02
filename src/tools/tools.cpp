@@ -12,42 +12,42 @@ std::string	ft_itoa(int x)
 
 string getExtension(string fPath)
 {
-	std:: map<string, string> MIME;
+	static std:: map<string, string> MIME;
 	string	ext = "application/octet-stream";
 
+	if (!MIME.size()){
+		MIME.insert(pair<string, string>("mp3", "audio/mpeg"));
+		MIME.insert(pair<string, string>("weba", "audio/webm"));
+		MIME.insert(pair<string, string>("aac", "audio/aac"));
 
-	MIME.insert(pair<string, string>("mp3", "audio/mpeg"));
-	MIME.insert(pair<string, string>("weba", "audio/webm"));
-	MIME.insert(pair<string, string>("aac", "audio/aac"));
+		MIME.insert(pair<string, string>("avi", "video/x-msvideo"));
+		MIME.insert(pair<string, string>("mpeg", "video/mpeg"));
+		MIME.insert(pair<string, string>("ogv", "video/ogg"));
+		MIME.insert(pair<string, string>("ts", "video/mp2t"));
+		MIME.insert(pair<string, string>("webm", "video/webm"));
+		MIME.insert(pair<string, string>("mp4", "video/mp4"));
 
-	MIME.insert(pair<string, string>("avi", "video/x-msvideo"));
-	MIME.insert(pair<string, string>("mpeg", "video/mpeg"));
-	MIME.insert(pair<string, string>("ogv", "video/ogg"));
-	MIME.insert(pair<string, string>("ts", "video/mp2t"));
-	MIME.insert(pair<string, string>("webm", "video/webm"));
-	MIME.insert(pair<string, string>("mp4", "video/mp4"));
+		MIME.insert(pair<string, string>("gif", "image/gif"));
+		MIME.insert(pair<string, string>("jpeg", "image/jpeg"));
+		MIME.insert(pair<string, string>("png", "image/png"));
+		MIME.insert(pair<string, string>("jpg", "image/jpeg"));
+		MIME.insert(pair<string, string>("tiff", "image/tiff"));
+		MIME.insert(pair<string, string>("webp", "image/webp"));
+		MIME.insert(pair<string, string>("ico", "image/x-icon"));
+		MIME.insert(pair<string, string>("bmp", "image/bmp"));
 
-	MIME.insert(pair<string, string>("gif", "image/gif"));
-	MIME.insert(pair<string, string>("jpeg", "image/jpeg"));
-	MIME.insert(pair<string, string>("png", "image/png"));
-	MIME.insert(pair<string, string>("jpg", "image/jpeg"));
-	MIME.insert(pair<string, string>("tiff", "image/tiff"));
-	MIME.insert(pair<string, string>("webp", "image/webp"));
-	MIME.insert(pair<string, string>("ico", "image/x-icon"));
-	MIME.insert(pair<string, string>("bmp", "image/bmp"));
+		MIME.insert(pair<string, string>("js", "application/javascript"));
+		MIME.insert(pair<string, string>("json", "application/json"));
+		MIME.insert(pair<string, string>("pdf", "application/pdf"));
+		MIME.insert(pair<string, string>("ps", "application/postscript"));
+		MIME.insert(pair<string, string>("doc", "application/msword"));
 
-	MIME.insert(pair<string, string>("js", "application/javascript"));
-	MIME.insert(pair<string, string>("json", "application/json"));
-	MIME.insert(pair<string, string>("pdf", "application/pdf"));
-	MIME.insert(pair<string, string>("ps", "application/postscript"));
-	MIME.insert(pair<string, string>("doc", "application/msword"));
-
-	MIME.insert(pair<string, string>("css", "text/css"));
-	MIME.insert(pair<string, string>("html", "text/html"));
-	MIME.insert(pair<string, string>("htm", "text/html"));
-	MIME.insert(pair<string, string>("csv", "text/csv"));
-	MIME.insert(pair<string, string>("php", "text/php"));
-
+		MIME.insert(pair<string, string>("css", "text/css"));
+		MIME.insert(pair<string, string>("html", "text/html"));
+		MIME.insert(pair<string, string>("htm", "text/html"));
+		MIME.insert(pair<string, string>("csv", "text/csv"));
+		MIME.insert(pair<string, string>("php", "text/php"));
+	}
 
 	if (fPath.find_last_of('.') != std:: string :: npos)
 	{
@@ -91,6 +91,22 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 	return (true);
 }
 
+int  toCgi(const std::map<std::string, std::string>& Cgi, std::string fPath){
+	struct stat	buff;
+	int			res = 1;
+	std::string ext = "." + fPath.substr(fPath.find_last_of('.') + 1);
+
+	std::map<std::string, std::string>::const_iterator i = Cgi.begin();
+	for (; i != Cgi.end(); i++){
+		if (ext == i->first){
+			res = stat(i->second.c_str(), &buff);
+			if (res == -1 || !(buff.st_mode & S_IXUSR))
+				return (-1);
+		}
+	}
+	return (!res);
+}
+
 
 
 char	*gen_def_page(int statusCode, uint64_t &bodySize){
@@ -119,33 +135,6 @@ std::time_t increase_session_time(){
 	return (curr);
 }
 
-const char ***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers){
-	const char **env = new const char*[headers.size() + 1];
-	const char **args = new const char*[2];
-	const char ***to_ret =  new const char**[2];
-
-	env[headers.size()] = nullptr;
-	args[1] = nullptr;
-	args[0] = strdup(path.c_str());
-	std::map <std::string, std::string> :: iterator i = headers.begin();
-	for (int j = 0; i != headers.end(); i++, j++){
-		env[j] = strdup((i->first + "=" + i->second).c_str());
-	}
-	to_ret[0] = args;
-	to_ret[1] = env;
-	return (to_ret);
-}
-
-void free_execData(const char ***execData){
-	delete execData[0][0];
-	delete execData[0][1];
-	delete execData[0];
-	for (int i = 0; execData[1][i] != nullptr; i++){
-		delete execData[1][i];
-	}
-	delete execData[1];
-	delete execData;
-}
  std::map <int, std::string> &error_map(){
 	static  std::map <int, std::string> error_map;
 	if (!error_map.size()){

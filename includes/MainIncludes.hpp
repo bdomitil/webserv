@@ -27,10 +27,10 @@
 #include "Location.hpp"
 #include "SettingsServer.hpp"
 #include "Request.hpp"
+#include "Cgi.hpp"
 #include "Response.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
-#include "Cgi.hpp"
 
 //colors for beauty
 #define YELLOW		"\033[33;1m"
@@ -81,7 +81,7 @@ void			Start(vector<Server*> Servers);
 std::string		ft_itoa(int x);
 void 			free_execData(const char ***execData);
 bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
-const char		***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers);
+int				toCgi(const std::map<std::string, std::string>& Cgi, std::string fPath);
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();

@@ -29,6 +29,7 @@ public:
 
 	const Location						*getLocation() const ;
 	std::string							getUrl(std::uint32_t &);
+	std::string							getUrl(std::string &target);
 	std::map<std::string, std::string>	&getHeaders();
 	std::map<int, std::string>		 	&getErrorPages();
 	std::string							getMethod() const ;

@@ -18,6 +18,7 @@ private:
 	std::string							_response;
 	bool								_inProc;
 	long long int						_leftBytes;
+	Cgi									*_cgi;
 
 public:
 	std::string					getResponse() const ;
@@ -29,6 +30,7 @@ public:
 	void						sendRes(int Socket);
 	bool						isSent(){return (!_leftBytes);}
 	Response(Request &request, std::map<int, std::string> errorPages);
+	~Response();
 };
 
 #endif

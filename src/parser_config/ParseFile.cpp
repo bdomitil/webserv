@@ -153,14 +153,15 @@ void	getValueLocation(std::string & str, Location & loc) {
 	}
 	if (str.find("path_cgi:") != std::string::npos) {
 		str.erase(0, str.find(' ') + 1);
-		std::map<std::string, std::string> cgies;
 		while(str.length() != 0) {
 			trimSpaces(str);
 			std::string subString = str.substr(0, str.find(' '));
 			str.erase(0, str.find(' '));
-			mapingCGI(cgies, subString, '=');
+			trimSpaces(str);
+			subString = subString + "=" + str;
+			mapingCGI(loc.cgi, subString, '=');
+			str  = "";
 		}
-		loc.cgi = cgies;
 	}
 	if (str.find("allow_methods:") != std::string::npos) {
 		str.erase(0, str.find(' ') + 1);

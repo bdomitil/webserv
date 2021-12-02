@@ -21,8 +21,17 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 			_contentType = "text/html";
 		}
 		else if (_statusCode != 301) {
-			_bodySize = file.fLength;
-			_contentType = file.fExtension;
+			int tocgi;
+			if ((tocgi = toCgi(request.getLocation()->getCgi(), _url)) > 0)
+				_cgi = new Cgi(request, request.getLocation()->getCgi());
+			else if (tocgi == -1){
+				_statusCode = 502;
+				_url = getErrorPage();
+			}
+			else {
+				_bodySize = file.fLength;
+				_contentType = file.fExtension;
+			}
 		}
 	}
 	else
@@ -30,6 +39,11 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 0;
 	_inProc = false;
+}
+
+Response :: ~Response(){
+	if (_cgi)
+		delete _cgi;
 }
 
 std::string	Response::getResponse(void) const {
@@ -104,9 +118,11 @@ void Response :: sendRes(int socket){
 
 	int		res = 0;
 
-	if (!_inProc){		
-		_response.append(makeStatusLine());
-		_response.append(makeHeaders());
+	if (!_inProc){
+		if (!_cgi){
+			_response.append(makeStatusLine());
+			_response.append(makeHeaders());
+		}
 		_leftBytes = _bodySize;
 		res = send(socket, _response.c_str(), _response.length(), 0);
 		if (res == -1)
@@ -139,13 +155,11 @@ void Response :: sendRes(int socket){
 		}
 		delete []    _body;
 	}
-
-	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
-	//std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
-
 	if (_leftBytes < 1) {
 		_inProc = false;
 		_leftBytes = false;
+		delete _cgi;
+		_cgi = nullptr;
 	}
 
 

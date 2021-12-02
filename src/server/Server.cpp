@@ -68,7 +68,7 @@ void Server :: Run(void) {
 	_fdSock =  createSocket();
 	if (bind(_fdSock, (struct sockaddr*)&_sockaddr, sizeof(_sockaddr)) == -1) {
 		std::cerr << "Error binding socket : " << strerror(errno) << std::endl;
-		throw (this);//binding socket
+		throw (this);
 	}
 	if (listen(_fdSock, 100) == -1) {
 		std::cerr << "Error listening socket : " << strerror(errno) << std::endl;
