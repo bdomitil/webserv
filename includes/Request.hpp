@@ -27,38 +27,41 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
-	std::string								getUrl(std::uint32_t &) const ;
-	std::map<std::string, std::string>		&getHeaders();
-	std::map<int, std::string>		 		&getErrorPages();
-	std::string								getMethod() const ;
-	std::string								getBody();
-	std::string								getQueryString();
-	void									setErrorStatus(int const);
-	char									*getBuffer() const ;
-	uint32_t								getErrorStatus() const ;
+	std::string							getUrl(std::uint32_t &);
+	std::map<std::string, std::string>	&getHeaders();
+	std::map<int, std::string>		 	&getErrorPages();
+	std::string							getMethod() const ;
+	std::string							getBody();
+	std::string							getQueryString();
+	void								setErrorStatus(int const);
+	char								*getBuffer() const ;
+	uint32_t							getErrorStatus() const ;
 
 
-	bool									saveRequestData(ssize_t);
-	void									showState() const ;
-	void									resetRequest();
+	bool								saveRequestData(ssize_t);
+	void								showState() const ;
+	void								resetRequest();
 
 private:
 
-	int		getLimitBodySize() const ;
+	const Location	*getLocation() const ;
 
-	bool	isStringHasWhiteSpaceChar(std::string const &) const ;
-	void	saveStartLineHeaders(std::string &);
-	void	saveSimpleBody(std::string &);
-	void	saveChunkedBody(std::string &);
-	void	saveStartLine(std::string);
-	void	saveHeaderLine(std::string);
-	void	parseUri();
-	void	parsePercent(std::string &);
-	void	parseChunkSize(std::string &);
-	void	parseChunkedBody(std::string &);
+	std::size_t	skipWhiteSpaces(std::string const &, std::size_t) const ;
+	bool		isStringHasWhiteSpaceChar(std::string const &) const ;
+	void		saveStartLineHeaders(std::string &);
+	void		saveSimpleBody(std::string &);
+	void		saveChunkedBody(std::string &);
+	void		saveStartLine(std::string);
+	void		saveHeaderLine(std::string);
+	void		parseUri();
+	void		parsePercent(std::string &);
+	void		parseChunkSize(std::string &);
+	void		parseChunkedBody(std::string &);
+	void		validateStartLine();
 
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;
+	const Location							*_location;
 	std::uint32_t							_maxBodySize;
 	std::uint32_t							_bodySize;
 	std::uint32_t							_chunkSize;
