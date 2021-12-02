@@ -27,6 +27,7 @@ public:
 	Request(std::map<std::string, Location> const &);
 	~Request();
 
+	const Location						*getLocation() const ;
 	std::string							getUrl(std::uint32_t &);
 	std::map<std::string, std::string>	&getHeaders();
 	std::map<int, std::string>		 	&getErrorPages();
@@ -44,7 +45,7 @@ public:
 
 private:
 
-	const Location	*getLocation() const ;
+	const Location	*getLoc() const ;
 
 	std::size_t	skipWhiteSpaces(std::string const &, std::size_t) const ;
 	bool		isStringHasWhiteSpaceChar(std::string const &) const ;
