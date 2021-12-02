@@ -29,7 +29,7 @@ Client :: ~Client()
 		unsigned int code;
 		std::cout << MAGENTA "Client : " << _ip << " (";
 		std::cout << _fdSock << ((close(_fdSock) == -1) ? " not closed)" : " closed)") << std::endl;
-		std::cout << "Requesting " << _request.getUrl(code) << "with code " << code << RESET << std::endl;
+		std::cout << "Requesting " << _request.getUrl(code) << " with code " << code << RESET << std::endl;
 	}
 	//Destruct if needed
 }

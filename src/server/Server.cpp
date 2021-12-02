@@ -97,7 +97,7 @@ void Start(vector<Server*> Serverss)
 			vector<Server*>::iterator i = Serverss.begin();
 			while (*i != serv)
 				i++;
-			Serverss.erase(i); 
+			Serverss.erase(i);
 		}
 		catch(const std::exception& e)
 		{
@@ -150,7 +150,6 @@ void Start(vector<Server*> Serverss)
 					delete i->second;
 					i = Clients.begin();
 				}
-
 			}
 			catch(const std::exception& e)
 			{
@@ -166,7 +165,7 @@ void Start(vector<Server*> Serverss)
 				 	{
 						if ((*cl).second->readRequest())
 							(*cl).second->response(Servers[cl->second->getSrvSocket()]->getErrorPages());
-						else if ((*cl).second->isClosed){ 
+						else if ((*cl).second->isClosed){
 							Clients.erase(cl);
 							delete (*cl).second;
 						}
