@@ -21,7 +21,7 @@ private:
 	std::time_t				_session_end;
 
 public :
-	Client(int srvSocket, std::map<std::string, Location> const &locations);
+	Client(int srvSocket, std::multimap<std::string, Location> const &locations);
 	~Client();
 	// Client(const Client &copy); //doesn't copy sockaddr_in struct
 	// Client& operator= (const Client &second); //doesn't copy sockaddr_in struct

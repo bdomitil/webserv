@@ -11,7 +11,7 @@ struct Location {
 	std::string							path;
 	std::map<std::string, bool>			methods;
 	std::string							root;
-	std::map<std::string, std::string> 	cgi;
+	std::multimap<std::string, std::string> 	cgi;
 	std::string							index;
 	std::string							autoindex;
 	int									limit_client_body_size;
@@ -20,7 +20,7 @@ struct Location {
 	std::string	getRoot() const {
 		return root;
 	}
-	const std::map<std::string, std::string>&	getCgi() const {
+	const std::multimap<std::string, std::string>&	getCgi() const {
 		return cgi;
 	}
 	std::string	getIndex() const {

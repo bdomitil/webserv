@@ -24,7 +24,7 @@ class Request {
 
 public:
 
-	Request(std::map<std::string, Location> const &);
+	Request(std::multimap<std::string, Location> const &);
 	~Request();
 
 	const Location						*getLocation() const ;
@@ -62,7 +62,7 @@ private:
 	void		validateStartLine();
 
 	std::map<std::string, std::string>		_headers;
-	std::map<std::string, Location> const	&_locationsMap;
+	std::multimap<std::string, Location> const	&_locationsMap;
 	const Location							*_location;
 	std::uint32_t							_maxBodySize;
 	std::uint32_t							_bodySize;

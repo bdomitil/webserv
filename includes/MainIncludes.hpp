@@ -76,13 +76,13 @@ typedef struct s_fileInfo
 
 //#include "ParseFile.hpp"
 int				startParser(char *fileName, std::vector<t_server> &servers);
-void			printLocations(std::map<std::string, Location> locations);
+void			printLocations(std::multimap<std::string, Location> locations);
 void			printServ(t_server serv);
 void			Start(vector<Server*> Servers);
 std::string		ft_itoa(int x);
 void 			free_execData(const char ***execData);
 bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
-int				checkCgi(const std::map<std::string, std::string>& Cgi, std::string fPath);
+int				checkCgi(const std::multimap<std::string, std::string>& Cgi, std::string fPath);
 char			*gen_def_page(int statusCode, uint64_t &bodySize);
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();

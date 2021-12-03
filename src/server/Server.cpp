@@ -181,7 +181,7 @@ void Start(vector<Server*> Serverss)
 				 else {
 					for (map<int, Server*>::iterator i = Servers.begin(); i != Servers.end(); i++) {
 						if (*start == i->first) {
-							std::map <string, Location> const &loc = i->second->getSettings().locations;
+							std::multimap <std::string, Location> const &loc = i->second->getSettings().locations;
 							Client *cl =  new Client(i->second->getSocket(), loc);
 							Clients.insert(std::pair<int, Client* >(cl->getSocket(), cl));
 							select_res--;

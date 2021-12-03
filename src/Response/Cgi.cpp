@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-Cgi :: Cgi(Request &request,const  std::map<std::string, std::string> &cgis, std::ifstream &FILE) : _request(request), _cgis(cgis), _FILE(FILE){
+Cgi :: Cgi(Request &request,const  std::multimap<std::string, std::string> &cgis, std::ifstream &FILE) : _request(request), _cgis(cgis), _FILE(FILE){
 	std::string target;
 	std::string root = _request.getLocation()->getRoot();
 	std::string url = _request.getUrl(target);
@@ -62,7 +62,7 @@ int*  Cgi:: editResponce(uint64_t &contLen, string &contType, int cgNum){
 	pid_t pid = 1;
 	_cgNum = cgNum;
 	int *pipes[cgNum];
-	std::map<std::string, std::string> :: iterator i = _cgis.begin();
+	std::multimap<std::string, std::string> :: iterator i = _cgis.begin();
 	pid_t helper;
 	int j = 0;
 	

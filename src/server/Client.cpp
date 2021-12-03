@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-Client :: Client(int srvSocket, std::map<std::string, Location> const &locations) :
+Client :: Client(int srvSocket, std::multimap<std::string, Location> const &locations) :
 	_request(locations), _response(nullptr) {
 
 	setenv("TZ", "/usr/share/zoneinfo/Europe/Moscow", 1);

@@ -1,6 +1,6 @@
 #include "../../includes/MainIncludes.hpp"
 
-Request::Request(std::map<std::string, Location> const &l)
+Request::Request(std::multimap<std::string, Location> const &l)
 : _locationsMap(l), _location(nullptr), _bodySize(0), _chunkSize(0),
 _parseState(START_LINE), _isReqDone(false), _isChunkSize(false),
 _buffer(new char[RECV_BUFFER_SIZE + 1]), _errorStatus(0) {
