@@ -20,6 +20,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
@@ -81,7 +82,8 @@ std::string		ft_itoa(int x);
 void 			free_execData(const char ***execData);
 bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
 const char		***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers);
-char			*gen_def_page(int statusCode, uint64_t &bodySize);
+char			*gen_def_page(uint32_t &statusCode, uint64_t &bodySize, const char *path);
+char 			*filesListing(std::string const &path, uint64_t &bodySize, uint32_t &statusCode);
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
 

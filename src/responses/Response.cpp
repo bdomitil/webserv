@@ -11,7 +11,7 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
 	}
-	if (_statusCode < 399) {
+	if (_statusCode < 399 && _statusCode != 1) {
 		urlInfo(_url, &file,  _FILE);
 		if (file.fType == DDIR)
 			file.fStatus = 404;
@@ -49,7 +49,7 @@ string Response :: getErrorPage() {
 			}
 		}
 	}
-	char *def_page = (gen_def_page(_statusCode, _bodySize));
+	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str()));
 	delete def_page;
 	return ("ERROR");
 }
@@ -93,7 +93,7 @@ char *Response :: makeBody(int &readSize) {
 				_FILE.close();
 		}
 		else {
-			_body = gen_def_page(_statusCode, _bodySize);
+			_body = gen_def_page(_statusCode, _bodySize, _url.c_str());
 			readSize = _bodySize;
 		}
 	}

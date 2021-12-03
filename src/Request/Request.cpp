@@ -71,7 +71,20 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	return _isReqDone;
 }
 
-/* переделать */
+std::uint32_t	Request::checkPath(std::string const &path) const {
+
+	struct stat	buff;
+	int			ret;
+
+	ret = stat(path.c_str(), &buff);
+	if (ret == -1)
+		return 404;
+	if (!S_ISREG(buff.st_mode))
+		if (_location->getAutoIndex() == "on")
+			return 1;
+	return 200;
+}
+
 std::string	Request::getUrl(std::uint32_t &status) {
 
 	std::string	target;
@@ -88,7 +101,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 	if (pos == std::string::npos)
 		return "unknown url";
 	target = _uri.substr(pos + 1);
-	if (!target.length())
+	if (!target.length() and _location->getAutoIndex() != "on")
 		target = _location->getIndex();
 	_uri.erase(pos);
 	path = _location->path;
@@ -102,7 +115,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 	for (std::size_t i = 0; i < fullPath.length() - 1; i++)
 		if (fullPath[i] == '/' and fullPath[i + 1] == '/')
 			fullPath.erase(i + 1, 1);
-	status = 200;
+	status = checkPath(fullPath);
 	return fullPath;
 }
 

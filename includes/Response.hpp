@@ -18,6 +18,7 @@ private:
 	std::string							_response;
 	bool								_inProc;
 	long long int						_leftBytes;
+	bool								_autoindex;
 
 public:
 	std::string					getResponse() const ;
