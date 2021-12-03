@@ -1,8 +1,7 @@
 
 #include "../../includes/MainIncludes.hpp"
 
-Response :: Response(Request &request, std::map<int, std::string> errorPages)
-: _response(""), _body(nullptr), _errorPages(errorPages), _autoindex(false) {
+Response :: Response(Request &request, std::map<int, std::string> errorPages) : _response(""), _body(nullptr), _errorPages(errorPages) {
 
 	t_fileInfo file;
 
@@ -12,24 +11,18 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages)
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
 	}
-	if (_statusCode < 399) {
-		if (_statusCode == 1) {
-			_statusCode = 200;
-			_autoindex = true;
-			char *tmp = filesListing(_url);
-			delete tmp;
+	if (_statusCode < 399 && _statusCode != 1) {
+		urlInfo(_url, &file,  _FILE);
+		if (file.fType == DDIR)
+			file.fStatus = 404;
+		if ((file.fStatus < 200 || file.fStatus > 299) && _statusCode != 301){
+			_statusCode = file.fStatus;
+			_url = getErrorPage();
+			_contentType = "text/html";
 		}
-		else {
-			urlInfo(_url, &file,  _FILE);
-			if ((file.fStatus < 200 || file.fStatus > 299) && _statusCode != 301) {
-				_statusCode = file.fStatus;
-				_url = getErrorPage();
-				_contentType = "text/html";
-			}
-			else if (_statusCode != 301) {
-				_bodySize = file.fLength;
-				_contentType = file.fExtension;
-			}
+		else if (_statusCode != 301) {
+			_bodySize = file.fLength;
+			_contentType = file.fExtension;
 		}
 	}
 	else
@@ -56,7 +49,7 @@ string Response :: getErrorPage() {
 			}
 		}
 	}
-	char *def_page = (gen_def_page(_statusCode, _bodySize));
+	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str()));
 	delete def_page;
 	return ("ERROR");
 }
@@ -91,11 +84,7 @@ char *Response :: makeBody(int &readSize) {
 
 	char c;
 	if (_inProc) {
-		if (_autoindex) {
-			_body = filesListing(_url);
-			readSize = _bodySize;
-		}
-		else if (_url != "ERROR") {
+		if (_url != "ERROR") {
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
@@ -104,7 +93,7 @@ char *Response :: makeBody(int &readSize) {
 				_FILE.close();
 		}
 		else {
-			_body = gen_def_page(_statusCode, _bodySize);
+			_body = gen_def_page(_statusCode, _bodySize, _url.c_str());
 			readSize = _bodySize;
 		}
 	}
@@ -115,7 +104,7 @@ void Response :: sendRes(int socket){
 
 	int		res = 0;
 
-	if (!_inProc) {
+	if (!_inProc){		
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
@@ -126,8 +115,9 @@ void Response :: sendRes(int socket){
 			std::cout << "\n\n" << _response << std::endl << std::endl;
 		_response = string();
 		_inProc = true;
+
 	}
-	else if (_FILE.is_open() || _statusCode != 200 || _autoindex) {
+	else if (_FILE.is_open() || _statusCode != 200) {
 		int to_send, pos, tries;
 		res = 0, pos = 0, tries = 0;
 		makeBody(to_send);
@@ -156,37 +146,7 @@ void Response :: sendRes(int socket){
 	if (_leftBytes < 1) {
 		_inProc = false;
 		_leftBytes = false;
-		_autoindex = false;
 	}
 
 
-}
-
-char	*Response::filesListing(std::string const &path) {
-
-	std::string		htmlBody;
-	DIR				*dirPtr;
-	struct dirent	*dirent;
-	std::string		tmp;
-
-	dirPtr = opendir(path.c_str());
-	if (!dirPtr) {
-		_statusCode = 404;
-		return strdup(std::string("").c_str());
-	}
-
-	htmlBody = "<!DOCTYPE html>\n";
-	htmlBody += "<html>\n";
-	htmlBody += "<head><title>AutoIndexON</title></head>\n";
-	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
-	dirent = readdir(dirPtr);
-	while (dirent) {
-		tmp = dirent->d_name;
-		htmlBody += "<a href=\"" + tmp + "\">" + tmp + "</a>\n";
-		dirent = readdir(dirPtr);
-	}
-	closedir(dirPtr);
-	htmlBody += "</body>\n</html>\n";
-	_bodySize = htmlBody.length();
-	return strdup(htmlBody.c_str());
 }

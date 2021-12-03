@@ -101,7 +101,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 	if (pos == std::string::npos)
 		return "unknown url";
 	target = _uri.substr(pos + 1);
-	if (!target.length())
+	if (!target.length() and _location->getAutoIndex() != "on")
 		target = _location->getIndex();
 	_uri.erase(pos);
 	path = _location->path;

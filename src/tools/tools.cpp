@@ -93,21 +93,26 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 
 
 
-char	*gen_def_page(int statusCode, uint64_t &bodySize){
-
-	std::stringstream buff;
-	buff << "<html>\n";
-	buff << "<head><title>" + ft_itoa(statusCode) + error_map()[statusCode] + "</title>\n";
-	buff << "<body>\n";
-	buff << "<center><h1>" + ft_itoa(statusCode)  + error_map()[statusCode] + "</h1></center>\n";
-	buff << "<hr><center>SUPER SERVER TEAM</center>\n";
-	buff << "</body>\n";
-	buff << "</html>\n";
-	buff.seekg(0, buff.end);
-	bodySize = buff.tellg();
-	buff.seekg(0, buff.beg);
-	char *def_page = new char[bodySize];
-	buff.read(def_page, bodySize);
+char	*gen_def_page(uint32_t &statusCode, uint64_t &bodySize, const char *path){
+	
+	char *def_page;
+	if (!path){
+		std::stringstream buff;
+		buff << "<html>\n";
+		buff << "<head><title>" + ft_itoa(statusCode) + error_map()[statusCode] + "</title>\n";
+		buff << "<body>\n";
+		buff << "<center><h1>" + ft_itoa(statusCode)  + error_map()[statusCode] + "</h1></center>\n";
+		buff << "<hr><center>SUPER SERVER TEAM</center>\n";
+		buff << "</body>\n";
+		buff << "</html>\n";
+		buff.seekg(0, buff.end);
+		bodySize = buff.tellg();
+		buff.seekg(0, buff.beg);
+		def_page = new char[bodySize];
+		buff.read(def_page, bodySize);
+	}
+	else if (!(def_page = filesListing(std::string(path) , bodySize, statusCode)))
+		def_page = gen_def_page(statusCode, bodySize, nullptr);
 	return (def_page);
 }
 
@@ -162,4 +167,35 @@ void free_execData(const char ***execData){
 		error_map.insert(std::pair<int, std::string>(503, " Service Unavailable"));
 	}
 	return error_map;
+}
+
+
+char	*filesListing(std::string const &path, uint64_t &bodySize, uint32_t &statusCode) {
+
+	std::string		htmlBody;
+	DIR				*dirPtr;
+	struct dirent	*dirent;
+	std::string		tmp;
+
+	dirPtr = opendir(path.c_str());
+	if (!dirPtr) {
+		statusCode = 403;
+		return nullptr;
+	}
+
+	htmlBody = "<!DOCTYPE html>\n";
+	htmlBody += "<html>\n";
+	htmlBody += "<head><title>AutoIndexON</title></head>\n";
+	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
+	dirent = readdir(dirPtr);
+	while (dirent) {
+		tmp = dirent->d_name;
+		htmlBody += "<a href=\"" + tmp + "\">" + tmp + "</a>\n";
+		dirent = readdir(dirPtr);
+	}
+	closedir(dirPtr);
+	htmlBody += "</body>\n</html>\n";
+	bodySize = htmlBody.length();
+	statusCode = 200;
+	return strdup(htmlBody.c_str());
 }
