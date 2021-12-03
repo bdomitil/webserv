@@ -47,7 +47,7 @@ private:
 	const Location	*getLoc() const ;
 
 	std::size_t		skipWhiteSpaces(std::string const &, std::size_t) const ;
-	std::uint32_t	checkPath(std::string const &) const ;
+	std::uint32_t	checkPath(std::string &) const ;
 	bool			isStringHasWhiteSpaceChar(std::string const &) const ;
 	void			saveStartLineHeaders(std::string &);
 	void			saveSimpleBody(std::string &);

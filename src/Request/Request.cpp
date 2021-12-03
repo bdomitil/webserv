@@ -71,18 +71,29 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	return _isReqDone;
 }
 
-std::uint32_t	Request::checkPath(std::string const &path) const {
+std::uint32_t	Request::checkPath(std::string &path) const {
 
-	struct stat	buff;
-	int			ret;
+	struct stat	buff={};
+	std::size_t	pos;
 
-	ret = stat(path.c_str(), &buff);
-	if (ret == -1)
+	pos = path.find_last_of("/");
+	if (pos < path.length() - 1) {
+		if (stat(path.c_str(), &buff) == 0 and buff.st_mode & S_IRUSR && S_ISREG(buff.st_mode))
+			return 200;
+		if (S_ISREG(buff.st_mode) || buff.st_mode == 0)
+			path.erase(pos);
+	}
+	else if (stat(path.c_str(), &buff) == -1)
 		return 404;
-	if (!S_ISREG(buff.st_mode))
-		if (_location->getAutoIndex() == "on")
-			return 1;
-	return 200;
+	if (!S_ISREG(buff.st_mode)) {
+		if (_location->getAutoIndex() == "on") {
+			if (access(path.c_str(), R_OK) == 0)
+				return 1;
+			else
+				return 403;
+		}
+	}
+	return 404;
 }
 
 std::string	Request::getUrl(std::uint32_t &status) {
@@ -101,7 +112,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 	if (pos == std::string::npos)
 		return "unknown url";
 	target = _uri.substr(pos + 1);
-	if (!target.length() and _location->getAutoIndex() != "on")
+	if (!target.length())
 		target = _location->getIndex();
 	_uri.erase(pos);
 	path = _location->path;
