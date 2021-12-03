@@ -94,7 +94,7 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 
 
 char	*gen_def_page(uint32_t &statusCode, uint64_t &bodySize, const char *path){
-	
+
 	char *def_page;
 	if (!path){
 		std::stringstream buff;
@@ -190,7 +190,8 @@ char	*filesListing(std::string const &path, uint64_t &bodySize, uint32_t &status
 	dirent = readdir(dirPtr);
 	while (dirent) {
 		tmp = dirent->d_name;
-		htmlBody += "<a href=\"" + tmp + "\">" + tmp + "</a>\n";
+		if (tmp != "." and tmp != "..")
+			htmlBody += "<a href=\"" + tmp + "\">" + tmp + "</a>\n";
 		dirent = readdir(dirPtr);
 	}
 	closedir(dirPtr);

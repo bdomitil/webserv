@@ -29,6 +29,7 @@ public:
 	void						setStatusCode(int);
 	void						sendRes(int Socket);
 	bool						isSent(){return (!_leftBytes);}
+	char					*filesListing(std::string const &path);
 	Response(Request &request, std::map<int, std::string> errorPages);
 };
 

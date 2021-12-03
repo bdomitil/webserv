@@ -10,6 +10,7 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
+		_autoindex = _statusCode == 1;
 	}
 	if (_statusCode < 399 && _statusCode != 1) {
 		urlInfo(_url, &file,  _FILE);
@@ -51,7 +52,9 @@ string Response :: getErrorPage() {
 	}
 	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str()));
 	delete def_page;
-	return ("ERROR");
+	if (!_autoindex)
+		return ("ERROR");
+	return (_url);
 }
 
 string Response :: makeStatusLine(){
@@ -84,7 +87,7 @@ char *Response :: makeBody(int &readSize) {
 
 	char c;
 	if (_inProc) {
-		if (_url != "ERROR") {
+		if (_url != "ERROR" && !_autoindex) {
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
@@ -104,7 +107,7 @@ void Response :: sendRes(int socket){
 
 	int		res = 0;
 
-	if (!_inProc){		
+	if (!_inProc){
 		_response.append(makeStatusLine());
 		_response.append(makeHeaders());
 		_leftBytes = _bodySize;
@@ -117,7 +120,7 @@ void Response :: sendRes(int socket){
 		_inProc = true;
 
 	}
-	else if (_FILE.is_open() || _statusCode != 200) {
+	else if (_FILE.is_open() || _statusCode != 200 || _autoindex) {
 		int to_send, pos, tries;
 		res = 0, pos = 0, tries = 0;
 		makeBody(to_send);
