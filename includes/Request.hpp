@@ -30,14 +30,13 @@ public:
 	const Location						*getLocation() const ;
 	std::string							getUrl(std::uint32_t &);
 	std::map<std::string, std::string>	&getHeaders();
-	std::map<int, std::string>		 	&getErrorPages();
+	std::map<int, std::string>			&getErrorPages();
 	std::string							getMethod() const ;
 	std::string							getBody();
 	std::string							getQueryString();
 	void								setErrorStatus(int const);
 	char								*getBuffer() const ;
 	uint32_t							getErrorStatus() const ;
-
 
 	bool								saveRequestData(ssize_t);
 	void								showState() const ;
