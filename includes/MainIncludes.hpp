@@ -20,6 +20,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #include <sstream>
 #include <ctime>
 #include <unistd.h>

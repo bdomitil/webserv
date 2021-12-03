@@ -46,18 +46,19 @@ private:
 
 	const Location	*getLoc() const ;
 
-	std::size_t	skipWhiteSpaces(std::string const &, std::size_t) const ;
-	bool		isStringHasWhiteSpaceChar(std::string const &) const ;
-	void		saveStartLineHeaders(std::string &);
-	void		saveSimpleBody(std::string &);
-	void		saveChunkedBody(std::string &);
-	void		saveStartLine(std::string);
-	void		saveHeaderLine(std::string);
-	void		parseUri();
-	void		parsePercent(std::string &);
-	void		parseChunkSize(std::string &);
-	void		parseChunkedBody(std::string &);
-	void		validateStartLine();
+	std::size_t		skipWhiteSpaces(std::string const &, std::size_t) const ;
+	std::uint32_t	checkPath(std::string const &) const ;
+	bool			isStringHasWhiteSpaceChar(std::string const &) const ;
+	void			saveStartLineHeaders(std::string &);
+	void			saveSimpleBody(std::string &);
+	void			saveChunkedBody(std::string &);
+	void			saveStartLine(std::string);
+	void			saveHeaderLine(std::string);
+	void			parseUri();
+	void			parsePercent(std::string &);
+	void			parseChunkSize(std::string &);
+	void			parseChunkedBody(std::string &);
+	void			validateStartLine();
 
 	std::map<std::string, std::string>		_headers;
 	std::map<std::string, Location> const	&_locationsMap;

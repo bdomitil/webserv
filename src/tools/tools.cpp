@@ -82,9 +82,9 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 		else {
 				fStruct->fStatus = 403;
 				FILE.close();
-			}
+		}
 	}
-	else if (res < 1){
+	else if (res < 1) {
 		fStruct->fStatus = 404;
 		return (false);
 	}
