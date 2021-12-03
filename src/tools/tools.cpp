@@ -91,20 +91,21 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 	return (true);
 }
 
-int  toCgi(const std::map<std::string, std::string>& Cgi, std::string fPath){
+int  checkCgi(const std::map<std::string, std::string>& Cgi, std::string fPath){
 	struct stat	buff;
-	int			res = 1;
+	int			res = 0;
 	std::string ext = "." + fPath.substr(fPath.find_last_of('.') + 1);
 
 	std::map<std::string, std::string>::const_iterator i = Cgi.begin();
 	for (; i != Cgi.end(); i++){
-		if (ext == i->first){
-			res = stat(i->second.c_str(), &buff);
+		// if (ext == i->first){
+			stat(i->second.c_str(), &buff);
 			if (res == -1 || !(buff.st_mode & S_IXUSR))
 				return (-1);
-		}
+			res++;
+		// }
 	}
-	return (!res);
+	return (res);
 }
 
 

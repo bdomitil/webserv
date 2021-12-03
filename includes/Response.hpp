@@ -19,6 +19,7 @@ private:
 	bool								_inProc;
 	long long int						_leftBytes;
 	Cgi									*_cgi;
+	int 								cgiFd[2];
 
 public:
 	std::string					getResponse() const ;

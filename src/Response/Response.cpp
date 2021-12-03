@@ -21,10 +21,18 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 			_contentType = "text/html";
 		}
 		else if (_statusCode != 301) {
-			int tocgi;
-			if ((tocgi = toCgi(request.getLocation()->getCgi(), _url)) > 0)
-				_cgi = new Cgi(request, request.getLocation()->getCgi());
-			else if (tocgi == -1){
+			int cgNum;
+			if ((cgNum = checkCgi(request.getLocation()->getCgi(), _url)) > 0){
+				_cgi = new Cgi(request, request.getLocation()->getCgi(), _FILE);
+				try{
+				 _cgi->editResponce(_bodySize, _contentType, cgNum);
+				}
+				catch(ErrorException &e){
+					std::cerr << e.what() << " due to " << strerror(errno) << std::endl;
+					_statusCode = 502;
+				}
+			}
+			else if (cgNum == -1){
 				_statusCode = 502;
 				_url = getErrorPage();
 			}
@@ -96,7 +104,6 @@ std::string Response :: makeHeaders() {
 
 char *Response :: makeBody(int &readSize) {
 
-	char c;
 	if (_inProc) {
 		if (_url != "ERROR") {
 			_body = new char[SEND_BUFFER_SIZZ];
