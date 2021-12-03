@@ -5,6 +5,7 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 
 	t_fileInfo file;
 
+	_contentType = "text/html";
 	if ((_statusCode  = request.getErrorStatus()) == 0){
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
@@ -54,12 +55,8 @@ string Response :: getErrorPage() {
 }
 
 string Response :: makeStatusLine(){
-	if (_statusCode == 200)
-		_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + "OK" + "\n";
-	else if (_statusCode == 301)
-		_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + "Moved Permanently" + "\n";
-	else
-		_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + "ERROR" + "\n";
+
+	_statusLine = "HTTP/1.1 " + ft_itoa(_statusCode) + " " + error_map()[_statusCode] + CRLF;
 	return (_statusLine);
 }
 
@@ -75,7 +72,10 @@ std::string Response :: makeHeaders() {
 	}
 	_headers += "Set-Cookie: lastsess=" + string(ctime(&current_time));
 	_headers += "Content-Length: " + ft_itoa(_bodySize) + string(CRLF);
-	_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
+	if (_reqHeaders["Connection"].size())
+		_headers += "Connection: " + _reqHeaders["Connection"] + string(CRLF);
+	else
+		_headers += "Connection: close" + string(CRLF);
 	_headers += string(CRLF);
 	return(_headers);
 }

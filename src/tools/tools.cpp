@@ -96,22 +96,10 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 char	*gen_def_page(int statusCode, uint64_t &bodySize){
 
 	std::stringstream buff;
-	if (!g_errors.size()){
-		g_errors.insert(std::pair<int, std::string>(200, " Ok"));
-		g_errors.insert(std::pair<int, std::string>(201, " Created"));
-		g_errors.insert(std::pair<int, std::string>(301, " Moved Permanently"));
-		g_errors.insert(std::pair<int, std::string>(400, " Bad Request"));
-		g_errors.insert(std::pair<int, std::string>(403, " Forbidden"));
-		g_errors.insert(std::pair<int, std::string>(404, " Not Found"));
-		g_errors.insert(std::pair<int, std::string>(405, " Method Not Allowed"));
-		g_errors.insert(std::pair<int, std::string>(500, " Internal Server Error"));
-		g_errors.insert(std::pair<int, std::string>(502, " Bad Gateway"));
-		g_errors.insert(std::pair<int, std::string>(503, " Service Unavailable"));
-	}
 	buff << "<html>\n";
-	buff << "<head><title>" + ft_itoa(statusCode) + g_errors[statusCode] + "</title>\n";
+	buff << "<head><title>" + ft_itoa(statusCode) + error_map()[statusCode] + "</title>\n";
 	buff << "<body>\n";
-	buff << "<center><h1>" + ft_itoa(statusCode)  + g_errors[statusCode] + "</h1></center>\n";
+	buff << "<center><h1>" + ft_itoa(statusCode)  + error_map()[statusCode] + "</h1></center>\n";
 	buff << "<hr><center>SUPER SERVER TEAM</center>\n";
 	buff << "</body>\n";
 	buff << "</html>\n";
@@ -158,4 +146,20 @@ void free_execData(const char ***execData){
 	}
 	delete execData[1];
 	delete execData;
+}
+ std::map <int, std::string> &error_map(){
+	static  std::map <int, std::string> error_map;
+	if (!error_map.size()){
+		error_map.insert(std::pair<int, std::string>(200, " Ok"));
+		error_map.insert(std::pair<int, std::string>(201, " Created"));
+		error_map.insert(std::pair<int, std::string>(301, " Moved Permanently"));
+		error_map.insert(std::pair<int, std::string>(400, " Bad Request"));
+		error_map.insert(std::pair<int, std::string>(403, " Forbidden"));
+		error_map.insert(std::pair<int, std::string>(404, " Not Found"));
+		error_map.insert(std::pair<int, std::string>(405, " Method Not Allowed"));
+		error_map.insert(std::pair<int, std::string>(500, " Internal Server Error"));
+		error_map.insert(std::pair<int, std::string>(502, " Bad Gateway"));
+		error_map.insert(std::pair<int, std::string>(503, " Service Unavailable"));
+	}
+	return error_map;
 }
