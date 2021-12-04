@@ -1,7 +1,8 @@
 
 #include "../../includes/MainIncludes.hpp"
 
-Response :: Response(Request &request, std::map<int, std::string> errorPages) : _response(""), _body(nullptr), _errorPages(errorPages) {
+Response :: Response(Request &request, std::map<int, std::string> errorPages)
+: _response(""), _body(nullptr), _errorPages(errorPages), _reqLocation(nullptr) {
 
 	t_fileInfo file;
 
@@ -10,6 +11,7 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
+		_reqLocation = request.getLocation();
 		_autoindex = _statusCode == 1;
 	}
 	if (_statusCode < 399 && _statusCode != 1) {
@@ -50,7 +52,7 @@ string Response :: getErrorPage() {
 			}
 		}
 	}
-	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str()));
+	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation));
 	delete def_page;
 	if (!_autoindex)
 		return ("ERROR");
@@ -96,7 +98,7 @@ char *Response :: makeBody(int &readSize) {
 				_FILE.close();
 		}
 		else {
-			_body = gen_def_page(_statusCode, _bodySize, _url.c_str());
+			_body = gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation);
 			readSize = _bodySize;
 		}
 	}

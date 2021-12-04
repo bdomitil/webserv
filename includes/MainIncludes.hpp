@@ -80,10 +80,24 @@ void			printServ(t_server serv);
 void			Start(vector<Server*> Servers);
 std::string		ft_itoa(int x);
 void 			free_execData(const char ***execData);
-bool			urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE);
-const char		***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers);
-char			*gen_def_page(uint32_t &statusCode, uint64_t &bodySize, const char *path);
-char 			*filesListing(std::string const &path, uint64_t &bodySize, uint32_t &statusCode);
+bool			urlInfo(string fPath,
+						t_fileInfo *fStruct,
+						std::ifstream &FILE);
+
+const char		***makeData_for_exec(std::string &path,
+									std::map <std::string,
+									std::string> &headers);
+
+char			*gen_def_page(uint32_t &statusCode,
+							uint64_t &bodySize,
+							const char *path,
+							const Location *location);
+
+char 			*filesListing(std::string const &path,
+							uint64_t &bodySize,
+							uint32_t &statusCode,
+							const Location *location);
+
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
 
