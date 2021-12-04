@@ -82,9 +82,9 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 		else {
 				fStruct->fStatus = 403;
 				FILE.close();
-			}
+		}
 	}
-	else if (res < 1){
+	else if (res < 1) {
 		fStruct->fStatus = 404;
 		return (false);
 	}
@@ -110,21 +110,29 @@ int  checkCgi(const std::multimap<std::string, std::string>& Cgi, std::string fP
 
 
 
-char	*gen_def_page(int statusCode, uint64_t &bodySize){
+char	*gen_def_page(uint32_t &statusCode,
+					uint64_t &bodySize,
+					const char *path,
+					const Location *location) {
 
-	std::stringstream buff;
-	buff << "<html>\n";
-	buff << "<head><title>" + ft_itoa(statusCode) + error_map()[statusCode] + "</title>\n";
-	buff << "<body>\n";
-	buff << "<center><h1>" + ft_itoa(statusCode)  + error_map()[statusCode] + "</h1></center>\n";
-	buff << "<hr><center>SUPER SERVER TEAM</center>\n";
-	buff << "</body>\n";
-	buff << "</html>\n";
-	buff.seekg(0, buff.end);
-	bodySize = buff.tellg();
-	buff.seekg(0, buff.beg);
-	char *def_page = new char[bodySize];
-	buff.read(def_page, bodySize);
+	char *def_page;
+	if (!path){
+		std::stringstream buff;
+		buff << "<html>\n";
+		buff << "<head><title>" + ft_itoa(statusCode) + error_map()[statusCode] + "</title>\n";
+		buff << "<body>\n";
+		buff << "<center><h1>" + ft_itoa(statusCode)  + error_map()[statusCode] + "</h1></center>\n";
+		buff << "<hr><center>SUPER SERVER TEAM</center>\n";
+		buff << "</body>\n";
+		buff << "</html>\n";
+		buff.seekg(0, buff.end);
+		bodySize = buff.tellg();
+		buff.seekg(0, buff.beg);
+		def_page = new char[bodySize];
+		buff.read(def_page, bodySize);
+	}
+	else if (!(def_page = filesListing(std::string(path) , bodySize, statusCode, location)))
+		def_page = gen_def_page(statusCode, bodySize, nullptr, location);
 	return (def_page);
 }
 
@@ -136,7 +144,35 @@ std::time_t increase_session_time(){
 	return (curr);
 }
 
- std::map <int, std::string> &error_map(){
+const char ***makeData_for_exec(std::string &path, std::map <std::string, std::string> &headers){
+	const char **env = new const char*[headers.size() + 1];
+	const char **args = new const char*[2];
+	const char ***to_ret =  new const char**[2];
+
+	env[headers.size()] = nullptr;
+	args[1] = nullptr;
+	args[0] = strdup(path.c_str());
+	std::map <std::string, std::string> :: iterator i = headers.begin();
+	for (int j = 0; i != headers.end(); i++, j++){
+		env[j] = strdup((i->first + "=" + i->second).c_str());
+	}
+	to_ret[0] = args;
+	to_ret[1] = env;
+	return (to_ret);
+}
+
+void free_execData(const char ***execData) {
+	delete execData[0][0];
+	delete execData[0][1];
+	delete execData[0];
+	for (int i = 0; execData[1][i] != nullptr; i++){
+		delete execData[1][i];
+	}
+	delete execData[1];
+	delete execData;
+}
+
+std::map <int, std::string> &error_map() {
 	static  std::map <int, std::string> error_map;
 	if (!error_map.size()){
 		error_map.insert(std::pair<int, std::string>(200, " Ok"));
@@ -151,4 +187,59 @@ std::time_t increase_session_time(){
 		error_map.insert(std::pair<int, std::string>(503, " Service Unavailable"));
 	}
 	return error_map;
+}
+
+static std::string	buildPathToFile(std::string const &fullPath,
+									std::string const &locPath,
+									std::string fileName) {
+
+	std::string	resultPath;
+	std::string	tmp;
+	std::size_t	pos;
+
+	if (fileName == "." or fileName == "..")
+		return ".";
+
+	pos = fullPath.find(locPath);
+	if (pos == std::string::npos)
+		return fileName;
+	resultPath = fullPath.substr(pos + locPath.length());
+}
+
+char	*filesListing(std::string const &path,
+					uint64_t &bodySize,
+					uint32_t &statusCode,
+					const Location *location) {
+
+	std::string		htmlBody;
+	DIR				*dirPtr;
+	struct dirent	*dirent;
+	std::string		pathToFile;
+
+	if (!location)
+		return nullptr;
+	dirPtr = opendir(path.c_str());
+	if (!dirPtr) {
+		statusCode = 403;
+		return nullptr;
+	}
+
+	htmlBody = "<!DOCTYPE html>\n";
+	htmlBody += "<html>\n";
+	htmlBody += "<head><title>AutoIndexON</title></head>\n";
+	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
+	dirent = readdir(dirPtr);
+	while (dirent) {
+		pathToFile = buildPathToFile(path, location->path, dirent->d_name);
+		if (pathToFile != ".") {
+			htmlBody += "<a href=\"" + pathToFile + "\">"
+				+ pathToFile + "</a>\n";
+		}
+		dirent = readdir(dirPtr);
+	}
+	closedir(dirPtr);
+	htmlBody += "</body>\n</html>\n";
+	bodySize = htmlBody.length();
+	statusCode = 200;
+	return strdup(htmlBody.c_str());
 }

@@ -18,8 +18,10 @@ private:
 	std::string							_response;
 	bool								_inProc;
 	long long int						_leftBytes;
-	Cgi									*_cgi;
-	int 								cgiFd[2];
+	bool								_autoindex;
+	const Location						*_reqLocation;
+	Cgi									*_cgiPtr;
+	int									_cgiFd[2];
 
 public:
 	std::string					getResponse() const ;
@@ -30,6 +32,7 @@ public:
 	void						setStatusCode(int);
 	void						sendRes(int Socket);
 	bool						isSent(){return (!_leftBytes);}
+	char					*filesListing(std::string const &path);
 	Response(Request &request, std::map<int, std::string> errorPages);
 	~Response();
 };

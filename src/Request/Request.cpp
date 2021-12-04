@@ -71,7 +71,31 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	return _isReqDone;
 }
 
-/* переделать */
+std::uint32_t	Request::checkPath(std::string &path) const {
+
+	struct stat	buff={};
+	std::size_t	pos;
+
+	pos = path.find_last_of("/");
+	if (pos < path.length() - 1) {
+		if (stat(path.c_str(), &buff) == 0 and buff.st_mode & S_IRUSR && S_ISREG(buff.st_mode))
+			return 200;
+		if (S_ISREG(buff.st_mode) || buff.st_mode == 0)
+			path.erase(pos);
+	}
+	else if (stat(path.c_str(), &buff) == -1)
+		return 404;
+	if (!S_ISREG(buff.st_mode)) {
+		if (_location->getAutoIndex() == "on") {
+			if (access(path.c_str(), R_OK) == 0)
+				return 1;
+			else
+				return 403;
+		}
+	}
+	return 404;
+}
+
 std::string	Request::getUrl(std::uint32_t &status) {
 
 	std::string	target;
@@ -106,6 +130,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 			fullPath.erase(i + 1, 1);
 	status = 200;
 	_uri = origUrl ;
+	status = checkPath(fullPath);
 	return fullPath;
 }
 
@@ -141,6 +166,7 @@ std::string	Request::getUrl(std::string &targetToRet) {
 			fullPath.erase(i + 1, 1);
 	_uri = origUrl;
 	targetToRet = target;
+	checkPath(fullPath);
 	return fullPath;
 }
 

@@ -134,7 +134,7 @@ void	Request::saveStartLineHeaders(std::string &data) {
 
 	newLinePos = data.find(LF);
 	while (newLinePos != std::string::npos
-		and (_parseState != BODY_LINE or _parseState != END_STATE)) {
+		and (_parseState != BODY_LINE and _parseState != END_STATE)) {
 		if (_parseState == START_LINE) {
 			saveStartLine(data.substr(0, newLinePos));
 			data.erase(0, newLinePos + 1);
@@ -171,7 +171,7 @@ void	Request::parseChunkSize(std::string &data) {
 	std::stringstream	ss;
 	std::size_t			pos;
 
-	pos = data.find(CR LF);
+	pos = data.find(LF);
 	if (pos == std::string::npos)
 		return;
 	ss << std::hex << data.substr(0, pos);
@@ -179,37 +179,37 @@ void	Request::parseChunkSize(std::string &data) {
 	if (!_chunkSize)
 		_parseState = END_STATE;
 	_isChunkSize = true;
-	data.erase(0, pos + 2);
+	data.erase(0, pos + 1);
 	return;
 }
 
 void	Request::parseChunkedBody(std::string &data) {
 
-	std::size_t	pos;
-	std::string	tmp;
+	std::size_t	i;
 
-	pos = data.find(CR LF);
-	if (pos == std::string::npos)
-		return;
-
-	tmp = data.substr(0, pos);
-	if (tmp.length() > _chunkSize)
-		throw ErrorException(400, "Bad Request");
-	_body.append(tmp);
-	data.erase(0, pos + 2);
-	_isChunkSize = false;
+	i = 0;
+	while (i < data.length() and _chunkSize) {
+		if (data[i] == '\n' and (i - 1 >= 0 and data[i - 1] == '\r'))
+			_body.push_back('\n');
+		else if (data[i] != '\r')
+			_body.push_back(data[i]);
+		i++;
+		_chunkSize--;
+	}
+	if (!_chunkSize) {
+		_isChunkSize = false;
+		i += 2;
+	}
+	data.erase(0, i);
 }
 
 void	Request::saveChunkedBody(std::string &data) {
 
-	while (data.find(CR LF) != std::string::npos and _parseState == BODY_LINE) {
+	while (_parseState != END_STATE) {
 		if (!_isChunkSize)
 			parseChunkSize(data);
-		if (_isChunkSize and _parseState == BODY_LINE) {
-			if (_body.length() + _chunkSize > _maxBodySize)
-				throw ErrorException(413, "Request Entity Too Large");
+		if (_isChunkSize and _parseState != END_STATE)
 			parseChunkedBody(data);
-		}
 	}
 }
 

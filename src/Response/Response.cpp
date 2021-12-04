@@ -1,7 +1,8 @@
 
 #include "../../includes/MainIncludes.hpp"
 
-Response :: Response(Request &request, std::map<int, std::string> errorPages) : _response(""), _body(nullptr), _errorPages(errorPages) {
+Response :: Response(Request &request, std::map<int, std::string> errorPages)
+: _response(""), _body(nullptr), _errorPages(errorPages), _reqLocation(nullptr) {
 
 	t_fileInfo file;
 
@@ -10,8 +11,10 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
+		_reqLocation = request.getLocation();
+		_autoindex = _statusCode == 1;
 	}
-	if (_statusCode < 399) {
+	if (_statusCode < 399 && _statusCode != 1) {
 		urlInfo(_url, &file,  _FILE);
 		if (file.fType == DDIR)
 			file.fStatus = 404;
@@ -23,9 +26,9 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 		else if (_statusCode != 301) {
 			int cgNum;
 			if ((cgNum = checkCgi(request.getLocation()->getCgi(), _url)) > 0){
-				_cgi = new Cgi(request, request.getLocation()->getCgi(), _FILE);
+				_cgiPtr = new Cgi(request, request.getLocation()->getCgi(), _FILE);
 				try{
-				 _cgi->editResponce(_bodySize, _contentType, cgNum);
+				 _cgiPtr->editResponce(_bodySize, _contentType, cgNum);
 				}
 				catch(ErrorException &e){
 					std::cerr << e.what() << " due to " << strerror(errno) << std::endl;
@@ -50,8 +53,8 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages) : 
 }
 
 Response :: ~Response(){
-	if (_cgi)
-		delete _cgi;
+	if (_cgiPtr)
+		delete _cgiPtr;
 }
 
 std::string	Response::getResponse(void) const {
@@ -71,9 +74,11 @@ string Response :: getErrorPage() {
 			}
 		}
 	}
-	char *def_page = (gen_def_page(_statusCode, _bodySize));
+	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation));
 	delete def_page;
-	return ("ERROR");
+	if (!_autoindex)
+		return ("ERROR");
+	return (_url);
 }
 
 string Response :: makeStatusLine(){
@@ -105,7 +110,7 @@ std::string Response :: makeHeaders() {
 char *Response :: makeBody(int &readSize) {
 
 	if (_inProc) {
-		if (_url != "ERROR") {
+		if (_url != "ERROR" && !_autoindex) {
 			_body = new char[SEND_BUFFER_SIZZ];
 			memset(_body, 0, SEND_BUFFER_SIZZ);
 			_FILE.read(_body, SEND_BUFFER_SIZZ);
@@ -114,7 +119,7 @@ char *Response :: makeBody(int &readSize) {
 				_FILE.close();
 		}
 		else {
-			_body = gen_def_page(_statusCode, _bodySize);
+			_body = gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation);
 			readSize = _bodySize;
 		}
 	}
@@ -126,7 +131,7 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 	if (!_inProc){
-		if (!_cgi){
+		if (!_cgiPtr){
 			_response.append(makeStatusLine());
 			_response.append(makeHeaders());
 		}
@@ -140,7 +145,7 @@ void Response :: sendRes(int socket){
 		_inProc = true;
 
 	}
-	else if (_FILE.is_open() || _statusCode != 200) {
+	else if (_FILE.is_open() || _statusCode != 200 || _autoindex) {
 		int to_send, pos, tries;
 		res = 0, pos = 0, tries = 0;
 		makeBody(to_send);
@@ -165,8 +170,8 @@ void Response :: sendRes(int socket){
 	if (_leftBytes < 1) {
 		_inProc = false;
 		_leftBytes = false;
-		delete _cgi;
-		_cgi = nullptr;
+		delete _cgiPtr;
+		_cgiPtr = nullptr;
 	}
 
 
