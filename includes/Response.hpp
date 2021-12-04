@@ -19,6 +19,7 @@ private:
 	bool								_inProc;
 	long long int						_leftBytes;
 	bool								_autoindex;
+	const Location						*_reqLocation;
 
 public:
 	std::string					getResponse() const ;

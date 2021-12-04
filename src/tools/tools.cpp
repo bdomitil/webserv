@@ -93,7 +93,10 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 
 
 
-char	*gen_def_page(uint32_t &statusCode, uint64_t &bodySize, const char *path){
+char	*gen_def_page(uint32_t &statusCode,
+					uint64_t &bodySize,
+					const char *path,
+					const Location *location) {
 
 	char *def_page;
 	if (!path){
@@ -111,8 +114,8 @@ char	*gen_def_page(uint32_t &statusCode, uint64_t &bodySize, const char *path){
 		def_page = new char[bodySize];
 		buff.read(def_page, bodySize);
 	}
-	else if (!(def_page = filesListing(std::string(path) , bodySize, statusCode)))
-		def_page = gen_def_page(statusCode, bodySize, nullptr);
+	else if (!(def_page = filesListing(std::string(path) , bodySize, statusCode, location)))
+		def_page = gen_def_page(statusCode, bodySize, nullptr, location);
 	return (def_page);
 }
 
@@ -142,7 +145,7 @@ const char ***makeData_for_exec(std::string &path, std::map <std::string, std::s
 	return (to_ret);
 }
 
-void free_execData(const char ***execData){
+void free_execData(const char ***execData) {
 	delete execData[0][0];
 	delete execData[0][1];
 	delete execData[0];
@@ -152,7 +155,8 @@ void free_execData(const char ***execData){
 	delete execData[1];
 	delete execData;
 }
- std::map <int, std::string> &error_map(){
+
+std::map <int, std::string> &error_map() {
 	static  std::map <int, std::string> error_map;
 	if (!error_map.size()){
 		error_map.insert(std::pair<int, std::string>(200, " Ok"));
@@ -169,14 +173,35 @@ void free_execData(const char ***execData){
 	return error_map;
 }
 
+static std::string	buildPathToFile(std::string const &fullPath,
+									std::string const &locPath,
+									std::string fileName) {
 
-char	*filesListing(std::string const &path, uint64_t &bodySize, uint32_t &statusCode) {
+	std::string	resultPath;
+	std::string	tmp;
+	std::size_t	pos;
+
+	if (fileName == "." or fileName == "..")
+		return ".";
+
+	pos = fullPath.find(locPath);
+	if (pos == std::string::npos)
+		return fileName;
+	resultPath = fullPath.substr(pos + locPath.length())
+}
+
+char	*filesListing(std::string const &path,
+					uint64_t &bodySize,
+					uint32_t &statusCode,
+					const Location *location) {
 
 	std::string		htmlBody;
 	DIR				*dirPtr;
 	struct dirent	*dirent;
-	std::string		tmp;
+	std::string		pathToFile;
 
+	if (!location)
+		return nullptr;
 	dirPtr = opendir(path.c_str());
 	if (!dirPtr) {
 		statusCode = 403;
@@ -189,9 +214,11 @@ char	*filesListing(std::string const &path, uint64_t &bodySize, uint32_t &status
 	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
 	dirent = readdir(dirPtr);
 	while (dirent) {
-		tmp = dirent->d_name;
-		if (tmp != "." and tmp != "..")
-			htmlBody += "<a href=\"" + tmp + "\">" + tmp + "</a>\n";
+		pathToFile = buildPathToFile(path, location->path, dirent->d_name);
+		if (pathToFile != ".") {
+			htmlBody += "<a href=\"" + pathToFile + "\">"
+				+ pathToFile + "</a>\n";
+		}
 		dirent = readdir(dirPtr);
 	}
 	closedir(dirPtr);
