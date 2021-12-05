@@ -1,7 +1,7 @@
 #include "../../includes/MainIncludes.hpp"
 
 //===============PRINT_RES================
-void	printLocations(std::map<std::string, Location> locations) {
+void	printLocations(std::multimap<std::string, Location> locations) {
 	std::cout << "\ncount LOCATION " << locations.size() << std::endl;
 	for (map<string, Location>::iterator  i = locations.begin(); i != locations.end() ; ++i) {
 		std::cout << "\n";
@@ -51,7 +51,7 @@ void initServer(t_server &t) {
 
 void	initLocation(Location &l) {
 	l.root = "";
-	std::map<std::string, std::string> tmpMap = l.cgi;
+	std::multimap<std::string, std::string> tmpMap = l.cgi;
 	for (map<std::string, std::string> :: iterator i  = tmpMap.begin(); i != tmpMap.end() ; ++i) {
 		std::cout << i->first << " -> " << i->second << std::endl;
 	}
@@ -102,7 +102,7 @@ void	mapingErrorPage(std::map<int, std::string> &ep, std::string &str, char deli
 	ep.insert(std::pair<int, std::string>(atoi(key(str, delim).c_str()), value(str, delim)));
 }
 
-void	mapingCGI(std::map<std::string, std::string> &ep, std::string &str, char delim) {
+void	mapingCGI(std::multimap<std::string, std::string> &ep, std::string &str, char delim) {
 	ep.insert(std::pair<std::string, std::string>(key(str, delim).c_str(), value(str, delim)));
 }
 
@@ -153,14 +153,15 @@ void	getValueLocation(std::string & str, Location & loc) {
 	}
 	if (str.find("path_cgi:") != std::string::npos) {
 		str.erase(0, str.find(' ') + 1);
-		std::map<std::string, std::string> cgies;
 		while(str.length() != 0) {
 			trimSpaces(str);
 			std::string subString = str.substr(0, str.find(' '));
 			str.erase(0, str.find(' '));
-			mapingCGI(cgies, subString, '=');
+			trimSpaces(str);
+			subString = subString + "=" + str;
+			mapingCGI(loc.cgi, subString, '=');
+			str  = "";
 		}
-		loc.cgi = cgies;
 	}
 	if (str.find("allow_methods:") != std::string::npos) {
 		str.erase(0, str.find(' ') + 1);
@@ -176,7 +177,7 @@ void	getValueLocation(std::string & str, Location & loc) {
 	}
 }
 
-void	eraseValueForLocation(std::string &settingLoc, std::map<std::string, Location> &locs) {
+void	eraseValueForLocation(std::string &settingLoc, std::multimap<std::string, Location> &locs) {
 	Location l;
 	initLocation(l);
 	
@@ -229,8 +230,8 @@ void eraseValueForServer(std::string &str, t_server & server) {
 }
 
 //==========PARSER=================
-std::map<std::string, Location>	parsLocation(std::string &blockLoc) {
-	std::map<std::string, Location> locs;
+std::multimap<std::string, Location>	parsLocation(std::string &blockLoc) {
+	std::multimap<std::string, Location> locs;
 	std::string settingLocs = blockLoc.substr(0, blockLoc.find("server:"));
 	blockLoc.erase(0, settingLocs.length());
 	while (settingLocs.length() != 0) {

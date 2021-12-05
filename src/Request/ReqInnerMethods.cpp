@@ -31,7 +31,7 @@ const Location	*Request::getLoc(void) const {
 	tmp = _uri.substr(0, lastSlashPos);
 	len = std::count(_uri.begin(), _uri.end(), '/');
 	for (std::size_t i = 0; i < len; i++) {
-		std::map<std::string, Location>::const_iterator j = _locationsMap.begin();
+		std::multimap<std::string, Location>::const_iterator j = _locationsMap.begin();
 		for (; j != _locationsMap.end(); j++) {
 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
 			(j->first != "/" and j->first[j->first.length() - 1] == '/') ?

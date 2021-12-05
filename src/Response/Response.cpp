@@ -24,8 +24,25 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages)
 			_contentType = "text/html";
 		}
 		else if (_statusCode != 301) {
-			_bodySize = file.fLength;
-			_contentType = file.fExtension;
+			int cgNum;
+			if ((cgNum = checkCgi(request.getLocation()->getCgi(), _url)) > 0){
+				_cgiPtr = new Cgi(request, request.getLocation()->getCgi(), _FILE);
+				try {
+					_cgiPtr->initCGI(cgNum);
+				}
+				catch(ErrorException &e) {
+					std::cerr << e.what() << " due to " << strerror(errno) << std::endl;
+					_statusCode = 502;
+				}
+			}
+			else if (cgNum == -1){
+				_statusCode = 502;
+				_url = getErrorPage();
+			}
+			else {
+				_bodySize = file.fLength;
+				_contentType = file.fExtension;
+			}
 		}
 	}
 	else
@@ -33,6 +50,11 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages)
 	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 0;
 	_inProc = false;
+}
+
+Response :: ~Response(){
+	if (_cgiPtr)
+		delete _cgiPtr;
 }
 
 std::string	Response::getResponse(void) const {
@@ -87,7 +109,6 @@ std::string Response :: makeHeaders() {
 
 char *Response :: makeBody(int &readSize) {
 
-	char c;
 	if (_inProc) {
 		if (_url != "ERROR" && !_autoindex) {
 			_body = new char[SEND_BUFFER_SIZZ];
@@ -110,8 +131,10 @@ void Response :: sendRes(int socket){
 	int		res = 0;
 
 	if (!_inProc){
-		_response.append(makeStatusLine());
-		_response.append(makeHeaders());
+		if (!_cgiPtr){
+			_response.append(makeStatusLine());
+			_response.append(makeHeaders());
+		}
 		_leftBytes = _bodySize;
 		res = send(socket, _response.c_str(), _response.length(), 0);
 		if (res == -1)
@@ -144,13 +167,11 @@ void Response :: sendRes(int socket){
 		}
 		delete []    _body;
 	}
-
-	// std::cerr << "LEFT AFTER SEND\n" << _response << std::endl;
-	//std::cout << MAGENTA ">>>>RESPONSE<<<<" RESET << std::endl <<  _response << std::endl;
-
 	if (_leftBytes < 1) {
 		_inProc = false;
 		_leftBytes = false;
+		delete _cgiPtr;
+		_cgiPtr = nullptr;
 	}
 
 
