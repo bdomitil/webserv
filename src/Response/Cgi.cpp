@@ -51,12 +51,14 @@ void	Cgi::free_execData(const char ***execData) {
 	delete execData;
 }
 
-void	Cgi::runCgi(void) {
+void	Cgi::runCgi(std::string cgiPath) {
 
 	std::vector<char **>	execveArgs;
 
-	execveArgs = makeDataForExec(_url, _reqHeaders);
+	execveArgs = makeDataForExec(cgiPath, _reqHeaders);
+	std::cerr << " ||" << execveArgs[0][0] << " ||" << std::endl; 
 	execve(execveArgs[0][0], execveArgs[0], execveArgs[1]);
+	std::cerr << "EROR EXEC" << std::cout;
 	exit(EXIT_FAILURE);
 }
 
@@ -96,8 +98,9 @@ void	Cgi::runCGIHelper(int firstReadFromFD,
 	_pipeFds = new int[cgiNum][2]	;
 	_mainFds[0] = firstReadFromFD;
 	_mainFds[1] = lastSendToFD;
+	std::multimap<std::string, std::string> :: iterator i = _cgis.begin();
 	iter = -1;
-	while (++iter < cgiNum) {
+	while (++iter < cgiNum && i != _cgis.end()) {
 		if (iter + 1 < cgiNum) {
 			if (pipe(_pipeFds[iter]) == -1)
 				exit(EXIT_FAILURE);
@@ -109,16 +112,18 @@ void	Cgi::runCGIHelper(int firstReadFromFD,
 		}
 		if (!cgiPids[iter]) {
 			changeAndCloseFd(iter, cgiNum);
-			runCgi();
+			runCgi(i->second);
 		}
 		if (iter)
 			close(_pipeFds[iter - 1][0]), close(_pipeFds[iter - 1][1]);
+		i++;
 	}
 	close(_mainFds[0]);
 	close(_mainFds[1]);
 
 	for (int i = 0; i < cgiNum; i++) {
 		waitpid(cgiPids[i], &status, 0);
+		std::cout << "PROC #" << i << " EXITED WITH CODE " << status << std::endl;
 		if (status != 0)
 			ret = status;
 	}

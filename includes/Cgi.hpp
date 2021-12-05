@@ -20,7 +20,7 @@ private:
 	Cgi();
 	void	free_execData(const char ***execData);
 	void	changeAndCloseFd(int pos, int cgiNum);
-	void	runCgi(void);
+	void	runCgi(std::string cgiPath);
 	void	runCGIHelper(int firstReadFromFD,
 						int lastSendToFD, int cgiNum);
 
