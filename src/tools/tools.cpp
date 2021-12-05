@@ -185,12 +185,13 @@ static std::string	buildPathToFile(std::string const &fullPath,
 	pos = fullPath.find(locPath);
 	if (pos == std::string::npos)
 		return fileName;
-	resultPath = fullPath.substr(pos + locPath.length());
+	resultPath = fullPath.substr(pos + locPath.length() + 1);
+	resultPath += (resultPath[resultPath.length() - 1] == '/') ? fileName : "/" + fileName;
+	return resultPath;
 }
 
 char	*filesListing(std::string const &path,
-					uint64_t &bodySize,
-					uint32_t &statusCode,
+					uint64_t &bodySize, uint32_t &statusCode,
 					const Location *location) {
 
 	std::string		htmlBody;
@@ -209,13 +210,13 @@ char	*filesListing(std::string const &path,
 	htmlBody = "<!DOCTYPE html>\n";
 	htmlBody += "<html>\n";
 	htmlBody += "<head><title>AutoIndexON</title></head>\n";
-	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
+	htmlBody += "<body>\n<pre><h1>Files in current directory</h1></pre>\n";
 	dirent = readdir(dirPtr);
 	while (dirent) {
 		pathToFile = buildPathToFile(path, location->path, dirent->d_name);
 		if (pathToFile != ".") {
 			htmlBody += "<a href=\"" + pathToFile + "\">"
-				+ pathToFile + "</a>\n";
+				+ dirent->d_name + "</a><br>\n";
 		}
 		dirent = readdir(dirPtr);
 	}
