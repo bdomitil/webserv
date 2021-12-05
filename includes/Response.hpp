@@ -20,6 +20,8 @@ private:
 	long long int						_leftBytes;
 	bool								_autoindex;
 	const Location						*_reqLocation;
+	Cgi									*_cgiPtr;
+	int									_cgiFd[2];
 
 public:
 	std::string					getResponse() const ;
@@ -32,6 +34,7 @@ public:
 	bool						isSent(){return (!_leftBytes);}
 	char					*filesListing(std::string const &path);
 	Response(Request &request, std::map<int, std::string> errorPages);
+	~Response();
 };
 
 #endif

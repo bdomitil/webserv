@@ -24,10 +24,12 @@
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
+#include <signal.h>
 
 #include "Location.hpp"
 #include "SettingsServer.hpp"
 #include "Request.hpp"
+#include "Cgi.hpp"
 #include "Response.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
@@ -40,7 +42,7 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
-#define DEBUG		1
+#define DEBUG		0
 
 namespace ikael {
 	static bool	isCharWhiteSpace(unsigned char c) {
@@ -75,18 +77,18 @@ typedef struct s_fileInfo
 
 //#include "ParseFile.hpp"
 int				startParser(char *fileName, std::vector<t_server> &servers);
-void			printLocations(std::map<std::string, Location> locations);
+void			printLocations(std::multimap<std::string, Location> locations);
 void			printServ(t_server serv);
 void			Start(vector<Server*> Servers);
 std::string		ft_itoa(int x);
 void 			free_execData(const char ***execData);
+int				checkCgi(const std::multimap<std::string,
+						std::string>& Cgi,
+						std::string fPath);
+
 bool			urlInfo(string fPath,
 						t_fileInfo *fStruct,
 						std::ifstream &FILE);
-
-const char		***makeData_for_exec(std::string &path,
-									std::map <std::string,
-									std::string> &headers);
 
 char			*gen_def_page(uint32_t &statusCode,
 							uint64_t &bodySize,
@@ -97,6 +99,8 @@ char 			*filesListing(std::string const &path,
 							uint64_t &bodySize,
 							uint32_t &statusCode,
 							const Location *location);
+
+void			killChilds(pid_t *pid, int childNum);
 
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
