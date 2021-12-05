@@ -93,7 +93,7 @@ void	Cgi::runCGIHelper(int firstReadFromFD,
 	int		ret;
 
 	ret = 0;
-	_pipeFds = new (int[cgiNum][2]);
+	_pipeFds = new int[cgiNum][2]	;
 	_mainFds[0] = firstReadFromFD;
 	_mainFds[1] = lastSendToFD;
 	iter = -1;
