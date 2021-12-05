@@ -90,10 +90,6 @@ bool			urlInfo(string fPath,
 						t_fileInfo *fStruct,
 						std::ifstream &FILE);
 
-const char		***makeData_for_exec(std::string &path,
-									std::map <std::string,
-									std::string> &headers);
-
 char			*gen_def_page(uint32_t &statusCode,
 							uint64_t &bodySize,
 							const char *path,
@@ -103,6 +99,8 @@ char 			*filesListing(std::string const &path,
 							uint64_t &bodySize,
 							uint32_t &statusCode,
 							const Location *location);
+
+void			killChilds(pid_t *pid, int childNum);
 
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();

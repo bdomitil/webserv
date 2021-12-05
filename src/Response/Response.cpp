@@ -27,10 +27,10 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages)
 			int cgNum;
 			if ((cgNum = checkCgi(request.getLocation()->getCgi(), _url)) > 0){
 				_cgiPtr = new Cgi(request, request.getLocation()->getCgi(), _FILE);
-				try{
-				 _cgiPtr->editResponce(_bodySize, _contentType, cgNum);
+				try {
+					_cgiPtr->initCGI(cgNum);
 				}
-				catch(ErrorException &e){
+				catch(ErrorException &e) {
 					std::cerr << e.what() << " due to " << strerror(errno) << std::endl;
 					_statusCode = 502;
 				}
