@@ -14,7 +14,6 @@ public:
 	std::vector<char **>	makeDataForExec(std::string &path,
 											std::map <std::string,
 											std::string> &headers);
-	~Cgi() {}
 
 private:
 

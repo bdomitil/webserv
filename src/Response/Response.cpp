@@ -2,7 +2,8 @@
 #include "../../includes/MainIncludes.hpp"
 
 Response :: Response(Request &request, std::map<int, std::string> errorPages)
-: _response(""), _body(nullptr), _errorPages(errorPages), _reqLocation(nullptr) {
+: _response(""), _body(nullptr),
+_errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 
 	t_fileInfo file;
 
@@ -52,9 +53,8 @@ Response :: Response(Request &request, std::map<int, std::string> errorPages)
 	_inProc = false;
 }
 
-Response :: ~Response(){
-	if (_cgiPtr)
-		delete _cgiPtr;
+Response :: ~Response() {
+	delete _cgiPtr;
 }
 
 std::string	Response::getResponse(void) const {
@@ -165,7 +165,7 @@ void Response :: sendRes(int socket){
 		catch(const std::exception& e) {
 			std::cerr << e.what() << '\n';
 		}
-		delete []    _body;
+		delete [] _body;
 	}
 	if (_leftBytes < 1) {
 		_inProc = false;
