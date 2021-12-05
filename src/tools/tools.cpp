@@ -179,15 +179,15 @@ static std::string	buildPathToFile(std::string const &fullPath,
 	std::string	tmp;
 	std::size_t	pos;
 
-	if (fileName == "." or fileName == "..")
-		return ".";
-
 	pos = fullPath.find(locPath);
-	if (pos == std::string::npos)
+	if (fileName == "." or fileName == ".." or pos == std::string::npos)
+		return ".";
+	if (locPath == "/")
 		return fileName;
-	resultPath = fullPath.substr(pos + locPath.length() + 1);
-	resultPath += (resultPath[resultPath.length() - 1] == '/') ? fileName : "/" + fileName;
-	return resultPath;
+
+	tmp = (locPath[locPath.length() - 1] == '/') ?
+		locPath.substr(0, locPath.length() - 1) : locPath;
+	
 }
 
 char	*filesListing(std::string const &path,
@@ -215,8 +215,8 @@ char	*filesListing(std::string const &path,
 	while (dirent) {
 		pathToFile = buildPathToFile(path, location->path, dirent->d_name);
 		if (pathToFile != ".") {
-			htmlBody += "<a href=\"" + pathToFile + "\">"
-				+ dirent->d_name + "</a><br>\n";
+			htmlBody += "<a href=\"" + pathToFile + "\"><h3>"
+				+ dirent->d_name + "</h3></a>\n";
 		}
 		dirent = readdir(dirPtr);
 	}
