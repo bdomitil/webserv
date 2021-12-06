@@ -53,14 +53,9 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 	_inProc = false;
 }
 
-<<<<<<< HEAD:src/Response/Response.cpp
 Response :: ~Response(){
 	if (_cgiPtr)
 		delete _cgiPtr;
-=======
-Response :: ~Response() {
-	delete _cgiPtr;
->>>>>>> cgi:src/responses/Response.cpp
 }
 
 std::string	Response::getResponse(void) const {
