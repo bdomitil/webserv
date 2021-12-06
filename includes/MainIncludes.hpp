@@ -43,7 +43,7 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
-#define DEBUG		0
+#define DEBUG		1
 
 namespace ikael {
 	static bool	isCharWhiteSpace(unsigned char c) {
@@ -102,8 +102,9 @@ char 			*filesListing(std::string const &path,
 							const Location *location);
 
 void			killChilds(pid_t *pid, int childNum);
-
+off_t			getFdLen(int fd);
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
+void	waitChild(int x);
 
 #endif //WEBSERV_MAININCLUDES_HPP

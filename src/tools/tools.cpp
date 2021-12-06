@@ -236,3 +236,19 @@ void	killChilds(pid_t *pid, int childNum) {
 		kill(pid[i], SIGKILL);
 	return;
 }
+
+off_t getFdLen(int fd){
+	struct stat buff;
+	off_t	len = 0;
+	if (fstat(fd, &buff) == -1)
+		len = 0;
+	else
+		len = buff.st_size;
+	return (len);
+}
+
+void	waitChild(int x){
+	int status;
+	waitpid(-1, &status , WNOHANG);
+	std::cerr << "CHILD ENDED WITH " <<  status << std::endl;
+}
