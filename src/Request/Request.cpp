@@ -49,6 +49,7 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	std::string	data;
 
 	data = _tmpBuffer;
+
 	_buffer[recvRet] = '\0';
 	data.append(_buffer);
 
