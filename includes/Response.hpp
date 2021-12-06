@@ -21,7 +21,7 @@ private:
 	bool								_autoindex;
 	const Location						*_reqLocation;
 	Cgi									*_cgiPtr;
-	int									_cgiFd[2];
+	int									*_cgiFd;
 
 public:
 	std::string					getResponse() const ;
