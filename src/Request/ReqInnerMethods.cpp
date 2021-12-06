@@ -1,32 +1,21 @@
 #include "../../includes/MainIncludes.hpp"
 
-bool	Request::isStringHasWhiteSpaceChar(std::string const &str) const {
-
-	for(std::size_t i = 0; i < str.length(); i++)
-		if (std::isspace(str[i]) != 0)
-			return true;
-	return false;
-}
-
-std::size_t	Request::skipWhiteSpaces(std::string const &str, std::size_t start = 0) const {
-
-	if (start >= str.length())
-		return str.length();
-	while (start < str.length() and ikael::isCharWhiteSpace(str[start]))
-		start++;
-	return start;
-}
-
-const Location	*Request::getLoc(void) const {
+const Location	*Request::getLoc(void) {
 
 	std::string	tmp;
 	std::string	tmp1;
 	std::size_t	lastSlashPos;
 	std::size_t	len;
+	bool		isLastSlash;
 
+	isLastSlash = false;
+	if (_uri[_uri.length() - 1] != '/') {
+		isLastSlash = true;
+		_uri.push_back('/');
+	}
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 
 	tmp = _uri.substr(0, lastSlashPos);
 	len = std::count(_uri.begin(), _uri.end(), '/');
@@ -36,8 +25,11 @@ const Location	*Request::getLoc(void) const {
 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
 			(j->first != "/" and j->first[j->first.length() - 1] == '/') ?
 				tmp1 = j->first.substr(0, j->first.find_last_of("/")) : tmp1 = j->first;
-			if (tmp == tmp1)
+			if (tmp == tmp1) {
+				if (isLastSlash)
+					_uri.pop_back();
 				return &j->second;
+			}
 		}
 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
 		tmp = tmp.substr(0, lastSlashPos);
@@ -50,7 +42,9 @@ void	Request::validateStartLine(void) {
 	_location = getLoc();
 	if (!_location)
 		throw ErrorException(404, "Not Found");
-
+// delete after debug
+	std::cerr << GREEN "Current location: " BLUE
+		<< _location->path << RESET << std::endl;
 	std::map<std::string, bool>::const_iterator i = _location->methods.begin();
 	for (; i != _location->methods.end(); i++) {
 		if (i->first == _method) {
@@ -65,6 +59,7 @@ void	Request::validateStartLine(void) {
 		throw ErrorException(505, "Http Version Not Supported");
 	_maxBodySize = _location->getLimit();
 	parseUri();
+	return;
 }
 
 void	Request::saveStartLine(std::string startLine) {
@@ -73,22 +68,23 @@ void	Request::saveStartLine(std::string startLine) {
 	std::size_t	i;
 
 	if (!startLine.length())
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	_method = startLine.substr(0, lfPos);
 	startLine.erase(0, skipWhiteSpaces(startLine, lfPos));
 
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, skipWhiteSpaces(startLine, lfPos));
+	std::cerr << MAGENTA "_uri: " BLUE << _uri << std::endl;
 
 	_protocol = startLine;
 	_protocol.erase(std::remove_if(_protocol.begin(),
-		_protocol.end(), &ikael::isCharWhiteSpace), _protocol.end());
+		_protocol.end(), &isCharWhiteSpace), _protocol.end());
 
 	validateStartLine();
 	_parseState = HEADER_LINE;
@@ -102,10 +98,10 @@ void	Request::saveHeaderLine(std::string headerLine) {
 	std::string	headerValue;
 
 	headerLine.erase(std::remove_if(headerLine.begin(),
-		headerLine.end(), &ikael::isCharWhiteSpace), headerLine.end());
+		headerLine.end(), &isCharWhiteSpace), headerLine.end());
 	if (!headerLine.length()) {
 		if (_headers.find("Host") == std::end(_headers))
-			throw std::exception();
+			throw ErrorException(400, "Bad Request");
 		if (_headers.find("Transfer-Encoding") == std::end(_headers)
 			and _headers.find("Content-Length") == std::end(_headers))
 			_parseState = END_STATE;
@@ -116,7 +112,7 @@ void	Request::saveHeaderLine(std::string headerLine) {
 
 	colonPos = headerLine.find(":");
 	if (colonPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	headerName = headerLine.substr(0, colonPos);
 	headerValue = headerLine.substr(colonPos + 1);
 	_headers.insert(std::pair<std::string,
@@ -224,9 +220,6 @@ void	Request::parseUri(void) {
 	}
 
 	parsePercent(_uri);
-	/*
-		probably add some parsing for _query
-	*/
 	return;
 }
 
@@ -255,4 +248,30 @@ void	Request::parsePercent(std::string &strRef) {
 			strRef = strRef.substr(0, i) + " " + strRef.substr(i + 1);
 	}
 	return;
+}
+
+std::uint32_t	Request::checkPath(std::string &path) const {
+
+	struct stat	buff = {};
+	std::size_t	pos;
+
+	pos = path.find_last_of("/");
+	if (pos < path.length() - 1) {
+		if (stat(path.c_str(), &buff) == 0
+			and buff.st_mode & S_IRUSR && S_ISREG(buff.st_mode))
+			return 200;
+		if (S_ISREG(buff.st_mode) || buff.st_mode == 0)
+			path.erase(pos);
+	}
+	else if (stat(path.c_str(), &buff) == -1)
+		return 404;
+	if (!S_ISREG(buff.st_mode)) {
+		if (_location->getAutoIndex() == "on") {
+			if (access(path.c_str(), R_OK) == 0)
+				return 1;
+			else
+				return 403;
+		}
+	}
+	return 404;
 }

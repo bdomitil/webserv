@@ -99,7 +99,7 @@ void	Cgi::runCGIHelper(int *firstReadFromFD,
 
 	_mainFds[0] = firstReadFromFD[0];
 	_mainFds[1] = lastSendToFD[1];
-	
+
 	std::multimap<std::string, std::string> :: iterator i = _cgis.begin();
 	iter = -1;
 	while (++iter < cgiNum && i != _cgis.end()) {

@@ -109,7 +109,6 @@ int  checkCgi(const std::multimap<std::string, std::string>& Cgi, std::string fP
 }
 
 
-
 char	*gen_def_page(uint32_t &statusCode,
 					uint64_t &bodySize,
 					const char *path,
@@ -172,29 +171,28 @@ std::map <int, std::string> &error_map() {
 	return error_map;
 }
 
-static std::string buildPathToFile(std::string const &fullPath,
-         std::string const &locPath,
-         std::string fileName) {
+static std::string	buildPathToFile(std::string const &fullPath,
+									std::string const &locPath,
+									std::string fileName) {
 
- 	std::string resultPath;
- 	std::string tmp;
- 	std::size_t pos;
+	std::string	resultPath;
+	std::string	tmp;
+	std::size_t	pos;
 
- 	pos = fullPath.find(locPath);
+	pos = fullPath.find(locPath);
 	if (fileName == "." or fileName == ".."
 		or pos == std::string::npos)
-  		return ".";
- 	if (locPath == "/")
- 	 return fileName;
+		return ".";
+	if (locPath == "/")
+		return fileName;
 
 	tmp = (locPath[locPath.length() - 1] == '/') ?
-  	locPath.substr(0, locPath.length() - 1) : locPath;
- 	return (fullPath.substr(pos + tmp.length() + 1) + "/" + fileName);
+		locPath.substr(0, locPath.length() - 1) : locPath;
+	return (fullPath.substr(pos + tmp.length() + 1) + "/" + fileName);
 }
 
 char	*filesListing(std::string const &path,
-					uint64_t &bodySize,
-					uint32_t &statusCode,
+					uint64_t &bodySize, uint32_t &statusCode,
 					const Location *location) {
 
 	std::string		htmlBody;
@@ -213,13 +211,13 @@ char	*filesListing(std::string const &path,
 	htmlBody = "<!DOCTYPE html>\n";
 	htmlBody += "<html>\n";
 	htmlBody += "<head><title>AutoIndexON</title></head>\n";
-	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
+	htmlBody += "<body>\n<pre><h1>Files in current directory</h1></pre>\n";
 	dirent = readdir(dirPtr);
 	while (dirent) {
 		pathToFile = buildPathToFile(path, location->path, dirent->d_name);
 		if (pathToFile != ".") {
-			htmlBody += "<a href=\"" + pathToFile + "\">"
-				+ pathToFile + "</a>\n";
+			htmlBody += "<a href=\"" + pathToFile + "\"><h3>"
+				+ dirent->d_name + "</h3></a>\n";
 		}
 		dirent = readdir(dirPtr);
 	}
@@ -251,4 +249,28 @@ void	waitChild(int x){
 	int status;
 	waitpid(-1, &status , WNOHANG);
 	std::cerr << "CHILD ENDED WITH " <<  status << std::endl;
+bool	isCharWhiteSpace(unsigned char c) {
+	return std::isspace(c);
+}
+
+std::size_t	skipWhiteSpaces(std::string const &str, std::size_t start) {
+
+	if (start >= str.length())
+		return str.length();
+	while (start < str.length() and isCharWhiteSpace(str[start]))
+		start++;
+	return start;
+}
+
+std::uint8_t	isDirOrFile(const char *path) {
+
+	struct stat	s;
+
+	if (stat(path, &s) == -1)
+		return NOT_FOUND;
+	if (s.st_mode & S_IFDIR)
+		return DIR_MODE;
+	if (s.st_mode & S_IFREG)
+		return FILE_MODE;
+	return UNKNOWN_MODE;
 }

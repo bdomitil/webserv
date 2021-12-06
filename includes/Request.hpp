@@ -19,7 +19,6 @@
 # define HTTP_PROTOCOL	"HTTP/1.1"
 
 
-
 class Request {
 
 public:
@@ -29,7 +28,7 @@ public:
 
 	const Location						*getLocation() const ;
 	std::string							getUrl(std::uint32_t &);
-	std::string							getUrl(std::string &target);
+	std::string							getUrl(std::string &);
 	std::map<std::string, std::string>	&getHeaders();
 	std::map<int, std::string>			&getErrorPages();
 	std::string							getMethod() const ;
@@ -45,11 +44,9 @@ public:
 
 private:
 
-	const Location	*getLoc() const ;
+	const Location	*getLoc();
 
-	std::size_t		skipWhiteSpaces(std::string const &, std::size_t) const ;
 	std::uint32_t	checkPath(std::string &) const ;
-	bool			isStringHasWhiteSpaceChar(std::string const &) const ;
 	void			saveStartLineHeaders(std::string &);
 	void			saveSimpleBody(std::string &);
 	void			saveChunkedBody(std::string &);
@@ -61,24 +58,24 @@ private:
 	void			parseChunkedBody(std::string &);
 	void			validateStartLine();
 
-	std::map<std::string, std::string>		_headers;
+	std::map<std::string, std::string>			_headers;
 	std::multimap<std::string, Location> const	&_locationsMap;
-	const Location							*_location;
-	std::uint32_t							_maxBodySize;
-	std::uint32_t							_bodySize;
-	std::uint32_t							_chunkSize;
-	std::uint8_t							_parseState;
-	std::string								_transferEncoding;
-	std::string								_method;
-	std::string								_protocol;
-	std::string								_uri;
-	std::string								_query;
-	std::string								_body;
-	std::string								_tmpBuffer;
-	bool									_isChunkSize;
-	bool									_isReqDone;
-	char									*_buffer;
-	uint32_t								_errorStatus;
+	const Location								*_location;
+	std::uint32_t								_maxBodySize;
+	std::uint32_t								_bodySize;
+	std::uint32_t								_chunkSize;
+	std::uint8_t								_parseState;
+	std::string									_transferEncoding;
+	std::string									_method;
+	std::string									_protocol;
+	std::string									_uri;
+	std::string									_query;
+	std::string									_body;
+	std::string									_tmpBuffer;
+	bool										_isReqDone;
+	bool										_isChunkSize;
+	char										*_buffer;
+	uint32_t									_errorStatus;
 
 };
 

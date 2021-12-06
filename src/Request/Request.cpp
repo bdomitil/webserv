@@ -47,7 +47,6 @@ void	Request::setErrorStatus(const int s) {
 bool	Request::saveRequestData(ssize_t recvRet) {
 
 	std::string	data;
-	std::size_t	newLinePos;
 
 	data = _tmpBuffer;
 	_buffer[recvRet] = '\0';
@@ -66,72 +65,54 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
-		showState();
+//		showState();
 	}
 	return _isReqDone;
 }
 
-std::uint32_t	Request::checkPath(std::string &path) const {
-
-	struct stat	buff={};
-	std::size_t	pos;
-
-	pos = path.find_last_of("/");
-	if (pos < path.length() - 1) {
-		if (stat(path.c_str(), &buff) == 0 and buff.st_mode & S_IRUSR && S_ISREG(buff.st_mode))
-			return 200;
-		if (S_ISREG(buff.st_mode) || buff.st_mode == 0)
-			path.erase(pos);
-	}
-	else if (stat(path.c_str(), &buff) == -1)
-		return 404;
-	if (!S_ISREG(buff.st_mode)) {
-		if (_location->getAutoIndex() == "on") {
-			if (access(path.c_str(), R_OK) == 0)
-				return 1;
-			else
-				return 403;
-		}
-	}
-	return 404;
-}
-
 std::string	Request::getUrl(std::uint32_t &status) {
 
-	std::string	target;
-	std::size_t	pos;
-	std::string	path;
-	std::string	fullPath;
-	std::string origUrl;
+	std::string		fullPath;
+	std::uint8_t	mode;
+	std::string		tmp;
 
 	if (_location and _location->redirect.second.length()) {
 		status = _location->redirect.first;
 		return _location->redirect.second;
 	}
-	origUrl = _uri;
-	pos = _uri.find_last_of("/");
-	status = 404;
-	if (pos == std::string::npos)
-		return "unknown url";
-	target = _uri.substr(pos + 1);
-	if (!target.length())
-		target = _location->getIndex();
-	_uri.erase(pos);
-	path = _location->path;
-	if (path[path.length() - 1] == '/')
-		path.erase(path.length() - 1);
-	pos = _uri.find(path);
-	if (pos == std::string::npos)
-		return "unknown url";
-	fullPath = _location->getRoot() + path;
-	fullPath += _uri.substr(path.length()) + "/" + target;
+	status = 200;
+	fullPath = _location->getRoot() + _uri;
 	for (std::size_t i = 0; i < fullPath.length() - 1; i++)
 		if (fullPath[i] == '/' and fullPath[i + 1] == '/')
 			fullPath.erase(i + 1, 1);
-	status = 200;
-	_uri = origUrl ;
-	status = checkPath(fullPath);
-	return fullPath;
+	if (fullPath[fullPath.length() - 1] == '/')
+		fullPath.pop_back();
+	mode = isDirOrFile(fullPath.c_str());
+	if (mode == NOT_FOUND) {
+		status = 404;
+		return "unknown url";
+	}
+	if (mode == DIR_MODE) {
+		tmp = fullPath + "/" + _location->getIndex();
+		if (isDirOrFile(tmp.c_str()) == FILE_MODE) {
+			if (!access(tmp.c_str(), R_OK))
+				return tmp;
+		}
+		if (_location->getAutoIndex() == "on") {
+			status = 1;
+			return fullPath;
+		}
+		status = 403;
+		return "forbidden";
+	}
+	else if (mode == FILE_MODE) {
+		if (!access(fullPath.c_str(), R_OK))
+			return fullPath;
+		status = 403;
+		return "forbidden";
+	}
+	status = 404;
+	return "unknown url";
 }
 
 std::string	Request::getUrl(std::string &targetToRet) {
@@ -142,9 +123,8 @@ std::string	Request::getUrl(std::string &targetToRet) {
 	std::string	fullPath;
 	std::string origUrl;
 
-	if (_location and _location->redirect.second.length()) {
+	if (_location and _location->redirect.second.length())
 		return _location->redirect.second;
-	}
 	origUrl = _uri;
 	pos = _uri.find_last_of("/");
 	if (pos == std::string::npos)
@@ -216,6 +196,7 @@ void	Request::resetRequest(void) {
 	_isChunkSize = false;
 	_isReqDone = false;
 	_errorStatus = 0;
+	_location = nullptr;
 
 	return;
 }
