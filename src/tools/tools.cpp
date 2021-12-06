@@ -159,6 +159,7 @@ std::map <int, std::string> &error_map() {
 	if (!error_map.size()){
 		error_map.insert(std::pair<int, std::string>(200, " Ok"));
 		error_map.insert(std::pair<int, std::string>(201, " Created"));
+		error_map.insert(std::pair<int, std::string>(204, " No Content"));
 		error_map.insert(std::pair<int, std::string>(301, " Moved Permanently"));
 		error_map.insert(std::pair<int, std::string>(400, " Bad Request"));
 		error_map.insert(std::pair<int, std::string>(403, " Forbidden"));

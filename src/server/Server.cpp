@@ -164,12 +164,7 @@ void Start(vector<Server*> Serverss)
 				 if ( cl  != Clients.end()){
 					try
 				 	{
-						if ((*cl).second->readRequest())
-							(*cl).second->response(Servers[cl->second->getSrvSocket()]->getErrorPages());
-						else if ((*cl).second->isClosed){
-							Clients.erase(cl);
-							delete (*cl).second;
-						}
+						cl->second->readRequest();
 						select_res--;
 				 	}
 				 	catch(const std::exception& e)

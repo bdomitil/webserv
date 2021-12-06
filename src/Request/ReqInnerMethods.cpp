@@ -167,6 +167,10 @@ void	Request::parseChunkSize(std::string &data) {
 	std::stringstream	ss;
 	std::size_t			pos;
 
+	if (!data.length()) {
+		_parseState = END_STATE;
+		return;
+	}
 	pos = data.find(LF);
 	if (pos == std::string::npos)
 		return;
