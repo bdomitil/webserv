@@ -46,6 +46,7 @@
 #define DEBUG		0
 
 namespace ikael {
+
 	static bool	isCharWhiteSpace(unsigned char c) {
 		return std::isspace(c);
 	}
@@ -102,6 +103,7 @@ char 			*filesListing(std::string const &path,
 							const Location *location);
 
 void			killChilds(pid_t *pid, int childNum);
+std::size_t		skipWhiteSpaces(std::string const &str, std::size_t start = 0);
 
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();

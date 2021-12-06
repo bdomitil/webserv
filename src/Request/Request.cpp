@@ -129,7 +129,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 		if (fullPath[i] == '/' and fullPath[i + 1] == '/')
 			fullPath.erase(i + 1, 1);
 	status = 200;
-	_uri = origUrl ;
+	_uri = origUrl;
 	status = checkPath(fullPath);
 	return fullPath;
 }

@@ -1,22 +1,5 @@
 #include "../../includes/MainIncludes.hpp"
 
-bool	Request::isStringHasWhiteSpaceChar(std::string const &str) const {
-
-	for(std::size_t i = 0; i < str.length(); i++)
-		if (std::isspace(str[i]) != 0)
-			return true;
-	return false;
-}
-
-std::size_t	Request::skipWhiteSpaces(std::string const &str, std::size_t start = 0) const {
-
-	if (start >= str.length())
-		return str.length();
-	while (start < str.length() and ikael::isCharWhiteSpace(str[start]))
-		start++;
-	return start;
-}
-
 const Location	*Request::getLoc(void) const {
 
 	std::string	tmp;
@@ -105,7 +88,7 @@ void	Request::saveHeaderLine(std::string headerLine) {
 		headerLine.end(), &ikael::isCharWhiteSpace), headerLine.end());
 	if (!headerLine.length()) {
 		if (_headers.find("Host") == std::end(_headers))
-			throw std::exception();
+			throw ErrorException(400, "Bad request");
 		if (_headers.find("Transfer-Encoding") == std::end(_headers)
 			and _headers.find("Content-Length") == std::end(_headers))
 			_parseState = END_STATE;

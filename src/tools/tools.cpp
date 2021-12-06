@@ -180,14 +180,15 @@ static std::string	buildPathToFile(std::string const &fullPath,
 	std::size_t	pos;
 
 	pos = fullPath.find(locPath);
-	if (fileName == "." or fileName == ".." or pos == std::string::npos)
+	if (fileName == "." or fileName == ".."
+		or pos == std::string::npos)
 		return ".";
 	if (locPath == "/")
-		return fileName;
+		return "./" + fileName;
 
 	tmp = (locPath[locPath.length() - 1] == '/') ?
 		locPath.substr(0, locPath.length() - 1) : locPath;
-	
+	return (fullPath.substr(pos + tmp.length() + 1) + "/" + fileName);
 }
 
 char	*filesListing(std::string const &path,
@@ -232,4 +233,13 @@ void	killChilds(pid_t *pid, int childNum) {
 	for (int i = 0; i < childNum; i++)
 		kill(pid[i], SIGKILL);
 	return;
+}
+
+std::size_t	skipWhiteSpaces(std::string const &str, std::size_t start = 0) {
+
+	if (start >= str.length())
+		return str.length();
+	while (start < str.length() and ikael::isCharWhiteSpace(str[start]))
+		start++;
+	return start;
 }
