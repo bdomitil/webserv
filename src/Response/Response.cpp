@@ -63,6 +63,7 @@ std::string	Response::getResponse(void) const {
 }
 
 string Response :: getErrorPage() {
+	char *def_page;
 
 	for (map <int, string> :: iterator i = _errorPages.begin(); i != _errorPages.end(); i++) {
 		if (i->first == _statusCode){
@@ -75,10 +76,13 @@ string Response :: getErrorPage() {
 			}
 		}
 	}
-	char *def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation));
+	if (_autoindex)
+		def_page = (gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation));
+	else{
+		def_page = (gen_def_page(_statusCode, _bodySize, nullptr, _reqLocation));
+		_url = "ERROR";
+	}
 	delete def_page;
-	if (!_autoindex)
-		return ("ERROR");
 	return (_url);
 }
 
