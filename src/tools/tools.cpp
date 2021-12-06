@@ -54,9 +54,9 @@ string getExtension(string fPath)
 		string find = fPath.substr(fPath.find_last_of('.') + 1);
 		for (map<string, string> :: iterator i = MIME.begin(); i != MIME.end(); i++)
 		{
-			if (find == (*i).first)
+			if (find == i->first || find == strUpper(i->first))
 			{
-				ext = (*i).second;
+				ext = i->second;
 				break ;
 			}
 		}
@@ -249,6 +249,8 @@ void	waitChild(int x){
 	int status;
 	waitpid(-1, &status , WNOHANG);
 	std::cerr << "CHILD ENDED WITH " <<  status << std::endl;
+}
+
 bool	isCharWhiteSpace(unsigned char c) {
 	return std::isspace(c);
 }
@@ -273,4 +275,12 @@ std::uint8_t	isDirOrFile(const char *path) {
 	if (s.st_mode & S_IFREG)
 		return FILE_MODE;
 	return UNKNOWN_MODE;
+}
+
+std::string strUpper(const std::string &str){
+	std::string to_ret = str;
+	for (std::string ::iterator i = to_ret.begin(); i != to_ret.end() ; i++){
+		*i = toupper(*i);
+	}
+	return to_ret;
 }

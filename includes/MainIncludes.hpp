@@ -109,5 +109,6 @@ off_t			getFdLen(int fd);
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
 void	waitChild(int x);
+std::string strUpper(const std::string &str);
 
 #endif //WEBSERV_MAININCLUDES_HPP
