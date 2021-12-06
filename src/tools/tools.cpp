@@ -184,7 +184,7 @@ static std::string	buildPathToFile(std::string const &fullPath,
 		or pos == std::string::npos)
 		return ".";
 	if (locPath == "/")
-		return "./" + fileName;
+		return fileName;
 
 	tmp = (locPath[locPath.length() - 1] == '/') ?
 		locPath.substr(0, locPath.length() - 1) : locPath;

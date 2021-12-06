@@ -9,7 +9,7 @@ const Location	*Request::getLoc(void) const {
 
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 
 	tmp = _uri.substr(0, lastSlashPos);
 	len = std::count(_uri.begin(), _uri.end(), '/');
@@ -33,7 +33,6 @@ void	Request::validateStartLine(void) {
 	_location = getLoc();
 	if (!_location)
 		throw ErrorException(404, "Not Found");
-
 	std::map<std::string, bool>::const_iterator i = _location->methods.begin();
 	for (; i != _location->methods.end(); i++) {
 		if (i->first == _method) {
@@ -56,16 +55,16 @@ void	Request::saveStartLine(std::string startLine) {
 	std::size_t	i;
 
 	if (!startLine.length())
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	_method = startLine.substr(0, lfPos);
 	startLine.erase(0, skipWhiteSpaces(startLine, lfPos));
 
 	lfPos = startLine.find(' ');
 	if (lfPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, skipWhiteSpaces(startLine, lfPos));
 
@@ -88,7 +87,7 @@ void	Request::saveHeaderLine(std::string headerLine) {
 		headerLine.end(), &isCharWhiteSpace), headerLine.end());
 	if (!headerLine.length()) {
 		if (_headers.find("Host") == std::end(_headers))
-			throw ErrorException(400, "Bad request");
+			throw ErrorException(400, "Bad Request");
 		if (_headers.find("Transfer-Encoding") == std::end(_headers)
 			and _headers.find("Content-Length") == std::end(_headers))
 			_parseState = END_STATE;
@@ -99,7 +98,7 @@ void	Request::saveHeaderLine(std::string headerLine) {
 
 	colonPos = headerLine.find(":");
 	if (colonPos == std::string::npos)
-		throw ErrorException(400, "Bad request");
+		throw ErrorException(400, "Bad Request");
 	headerName = headerLine.substr(0, colonPos);
 	headerValue = headerLine.substr(colonPos + 1);
 	_headers.insert(std::pair<std::string,
@@ -238,4 +237,30 @@ void	Request::parsePercent(std::string &strRef) {
 			strRef = strRef.substr(0, i) + " " + strRef.substr(i + 1);
 	}
 	return;
+}
+
+std::uint32_t	Request::checkPath(std::string &path) const {
+
+	struct stat	buff = {};
+	std::size_t	pos;
+
+	pos = path.find_last_of("/");
+	if (pos < path.length() - 1) {
+		if (stat(path.c_str(), &buff) == 0
+			and buff.st_mode & S_IRUSR && S_ISREG(buff.st_mode))
+			return 200;
+		if (S_ISREG(buff.st_mode) || buff.st_mode == 0)
+			path.erase(pos);
+	}
+	else if (stat(path.c_str(), &buff) == -1)
+		return 404;
+	if (!S_ISREG(buff.st_mode)) {
+		if (_location->getAutoIndex() == "on") {
+			if (access(path.c_str(), R_OK) == 0)
+				return 1;
+			else
+				return 403;
+		}
+	}
+	return 404;
 }

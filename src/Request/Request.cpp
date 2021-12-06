@@ -65,34 +65,9 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	_tmpBuffer = data;
 	if (_parseState == END_STATE) {
 		_isReqDone = true;
-		showState();
+//		showState();
 	}
 	return _isReqDone;
-}
-
-std::uint32_t	Request::checkPath(std::string &path) const {
-
-	struct stat	buff={};
-	std::size_t	pos;
-
-	pos = path.find_last_of("/");
-	if (pos < path.length() - 1) {
-		if (stat(path.c_str(), &buff) == 0 and buff.st_mode & S_IRUSR && S_ISREG(buff.st_mode))
-			return 200;
-		if (S_ISREG(buff.st_mode) || buff.st_mode == 0)
-			path.erase(pos);
-	}
-	else if (stat(path.c_str(), &buff) == -1)
-		return 404;
-	if (!S_ISREG(buff.st_mode)) {
-		if (_location->getAutoIndex() == "on") {
-			if (access(path.c_str(), R_OK) == 0)
-				return 1;
-			else
-				return 403;
-		}
-	}
-	return 404;
 }
 
 std::string	Request::getUrl(std::uint32_t &status) {
