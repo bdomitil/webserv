@@ -14,16 +14,15 @@ public:
 	std::vector<char **>	makeDataForExec(std::string &path,
 											std::map <std::string,
 											std::string> &headers);
-	~Cgi() {}
 
 private:
 
 	Cgi();
 	void	free_execData(const char ***execData);
 	void	changeAndCloseFd(int pos, int cgiNum);
-	void	runCgi(void);
-	void	runCGIHelper(int firstReadFromFD,
-						int lastSendToFD, int cgiNum);
+	void	runCgi(std::string cgiPath);
+	void	runCGIHelper(int *firstReadFromFD,
+						int *lastSendToFD, int cgiNum);
 
 	Request									&_request;
 	std::multimap<std::string, std::string>	_cgis;
@@ -35,8 +34,6 @@ private:
 	pid_t									_cgiHelperPid;
 	int										_mainFds[2];
 	int										(*_pipeFds)[2];
-
-
 };
 
 

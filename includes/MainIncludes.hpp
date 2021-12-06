@@ -25,6 +25,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 #include "Location.hpp"
 #include "SettingsServer.hpp"
