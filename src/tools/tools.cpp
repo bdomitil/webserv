@@ -235,7 +235,7 @@ void	killChilds(pid_t *pid, int childNum) {
 	return;
 }
 
-std::size_t	skipWhiteSpaces(std::string const &str, std::size_t start = 0) {
+std::size_t	skipWhiteSpaces(std::string const &str, std::size_t start) {
 
 	if (start >= str.length())
 		return str.length();
