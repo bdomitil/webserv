@@ -172,21 +172,24 @@ std::map <int, std::string> &error_map() {
 	return error_map;
 }
 
-static std::string	buildPathToFile(std::string const &fullPath,
-									std::string const &locPath,
-									std::string fileName) {
+static std::string buildPathToFile(std::string const &fullPath,
+         std::string const &locPath,
+         std::string fileName) {
 
-	std::string	resultPath;
-	std::string	tmp;
-	std::size_t	pos;
+ 	std::string resultPath;
+ 	std::string tmp;
+ 	std::size_t pos;
 
-	if (fileName == "." or fileName == "..")
-		return ".";
+ 	pos = fullPath.find(locPath);
+	if (fileName == "." or fileName == ".."
+		or pos == std::string::npos)
+  		return ".";
+ 	if (locPath == "/")
+ 	 return fileName;
 
-	pos = fullPath.find(locPath);
-	if (pos == std::string::npos)
-		return fileName;
-	resultPath = fullPath.substr(pos + locPath.length());
+	tmp = (locPath[locPath.length() - 1] == '/') ?
+  	locPath.substr(0, locPath.length() - 1) : locPath;
+ 	return (fullPath.substr(pos + tmp.length() + 1) + "/" + fileName);
 }
 
 char	*filesListing(std::string const &path,
