@@ -235,11 +235,15 @@ void	killChilds(pid_t *pid, int childNum) {
 	return;
 }
 
+bool	isCharWhiteSpace(unsigned char c) {
+	return std::isspace(c);
+}
+
 std::size_t	skipWhiteSpaces(std::string const &str, std::size_t start) {
 
 	if (start >= str.length())
 		return str.length();
-	while (start < str.length() and ikael::isCharWhiteSpace(str[start]))
+	while (start < str.length() and isCharWhiteSpace(str[start]))
 		start++;
 	return start;
 }

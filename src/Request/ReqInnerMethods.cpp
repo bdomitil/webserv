@@ -71,7 +71,7 @@ void	Request::saveStartLine(std::string startLine) {
 
 	_protocol = startLine;
 	_protocol.erase(std::remove_if(_protocol.begin(),
-		_protocol.end(), &ikael::isCharWhiteSpace), _protocol.end());
+		_protocol.end(), &isCharWhiteSpace), _protocol.end());
 
 	validateStartLine();
 	_parseState = HEADER_LINE;
@@ -85,7 +85,7 @@ void	Request::saveHeaderLine(std::string headerLine) {
 	std::string	headerValue;
 
 	headerLine.erase(std::remove_if(headerLine.begin(),
-		headerLine.end(), &ikael::isCharWhiteSpace), headerLine.end());
+		headerLine.end(), &isCharWhiteSpace), headerLine.end());
 	if (!headerLine.length()) {
 		if (_headers.find("Host") == std::end(_headers))
 			throw ErrorException(400, "Bad request");

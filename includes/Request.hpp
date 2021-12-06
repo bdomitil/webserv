@@ -72,8 +72,8 @@ private:
 	std::string									_query;
 	std::string									_body;
 	std::string									_tmpBuffer;
-	bool										_isChunkSize;
 	bool										_isReqDone;
+	bool										_isChunkSize;
 	char										*_buffer;
 	uint32_t									_errorStatus;
 

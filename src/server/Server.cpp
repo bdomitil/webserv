@@ -22,7 +22,6 @@ Server :: ~Server() {
 }
 
 
-
 Server& Server :: operator=(const Server &copy) {
 	*this = Server(copy.getSettings());
 	return (*this);

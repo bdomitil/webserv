@@ -47,7 +47,6 @@ void	Request::setErrorStatus(const int s) {
 bool	Request::saveRequestData(ssize_t recvRet) {
 
 	std::string	data;
-	std::size_t	newLinePos;
 
 	data = _tmpBuffer;
 	_buffer[recvRet] = '\0';
