@@ -29,16 +29,7 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 			if ((cgNum = checkCgi(request.getLocation()->getCgi(), _url)) > 0){
 				_cgiPtr = new Cgi(request, request.getLocation()->getCgi(), _FILE);
 				try {
-					int res = -2;
 					_cgiFd =  _cgiPtr->initCGI(cgNum);
-					char buff[1000];
-					memset(buff, 0, 1000);
-					res = write(_cgiFd[1], gen_def_page(_statusCode, _bodySize, _url.c_str(), nullptr), 150);
-					close(_cgiFd[1]);
-					res = read(_cgiFd[0], buff, 1000);
-					std::cout << buff << std::endl;
-
-
 				}
 				catch(ErrorException &e) {
 					std::cerr << e.what() << " due to " << strerror(errno) << std::endl;

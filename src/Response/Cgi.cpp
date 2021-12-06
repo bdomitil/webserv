@@ -58,15 +58,16 @@ void	Cgi::runCgi(std::string cgiPath) {
 	execveArgs = makeDataForExec(cgiPath, _reqHeaders);
 	std::cerr << " ||" << execveArgs[0][0] << " ||" << std::endl; 
 	execve(execveArgs[0][0], execveArgs[0], execveArgs[1]);
-	std::cerr << "EROR EXEC" << std::cout;
+	std::cerr << "EROR EXEC" << std::endl;
 	exit(EXIT_FAILURE);
 }
 
 void	Cgi::changeAndCloseFd(int pos, int cgiNum) {
 
 	if (!pos) {
-		if (dup2(_mainFds[0], STDOUT_FILENO) == -1)
+		if (dup2(_mainFds[0], STDIN_FILENO) == -1){
 			exit(EXIT_FAILURE);
+		}
 	}
 	if (pos > 0) {
 		if (dup2(_pipeFds[pos - 1][0], STDIN_FILENO) == -1)
@@ -86,8 +87,8 @@ void	Cgi::changeAndCloseFd(int pos, int cgiNum) {
 	return;
 }
 
-void	Cgi::runCGIHelper(int firstReadFromFD,
-						int lastSendToFD, int cgiNum) {
+void	Cgi::runCGIHelper(int *firstReadFromFD,
+						int *lastSendToFD, int cgiNum) {
 
 	int		iter;
 	pid_t	cgiPids[cgiNum];
@@ -95,9 +96,11 @@ void	Cgi::runCGIHelper(int firstReadFromFD,
 	int		ret;
 
 	ret = 0;
-	_pipeFds = new int[cgiNum][2]	;
-	_mainFds[0] = firstReadFromFD;
-	_mainFds[1] = lastSendToFD;
+	_pipeFds = new int[cgiNum][2];
+
+	_mainFds[0] = firstReadFromFD[0];
+	_mainFds[1] = lastSendToFD[1];
+	
 	std::multimap<std::string, std::string> :: iterator i = _cgis.begin();
 	iter = -1;
 	while (++iter < cgiNum && i != _cgis.end()) {
@@ -112,14 +115,19 @@ void	Cgi::runCGIHelper(int firstReadFromFD,
 		}
 		if (!cgiPids[iter]) {
 			changeAndCloseFd(iter, cgiNum);
+			close(firstReadFromFD[1]);
+			close(lastSendToFD[0]);
 			runCgi(i->second);
 		}
 		if (iter)
 			close(_pipeFds[iter - 1][0]), close(_pipeFds[iter - 1][1]);
 		i++;
 	}
-	close(_mainFds[0]);
-	close(_mainFds[1]);
+	close(firstReadFromFD[0]);
+	close(firstReadFromFD[1]);
+	close(lastSendToFD[0]);
+	close(lastSendToFD[1]);
+
 
 	for (int i = 0; i < cgiNum; i++) {
 		waitpid(cgiPids[i], &status, 0);
@@ -143,12 +151,11 @@ int	*Cgi::initCGI(int cgiNum) {
 		throw ErrorException(502, "cgiNum incorrect");
 	if (pipe(mainFD[0]) == -1 or pipe(mainFD[1]) == -1)
 		throw ErrorException(502, "pipes");
-
 	_cgiHelperPid = fork();
 	if (_cgiHelperPid == -1)
 		throw ErrorException(502, "fork");
 	if (!_cgiHelperPid)
-		runCGIHelper(mainFD[0][0], mainFD[1][1], cgiNum);
+		runCGIHelper(mainFD[0], mainFD[1], cgiNum);
 
 	close(mainFD[0][0]);
 	close(mainFD[1][1]);
