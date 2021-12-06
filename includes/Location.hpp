@@ -8,14 +8,14 @@
 #include "MainIncludes.hpp"
 
 struct Location {
-	std::string							path;
-	std::map<std::string, bool>			methods;
-	std::string							root;
-	std::multimap<std::string, std::string> 	cgi;
-	std::string							index;
-	std::string							autoindex;
-	int									limit_client_body_size;
-	std::pair<int, std::string>			redirect;
+	std::string								path;
+	std::map<std::string, bool>				methods;
+	std::string								root;
+	std::multimap<std::string, std::string>	cgi;
+	std::string								index;
+	std::string								autoindex;
+	int										limit_client_body_size;
+	std::pair<int, std::string>				redirect;
 
 	std::string	getRoot() const {
 		return root;

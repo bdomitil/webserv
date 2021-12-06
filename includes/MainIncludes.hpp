@@ -43,6 +43,12 @@
 #define MAGENTA		"\033[35;1m"
 #define BLUE		"\033[34;1m"
 
+//stats to check if dir or file
+#define NOT_FOUND		0
+#define FILE_MODE		1
+#define DIR_MODE		2
+#define UNKNOWN_MODE	3
+
 #define DEBUG		0
 
 typedef enum	fileType
@@ -98,6 +104,7 @@ char 			*filesListing(std::string const &path,
 void			killChilds(pid_t *pid, int childNum);
 bool			isCharWhiteSpace(unsigned char c);
 std::size_t		skipWhiteSpaces(std::string const &str, std::size_t start = 0);
+std::uint8_t	isDirOrFile(const char *path);
 
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();

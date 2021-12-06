@@ -1,12 +1,18 @@
 #include "../../includes/MainIncludes.hpp"
 
-const Location	*Request::getLoc(void) const {
+const Location	*Request::getLoc(void) {
 
 	std::string	tmp;
 	std::string	tmp1;
 	std::size_t	lastSlashPos;
 	std::size_t	len;
+	bool		isLastSlash;
 
+	isLastSlash = false;
+	if (_uri[_uri.length() - 1] != '/') {
+		isLastSlash = true;
+		_uri.push_back('/');
+	}
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos)
 		throw ErrorException(400, "Bad Request");
@@ -19,8 +25,11 @@ const Location	*Request::getLoc(void) const {
 			(!tmp.length()) ? tmp = "/" : tmp = tmp;
 			(j->first != "/" and j->first[j->first.length() - 1] == '/') ?
 				tmp1 = j->first.substr(0, j->first.find_last_of("/")) : tmp1 = j->first;
-			if (tmp == tmp1)
+			if (tmp == tmp1) {
+				if (isLastSlash)
+					_uri.pop_back();
 				return &j->second;
+			}
 		}
 		lastSlashPos = tmp.find_last_of("/", lastSlashPos);
 		tmp = tmp.substr(0, lastSlashPos);
@@ -33,6 +42,9 @@ void	Request::validateStartLine(void) {
 	_location = getLoc();
 	if (!_location)
 		throw ErrorException(404, "Not Found");
+// delete after debug
+	std::cerr << GREEN "Current location: " BLUE
+		<< _location->path << RESET << std::endl;
 	std::map<std::string, bool>::const_iterator i = _location->methods.begin();
 	for (; i != _location->methods.end(); i++) {
 		if (i->first == _method) {
@@ -47,6 +59,7 @@ void	Request::validateStartLine(void) {
 		throw ErrorException(505, "Http Version Not Supported");
 	_maxBodySize = _location->getLimit();
 	parseUri();
+	return;
 }
 
 void	Request::saveStartLine(std::string startLine) {
@@ -67,6 +80,7 @@ void	Request::saveStartLine(std::string startLine) {
 		throw ErrorException(400, "Bad Request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, skipWhiteSpaces(startLine, lfPos));
+	std::cerr << MAGENTA "_uri: " BLUE << _uri << std::endl;
 
 	_protocol = startLine;
 	_protocol.erase(std::remove_if(_protocol.begin(),
@@ -206,9 +220,6 @@ void	Request::parseUri(void) {
 	}
 
 	parsePercent(_uri);
-	/*
-		probably add some parsing for _query
-	*/
 	return;
 }
 

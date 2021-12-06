@@ -247,3 +247,16 @@ std::size_t	skipWhiteSpaces(std::string const &str, std::size_t start) {
 		start++;
 	return start;
 }
+
+std::uint8_t	isDirOrFile(const char *path) {
+
+	struct stat	s;
+
+	if (stat(path, &s) == -1)
+		return NOT_FOUND;
+	if (s.st_mode & S_IFDIR)
+		return DIR_MODE;
+	if (s.st_mode & S_IFREG)
+		return FILE_MODE;
+	return UNKNOWN_MODE;
+}

@@ -12,6 +12,7 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
+		std::cerr << RED "full path: " BLUE << _url << RESET << std::endl;
 		_reqLocation = request.getLocation();
 		_autoindex = _statusCode == 1;
 	}
@@ -48,7 +49,6 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 	}
 	else
 		_url = getErrorPage();
-	std::cerr << "URL: " << _url << std::endl;
 	_leftBytes = 0;
 	_inProc = false;
 }
@@ -122,6 +122,10 @@ char *Response :: makeBody(int &readSize) {
 			readSize = _FILE.gcount();
 			if (readSize == 0)
 				_FILE.close();
+		}
+		else if (_autoindex) {
+			_body = gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation);
+			readSize = _bodySize;
 		}
 		else {
 			_body = gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation);

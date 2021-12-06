@@ -44,7 +44,7 @@ public:
 
 private:
 
-	const Location	*getLoc() const ;
+	const Location	*getLoc();
 
 	std::uint32_t	checkPath(std::string &) const ;
 	void			saveStartLineHeaders(std::string &);
