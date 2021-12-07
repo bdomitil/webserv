@@ -110,5 +110,6 @@ std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
 void	waitChild(int x);
 std::string strUpper(const std::string &str);
+std::string putDelete(Request &request, uint32_t &statusCode);
 
 #endif //WEBSERV_MAININCLUDES_HPP

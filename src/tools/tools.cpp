@@ -285,3 +285,36 @@ std::string strUpper(const std::string &str){
 	}
 	return to_ret;
 }
+
+std::string putDelete(Request &request, uint32_t &statusCode){
+
+	std::string _url = request.getUrl(statusCode);
+	if (statusCode == 1 )
+		return (_url);
+	else if (request.getMethod() == "PUT"){
+		char *home = getenv("HOME");
+
+		if (home)
+			_url =  std::string(home) + "/Downloads" + _url.substr(_url.find(request.getLocation()->getRoot()));
+		else
+			// _url =  "/var/www/Downloads" + _url.substr( _url.find(request.getLocation()->getRoot()));
+			_url =  "/var/www/Downloads" + request.getLocation()->getRoot();
+		std::ofstream newFile(_url);
+		if (!newFile.is_open())
+			statusCode = 204;
+		else{
+			std::string const &body(request.getBody());
+			newFile.write(body.c_str(), body.size());
+			newFile.close();
+			statusCode = 201;
+		}
+	}
+	else if (request.getMethod() == "DELETE"){
+		if (access(_url.c_str() , W_OK) == -1 || remove(_url.c_str()) == -1)
+			statusCode = 403;
+		else
+			statusCode = 204;
+		_url = _url.substr(_url.find(request.getLocation()->getRoot()));
+	}
+	return _url;
+}
