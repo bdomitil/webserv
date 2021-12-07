@@ -53,7 +53,6 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 	}
 	else
 		_url = getErrorPage();
-	//std::cerr << "URL: " << _url << std::endl;
 	_inProc = false;
 }
 

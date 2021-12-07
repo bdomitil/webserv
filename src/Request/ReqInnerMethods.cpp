@@ -42,9 +42,6 @@ void	Request::validateStartLine(void) {
 	_location = getLoc();
 	if (!_location)
 		throw ErrorException(404, "Not Found");
-// delete after debug
-	//std::cerr << GREEN "Current location: " BLUE
-	//	<< _location->path << RESET << std::endl;
 	std::map<std::string, bool>::const_iterator i = _location->methods.begin();
 	for (; i != _location->methods.end(); i++) {
 		if (i->first == _method) {
@@ -80,8 +77,6 @@ void	Request::saveStartLine(std::string startLine) {
 		throw ErrorException(400, "Bad Request");
 	_uri = startLine.substr(0, lfPos);
 	startLine.erase(0, skipWhiteSpaces(startLine, lfPos));
-	//std::cerr << MAGENTA "_uri: " BLUE << _uri << std::endl;
-
 	_protocol = startLine;
 	_protocol.erase(std::remove_if(_protocol.begin(),
 		_protocol.end(), &isCharWhiteSpace), _protocol.end());

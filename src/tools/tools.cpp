@@ -173,23 +173,27 @@ std::map <int, std::string> &error_map() {
 }
 
 static std::string	buildPathToFile(std::string const &fullPath,
-									std::string const &locPath,
+									const Location *location,
 									std::string fileName) {
 
 	std::string	resultPath;
 	std::string	tmp;
 	std::size_t	pos;
 
-	pos = fullPath.find(locPath);
-	if (fileName == "." or fileName == ".."
-		or pos == std::string::npos)
+	pos = fullPath.rfind(location->root);
+	if (fileName == "."
+		or fileName == ".." or pos == std::string::npos)
 		return ".";
-	if (locPath == "/")
-		return fileName;
 
-	tmp = (locPath[locPath.length() - 1] == '/') ?
-		locPath.substr(0, locPath.length() - 1) : locPath;
-	return (fullPath.substr(pos + tmp.length() + 1) + "/" + fileName);
+	tmp = fullPath.substr(pos + location->root.length());
+	if (!tmp.length())
+		tmp = "/";
+	pos = tmp.find(location->path);
+	if (pos == std::string::npos)
+		return ".";
+	if (tmp ==  "/")
+		return fileName;
+	return (tmp.substr(pos) + "/" + fileName);
 }
 
 char	*filesListing(std::string const &path,
@@ -212,13 +216,13 @@ char	*filesListing(std::string const &path,
 	htmlBody = "<!DOCTYPE html>\n";
 	htmlBody += "<html>\n";
 	htmlBody += "<head><title>AutoIndexON</title></head>\n";
-	htmlBody += "<body>\n<pre><h1>Files in current directory</h1></pre>\n";
+	htmlBody += "<body>\n<h1>Files in current directory</h1>\n";
 	dirent = readdir(dirPtr);
 	while (dirent) {
-		pathToFile = buildPathToFile(path, location->path, dirent->d_name);
+		pathToFile = buildPathToFile(path, location, dirent->d_name);
 		if (pathToFile != ".") {
-			htmlBody += "<a href=\"" + pathToFile + "\"><h3>"
-				+ dirent->d_name + "</h3></a>\n";
+			htmlBody += "<div><a href=\"" + pathToFile + "\"><h2>"
+				+ dirent->d_name + "</a></h2>\n";
 		}
 		dirent = readdir(dirPtr);
 	}
@@ -249,7 +253,6 @@ off_t getFdLen(int fd){
 void	waitChild(int x){
 	int status;
 	waitpid(-1, &status , WNOHANG);
-	std::cerr << "CHILD ENDED WITH " <<  status << std::endl;
 }
 
 bool	isCharWhiteSpace(unsigned char c) {
