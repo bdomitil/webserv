@@ -21,8 +21,7 @@ Cgi :: Cgi(Request &request, const std::multimap<std::string, std::string> &cgis
 	return;
 }
 
-std::vector<char **>	Cgi::makeDataForExec(std::string &path,
-											std::map <std::string, std::string> &headers) {
+std::vector<char **>	Cgi::makeDataForExec(std::string &path) {
 	char **env = new char*[_reqHeaders.size() + 1];
 	char **args = new char*[2];
 	std::vector<char **>	to_ret;
@@ -54,7 +53,7 @@ void	Cgi::runCgi(std::string cgiPath) {
 
 	std::vector<char **>	execveArgs;
 
-	execveArgs = makeDataForExec(cgiPath, _reqHeaders);
+	execveArgs = makeDataForExec(cgiPath);
 	execve(execveArgs[0][0], execveArgs[0], execveArgs[1]);
 	exit(EXIT_FAILURE);
 }

@@ -165,6 +165,7 @@ std::map <int, std::string> &error_map() {
 		error_map.insert(std::pair<int, std::string>(403, " Forbidden"));
 		error_map.insert(std::pair<int, std::string>(404, " Not Found"));
 		error_map.insert(std::pair<int, std::string>(405, " Method Not Allowed"));
+		error_map.insert(std::pair<int, std::string>(413, " Payload Too Large"));
 		error_map.insert(std::pair<int, std::string>(500, " Internal Server Error"));
 		error_map.insert(std::pair<int, std::string>(502, " Bad Gateway"));
 		error_map.insert(std::pair<int, std::string>(503, " Service Unavailable"));
@@ -250,7 +251,7 @@ off_t getFdLen(int fd){
 	return (len);
 }
 
-void	waitChild(int x){
+void	waitChild(int){
 	int status;
 	waitpid(-1, &status, WNOHANG);
 }
@@ -287,4 +288,36 @@ std::string strUpper(const std::string &str){
 		*i = toupper(*i);
 	}
 	return to_ret;
+}
+
+std::string putDelete(Request &request, uint32_t &statusCode){
+
+	std::string _url = request.getUrl(statusCode);
+	if (statusCode == 1 )
+		return (_url);
+	else if (request.getMethod() == "PUT" || (request.getMethod() == "POST" && statusCode == 201 )){
+		char *home = getenv("HOME");
+		int pos = _url.find(request.getLocation()->path);
+		if (home)
+			_url =  std::string(home) + "/Downloads" + request.getLocation()->path + _url.substr(_url.find_last_of('/') + 1);
+		else
+			_url =  "/var/www/Downloads" + _url.substr(pos);
+		std::ofstream newFile(_url);
+		if (!newFile.is_open())
+			statusCode = 204;
+		else{
+			std::string const &body(request.getBody());
+			newFile.write(body.c_str(), body.size());
+			newFile.close();
+			statusCode = 201;
+		}
+	}
+	else if (request.getMethod() == "DELETE"){
+		if (access(_url.c_str() , W_OK) == -1 || remove(_url.c_str()) == -1)
+			statusCode = 403;
+		else
+			statusCode = 204;
+		_url = _url.substr(_url.find(request.getLocation()->getRoot()));
+	}
+	return _url;
 }

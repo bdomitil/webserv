@@ -7,8 +7,8 @@ Client :: Client(int srvSocket, std::multimap<std::string, Location> const &loca
 	_session_start = std::time(0);
 	tm *tmp = std::localtime(&_session_start);
 	_session_start = std::mktime(tmp);
-	// tmp->tm_hour += 30;
-	tmp->tm_min += 1;
+	tmp->tm_hour += 1;
+	// tmp->tm_min += 1;
 	_session_end = std::mktime(tmp);
 	_srvSocket = srvSocket;
 	isClosed = false;
@@ -17,27 +17,17 @@ Client :: Client(int srvSocket, std::multimap<std::string, Location> const &loca
 	createSocket();
 }
 
-
-// Client :: Client(const Client &copy) : _reqBuff(2048){
-// 	*this = copy;
-// }
-
 Client :: ~Client()
 {
 	delete _response;
 	if (DEBUG) {
-		unsigned int code;
+
 		std::cout << MAGENTA "Client : " << _ip << " (";
 		std::cout << _fdSock << ((close(_fdSock) == -1) ? " not closed)" : " closed)") << std::endl;
 	}
-	close(_fdSock);
-	//Destruct if needed
+	else
+		close(_fdSock);
 }
-
-// Client& Client :: operator=(const Client &copy) {
-// 	this->_fdSock = copy.getSocket();
-// 	return (*this);
-// }
 
 int Client :: createSocket(void) {
 	int reuseaddr = 1;
@@ -47,9 +37,9 @@ int Client :: createSocket(void) {
 		throw (ErrorException(strerror(errno)));
 	if (inet_ntop(AF_INET, (const char*)&_sockaddr.sin_addr.s_addr , (char *)&_ip, 32) == nullptr)
 		throw(ErrorException(strerror(errno)));
-	if (setsockopt(_fdSock ,SOL_SOCKET ,SO_REUSEADDR , &reuseaddr,sizeof(int)) == -1)  //allow to reuse socket after crash
+	if (setsockopt(_fdSock ,SOL_SOCKET ,SO_REUSEADDR , &reuseaddr,sizeof(int)) == -1)
 		throw(ErrorException("Error setting sockopt"));
-	if (fcntl(_fdSock, F_SETFL, O_NONBLOCK) == -1)  //unblocking listening socket
+	if (fcntl(_fdSock, F_SETFL, O_NONBLOCK) == -1)
 		throw(ErrorException("Error using fcntl"));
 	return (_fdSock);
 }
@@ -75,7 +65,6 @@ bool Client :: readRequest(void) {
 }
 
 void Client :: response(std::map<int, std::string> &errorPages) {
-	// std::cout << "TRYING TO RESPONSE FOR CLIENT " << this->_ip << std::endl;
 	try {
 		if (!_response)
 			_response = new Response(_request, errorPages);
@@ -87,14 +76,13 @@ void Client :: response(std::map<int, std::string> &errorPages) {
 		}
 	}
 	catch(const std::exception& e) {
-		//std::cerr << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		_toServe = false;
 		isClosed = true;
 	}
 }
 
 bool Client :: SessionIsOver(){
-	uint32_t tmp;
 
 	if (isClosed)
 		return (true);

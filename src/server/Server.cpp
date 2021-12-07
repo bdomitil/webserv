@@ -9,31 +9,9 @@ Server :: Server(const t_server &ServerSetting) {
 	_serverSettings = t_server(ServerSetting);
 }
 
-
-
-Server :: Server(const Server &copy) {
-	*this = copy;
-}
-
-
-
-Server :: ~Server() {
-	//Destruct if needed
-}
-
-
-Server& Server :: operator=(const Server &copy) {
-	*this = Server(copy.getSettings());
-	return (*this);
-}
-
-
-
 t_server const	&Server :: getSettings(void) const {
 	return (this->_serverSettings);
 }
-
-
 
 int Server :: createSocket(void) {
 
@@ -83,7 +61,6 @@ void Start(vector<Server*> Serverss)
 	vector<int> readFd, writeFd;
 	map <int,Client*>Clients;
 	map <int,Server*>Servers;
-	Client *newCl;
 
 	for (size_t i = 0; i < Serverss.size(); i++) {
 		try

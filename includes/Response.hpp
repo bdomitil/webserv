@@ -14,6 +14,7 @@ private:
 	std::ifstream						_FILE;
 	std::string							_url;
 	std::string							_headers;
+	std::string							_method;
 	std::string							_contentType;
 	std::string							_response;
 	bool								_inProc;

@@ -16,10 +16,6 @@ class Server {
 
 public:
 	Server(const t_server &ServSetting);
-	Server(const Server &copy);
-	Server& operator=(const Server &second);
-	~Server();
-
 private:
 
 	Server();

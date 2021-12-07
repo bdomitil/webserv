@@ -2,8 +2,8 @@
 #include "../../includes/MainIncludes.hpp"
 
 Response :: Response(Request &request, std::map<int, std::string> errorPages)
-: _response(""), _body(nullptr),
-_errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
+:  _errorPages(errorPages),_body(nullptr), _response(""), 
+ _reqLocation(nullptr), _cgiPtr(nullptr) {
 
 	t_fileInfo file;
 
@@ -11,11 +11,12 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 	if ((_statusCode  = request.getErrorStatus()) == 0){
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
-		_url = request.getUrl(_statusCode);
+		_method = request.getMethod();
+		_url =  putDelete(request, _statusCode);
 		_reqLocation = request.getLocation();
 		_autoindex = _statusCode == 1;
 	}
-	if (_statusCode < 399 && _statusCode != 1) {
+	if (_statusCode < 399 && _statusCode != 1 && _method != "PUT" && _method != "DELETE") {
 		urlInfo(_url, &file,  _FILE);
 		if (file.fType == DDIR)
 			file.fStatus = 404;
@@ -24,7 +25,7 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 			_url = getErrorPage();
 			_contentType = "text/html";
 		}
-		else if (_statusCode != 301) {
+		else if (_statusCode != 301 && _method != "PUT" && _method != "DELETE") {
 			int cgNum;
 			if ((cgNum = checkCgi(request.getLocation()->getCgi(), _url)) > 0){
 				_cgiPtr = new Cgi(request, request.getLocation()->getCgi(), _FILE);
@@ -68,7 +69,7 @@ string Response :: getErrorPage() {
 	char *def_page;
 
 	for (map <int, string> :: iterator i = _errorPages.begin(); i != _errorPages.end(); i++) {
-		if (i->first == _statusCode){
+		if (i->first == static_cast<int>(_statusCode)){
 			t_fileInfo file;
 			urlInfo(i->second, &file, _FILE);
 			if (file.fStatus == 200){
@@ -100,6 +101,8 @@ std::string Response :: makeHeaders() {
 	_headers += "Date: " + string(ctime(&current_time));
 	if (_statusCode == 301)
 		_headers += "Location: " + _url + string(CRLF);
+	if (_method == "PUT" || _method == "DELETE")
+		_headers += "Content-Location: " + _url + string(CRLF);
 	if (_statusCode < 300 || _statusCode > 399){
 		_headers += "Content-Type: " + _contentType + string(CRLF);
 		_headers += "Accept-Ranges: bytes" + string(CRLF);
@@ -137,7 +140,7 @@ char *Response :: makeBody(int &readSize) {
 			readSize = _bodySize;
 		}
 		else {
-			_body = gen_def_page(_statusCode, _bodySize, _url.c_str(), _reqLocation);
+			_body = gen_def_page(_statusCode, _bodySize, nullptr, _reqLocation);
 			readSize = _bodySize;
 		}
 	}
