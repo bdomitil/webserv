@@ -28,7 +28,6 @@ public:
 
 	const Location						*getLocation() const ;
 	std::string							getUrl(std::uint32_t &);
-	std::string							getUrl(std::string &);
 	std::map<std::string, std::string>	&getHeaders();
 	std::map<int, std::string>			&getErrorPages();
 	std::string							getMethod() const ;
@@ -57,6 +56,7 @@ private:
 	void			parseChunkSize(std::string &);
 	void			parseChunkedBody(std::string &);
 	void			validateStartLine();
+	std::string		validateUrl(std::string &, std::uint32_t &, std::uint8_t);
 
 	std::map<std::string, std::string>			_headers;
 	std::multimap<std::string, Location> const	&_locationsMap;

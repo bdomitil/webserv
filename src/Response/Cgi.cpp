@@ -2,24 +2,22 @@
 
 Cgi :: Cgi(Request &request, const std::multimap<std::string, std::string> &cgis, std::ifstream &FILE)
 : _request(request), _cgis(cgis), _FILE(FILE) {
-	std::string target;
-	std::string root = _request.getLocation()->getRoot();
-	std::string url = _request.getUrl(target);
 
- // TODO stlip request's body and add to _reqHeaders
+	std::uint32_t	status;
+
 	_toRead = false;
-	_url = url;
-	_fileExt = "." + _url.substr(_url.find_last_of('.') + 1);
-	url = url.substr(root.size());
-	url = url.substr(0, url.size() - target.size());
-	if (root[root.size() - 1] == '/')
-		root.erase(root.size() -1);
+	status = 200;
+	_url = _request.getUrl(status);
 	_reqHeaders = _request.getHeaders();
-	_reqHeaders.insert(std::pair<string, string>("QUERY_STRING", _request.getQueryString()));
-	_reqHeaders.insert(std::pair<string, string>("REQUEST_METHOD", _request.getMethod()));
+	_reqHeaders.insert(std::pair<string, string>("QUERY_STRING",
+		_request.getQueryString()));
+	_reqHeaders.insert(std::pair<string, string>("REQUEST_METHOD",
+		_request.getMethod()));
 	_reqHeaders.insert(std::pair<string, string>("PATH_INFO", _url));
-	_reqHeaders.insert(std::pair<string, string>("PATH_TRANSLATED", root + _url));
-	_reqHeaders.insert(std::pair<string, string>("SERVER_PROTOCOL", "HTTP/1.1"));
+	_reqHeaders.insert(std::pair<string, string>("PATH_TRANSLATED",
+		_request.getLocation()->getRoot()));
+	_reqHeaders.insert(std::pair<string, string>("SERVER_PROTOCOL",
+		"HTTP/1.1"));
 	return;
 }
 
