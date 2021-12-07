@@ -296,12 +296,11 @@ std::string putDelete(Request &request, uint32_t &statusCode){
 		return (_url);
 	else if (request.getMethod() == "PUT"){
 		char *home = getenv("HOME");
-
+		int pos = _url.find(request.getLocation()->path);
 		if (home)
-			_url =  std::string(home) + "/Downloads" + _url.substr(_url.find(request.getLocation()->getRoot()));
+			_url =  std::string(home) + "/Downloads" + request.getLocation()->path + _url.substr(_url.find_last_of('/') + 1);
 		else
-			// _url =  "/var/www/Downloads" + _url.substr( _url.find(request.getLocation()->getRoot()));
-			_url =  "/var/www/Downloads" + request.getLocation()->getRoot();
+			_url =  "/var/www/Downloads" + _url.substr(pos);
 		std::ofstream newFile(_url);
 		if (!newFile.is_open())
 			statusCode = 204;
