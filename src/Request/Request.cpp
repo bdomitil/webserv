@@ -89,14 +89,21 @@ std::string	Request::validateUrl(std::string &fullPath,
 			status = 1;
 			return fullPath;
 		}
-		status = 403;
-		return "forbidden";
+		if (errno == EACCES)
+			status = 403;
+		else
+			status = 404;
+		return tmp;
 	}
 	else if (mode == FILE_MODE) {
 		if (!access(fullPath.c_str(), R_OK))
 			return fullPath;
+		if (errno == EACCES)
+			status = 403;
+		else
+			status = 404;
 		status = 403;
-		return "forbidden";
+		return fullPath;
 	}
 	if (_method == "POST")
 		status = 201;

@@ -174,7 +174,7 @@ void Response :: sendRes(int socket){
 				else
 					res = send(socket, &(_body[pos]) , to_send, 0);
 				pos += res;
-				if (tries++ == 8) {
+				if (tries++ == 8 || res == -1) {
 					_leftBytes = 0;
 					throw ErrorException("TOO MANY ATTEMPTS TO SEND DATA");
 				}
@@ -184,6 +184,15 @@ void Response :: sendRes(int socket){
 			_leftBytes -= res;
 		}
 		catch(const std::exception& e) {
+			if (_cgiPtr){
+				delete _cgiPtr;
+				_cgiPtr = nullptr;
+				waitpid(helper, 0, WNOHANG);
+			}
+			_statusCode = 502;
+			_leftBytes = 1;
+			_inProc = false;
+			_url = "ERROR";
 			std::cerr << e.what() << '\n';
 		}
 		delete [] _body;
