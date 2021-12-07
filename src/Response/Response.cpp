@@ -12,7 +12,8 @@ _errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
 		_bodySize = 0;
 		_reqHeaders = request.getHeaders();
 		_url = request.getUrl(_statusCode);
-		std::cerr << RED "full path: " BLUE << _url << RESET << std::endl;
+		std::cerr << RED "full path: " BLUE << _url << std::endl;
+		std::cerr << RED "----------------------------------------------" RESET << std::endl;
 		_reqLocation = request.getLocation();
 		_autoindex = _statusCode == 1;
 	}
