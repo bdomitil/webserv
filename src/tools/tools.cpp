@@ -165,6 +165,7 @@ std::map <int, std::string> &error_map() {
 		error_map.insert(std::pair<int, std::string>(403, " Forbidden"));
 		error_map.insert(std::pair<int, std::string>(404, " Not Found"));
 		error_map.insert(std::pair<int, std::string>(405, " Method Not Allowed"));
+		error_map.insert(std::pair<int, std::string>(413, " Payload Too Large"));
 		error_map.insert(std::pair<int, std::string>(500, " Internal Server Error"));
 		error_map.insert(std::pair<int, std::string>(502, " Bad Gateway"));
 		error_map.insert(std::pair<int, std::string>(503, " Service Unavailable"));
@@ -294,7 +295,7 @@ std::string putDelete(Request &request, uint32_t &statusCode){
 	std::string _url = request.getUrl(statusCode);
 	if (statusCode == 1 )
 		return (_url);
-	else if (request.getMethod() == "PUT"){
+	else if (request.getMethod() == "PUT" || (request.getMethod() == "POST" && statusCode == 201 )){
 		char *home = getenv("HOME");
 		int pos = _url.find(request.getLocation()->path);
 		if (home)

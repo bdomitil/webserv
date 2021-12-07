@@ -123,7 +123,7 @@ std::string	Request::getUrl(std::uint32_t &status) {
 	if (fullPath[fullPath.length() - 1] == '/')
 		fullPath.pop_back();
 	mode = isDirOrFile(fullPath.c_str());
-	if (mode == NOT_FOUND) {
+	if (mode == NOT_FOUND && _method != "POST" && _method != "PUT" ) {
 		status = 404;
 		return "unknown url";
 	}
