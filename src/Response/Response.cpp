@@ -2,8 +2,8 @@
 #include "../../includes/MainIncludes.hpp"
 
 Response :: Response(Request &request, std::map<int, std::string> errorPages)
-: _response(""), _body(nullptr),
-_errorPages(errorPages), _reqLocation(nullptr), _cgiPtr(nullptr) {
+:  _errorPages(errorPages),_body(nullptr), _response(""), 
+ _reqLocation(nullptr), _cgiPtr(nullptr) {
 
 	t_fileInfo file;
 
@@ -69,7 +69,7 @@ string Response :: getErrorPage() {
 	char *def_page;
 
 	for (map <int, string> :: iterator i = _errorPages.begin(); i != _errorPages.end(); i++) {
-		if (i->first == _statusCode){
+		if (i->first == static_cast<int>(_statusCode)){
 			t_fileInfo file;
 			urlInfo(i->second, &file, _FILE);
 			if (file.fStatus == 200){

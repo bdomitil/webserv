@@ -21,7 +21,8 @@ const Location	*Request::getLoc(void) {
 	for (std::size_t i = 0; i < len; i++) {
 		std::multimap<std::string, Location>::const_iterator j = _locationsMap.begin();
 		for (; j != _locationsMap.end(); j++) {
-			(!tmp.length()) ? tmp = "/" : tmp = tmp;
+			if (!tmp.length())
+				tmp = "/";
 			(j->first != "/" and j->first[j->first.length() - 1] == '/') ?
 				tmp1 = j->first.substr(0, j->first.find_last_of("/")) : tmp1 = j->first;
 			if (tmp == tmp1) {
@@ -61,7 +62,6 @@ void	Request::validateStartLine(void) {
 void	Request::saveStartLine(std::string startLine) {
 
 	std::size_t	lfPos;
-	std::size_t	i;
 
 	if (!startLine.length())
 		throw ErrorException(400, "Bad Request");

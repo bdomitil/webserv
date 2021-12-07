@@ -23,8 +23,6 @@ private:
 public :
 	Client(int srvSocket, std::multimap<std::string, Location> const &locations);
 	~Client();
-	// Client(const Client &copy); //doesn't copy sockaddr_in struct
-	// Client& operator= (const Client &second); //doesn't copy sockaddr_in struct
 	t_sockaddr_in& getSockAddr(void){return (_sockaddr);}
 	bool	toServe(){return _toServe;}
 	bool	isRead(){return _isRead;}

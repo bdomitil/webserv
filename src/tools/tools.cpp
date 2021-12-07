@@ -251,7 +251,7 @@ off_t getFdLen(int fd){
 	return (len);
 }
 
-void	waitChild(int x){
+void	waitChild(int){
 	int status;
 	waitpid(-1, &status, WNOHANG);
 }
