@@ -16,7 +16,6 @@ const Location	*Request::getLoc(void) {
 	lastSlashPos = _uri.find_last_of("/");
 	if (lastSlashPos == std::string::npos)
 		throw ErrorException(400, "Bad Request");
-
 	tmp = _uri.substr(0, lastSlashPos);
 	len = std::count(_uri.begin(), _uri.end(), '/');
 	for (std::size_t i = 0; i < len; i++) {

@@ -252,7 +252,7 @@ off_t getFdLen(int fd){
 
 void	waitChild(int x){
 	int status;
-	waitpid(-1, &status , WNOHANG);
+	waitpid(-1, &status, WNOHANG);
 }
 
 bool	isCharWhiteSpace(unsigned char c) {
