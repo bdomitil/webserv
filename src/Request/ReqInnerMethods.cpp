@@ -51,7 +51,7 @@ void	Request::validateStartLine(void) {
 		}
 	}
 	if (i == _location->methods.end())
-		throw ErrorException(404, "Bad Request");
+		throw ErrorException(400, "Bad Request");
 	if (_protocol != HTTP_PROTOCOL)
 		throw ErrorException(505, "Http Version Not Supported");
 	_maxBodySize = _location->getLimit();
