@@ -64,11 +64,8 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 			saveSimpleBody(data);
 	}
 	_tmpBuffer = data;
-	if (_parseState == END_STATE) {
+	if (_parseState == END_STATE)
 		_isReqDone = true;
-		std::cerr << YELLOW "body:" BLUE << std::endl
-			<< _body << RESET << std::endl;
-	}
 	return _isReqDone;
 }
 
