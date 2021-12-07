@@ -51,7 +51,7 @@ bool	Request::saveRequestData(ssize_t recvRet) {
 	data = _tmpBuffer;
 
 	_buffer[recvRet] = '\0';
-	data.append(_buffer);
+	data.append(_buffer, recvRet);
 
 	if (_parseState == END_STATE)
 		resetRequest();
