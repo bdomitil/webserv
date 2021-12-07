@@ -105,8 +105,10 @@ void			killChilds(pid_t *pid, int childNum);
 bool			isCharWhiteSpace(unsigned char c);
 std::size_t		skipWhiteSpaces(std::string const &str, std::size_t start = 0);
 std::uint8_t	isDirOrFile(const char *path);
-
+off_t			getFdLen(int fd);
 std::time_t		increase_session_time();
 std::map <int, std::string> &error_map();
+void	waitChild(int x);
+std::string strUpper(const std::string &str);
 
 #endif //WEBSERV_MAININCLUDES_HPP

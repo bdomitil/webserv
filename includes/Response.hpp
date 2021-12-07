@@ -22,6 +22,7 @@ private:
 	const Location						*_reqLocation;
 	Cgi									*_cgiPtr;
 	int									*_cgiFd;
+	pid_t								helper;
 
 public:
 	std::string					getResponse() const ;

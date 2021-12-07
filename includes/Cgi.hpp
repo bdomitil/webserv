@@ -10,10 +10,13 @@ public:
 
 	Cgi(Request &_request, const std::multimap<std::string, std::string> &cgis, std::ifstream &FILE);
 
-	int *initCGI(int cgiNum);
+	bool			_toRead;
+	int *initCGI(int cgiNum, pid_t &helper);
 	std::vector<char **>	makeDataForExec(std::string &path,
 											std::map <std::string,
 											std::string> &headers);
+	void			toRead(bool x){_toRead  = x;}
+	bool			isReadable(void){return _toRead;}
 
 private:
 

@@ -7,6 +7,7 @@ Cgi :: Cgi(Request &request, const std::multimap<std::string, std::string> &cgis
 	std::string url = _request.getUrl(target);
 
  // TODO stlip request's body and add to _reqHeaders
+	_toRead = false;
 	_url = url;
 	_fileExt = "." + _url.substr(_url.find_last_of('.') + 1);
 	url = url.substr(root.size());
@@ -140,7 +141,7 @@ void	Cgi::runCGIHelper(int *firstReadFromFD,
 
 /*	cgiFds[0] - fd to read data from the last cgi script
 	cgiFds[1] - fd to send data to the first cgi script	*/
-int	*Cgi::initCGI(int cgiNum) {
+int	*Cgi::initCGI(int cgiNum, pid_t &helper) {
 
 	int	*cgiFds;
 	int	mainFD[2][2];
@@ -161,6 +162,7 @@ int	*Cgi::initCGI(int cgiNum) {
 	cgiFds = new int[2];
 	cgiFds[1] = mainFD[0][1];
 	cgiFds[0] = mainFD[1][0];
+	helper = _cgiHelperPid;
 
 	return cgiFds;
 }

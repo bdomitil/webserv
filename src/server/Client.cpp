@@ -29,8 +29,8 @@ Client :: ~Client()
 		unsigned int code;
 		std::cout << MAGENTA "Client : " << _ip << " (";
 		std::cout << _fdSock << ((close(_fdSock) == -1) ? " not closed)" : " closed)") << std::endl;
-		std::cout << "Requesting " << _request.getUrl(code) << " with code " << code << RESET << std::endl;
 	}
+	close(_fdSock);
 	//Destruct if needed
 }
 
@@ -61,6 +61,8 @@ bool Client :: readRequest(void) {
 		isClosed = true;
 		return (false);
 	}
+	else if (res == -1)
+		throw ErrorException(502, "ERROR RECV DATA");
 	_isRead = true;
 	try {
 		_toServe = this->_request.saveRequestData(res);
@@ -73,10 +75,10 @@ bool Client :: readRequest(void) {
 }
 
 void Client :: response(std::map<int, std::string> &errorPages) {
-	if (!_response)
-		_response = new Response(_request, errorPages);
 	// std::cout << "TRYING TO RESPONSE FOR CLIENT " << this->_ip << std::endl;
 	try {
+		if (!_response)
+			_response = new Response(_request, errorPages);
 		_response->sendRes(_fdSock);
 		if (_response->isSent()){
 			_toServe = false;
@@ -85,7 +87,7 @@ void Client :: response(std::map<int, std::string> &errorPages) {
 		}
 	}
 	catch(const std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		//std::cerr << e.what() << std::endl;
 		_toServe = false;
 		isClosed = true;
 	}
