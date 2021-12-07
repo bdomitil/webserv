@@ -180,3 +180,22 @@ void	Request::resetRequest(void) {
 
 	return;
 }
+
+void	Request::getUrlEncodedBody(std::map<std::string, std::string> &queryBody) {
+
+	std::string							tmp;
+	std::size_t							size;
+	std::size_t							pos;
+	std::pair<std::string, std::string>	pair;
+
+	tmp = _body;
+	size = std::count(tmp.begin(), tmp.end(), '&');
+	for (std::size_t i = 0; i < size; i++) {
+		pos = tmp.find("&");
+		pair.first = tmp.substr(0, tmp.find("="));
+		pair.second = tmp.substr(tmp.find("=") + 1, pos);
+		queryBody.insert(pair);
+		tmp.erase(pos + 1);
+	}
+	return;
+}

@@ -36,6 +36,7 @@ public:
 	void								setErrorStatus(int const);
 	char								*getBuffer() const ;
 	uint32_t							getErrorStatus() const ;
+	void								getUrlEncodedBody(std::map<std::string, std::string> &);
 
 	bool								saveRequestData(ssize_t);
 	void								showState() const ;
@@ -46,6 +47,7 @@ private:
 	const Location	*getLoc();
 
 	std::uint32_t	checkPath(std::string &) const ;
+	std::string		validateUrl(std::string &, std::uint32_t &, std::uint8_t);
 	void			saveStartLineHeaders(std::string &);
 	void			saveSimpleBody(std::string &);
 	void			saveChunkedBody(std::string &);
@@ -56,7 +58,6 @@ private:
 	void			parseChunkSize(std::string &);
 	void			parseChunkedBody(std::string &);
 	void			validateStartLine();
-	std::string		validateUrl(std::string &, std::uint32_t &, std::uint8_t);
 
 	std::map<std::string, std::string>			_headers;
 	std::multimap<std::string, Location> const	&_locationsMap;
