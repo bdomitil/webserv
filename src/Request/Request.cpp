@@ -193,9 +193,12 @@ void	Request::getUrlEncodedBody(std::map<std::string, std::string> &queryBody) {
 	for (std::size_t i = 0; i < size; i++) {
 		pos = tmp.find("&");
 		pair.first = tmp.substr(0, tmp.find("="));
-		pair.second = tmp.substr(tmp.find("=") + 1, pos);
+		parsePercent(pair.first);
+		pair.second = tmp.substr(tmp.find("=") + 1,
+			pos - pair.first.length() - 1);
+		parsePercent(pair.second);
 		queryBody.insert(pair);
-		tmp.erase(pos + 1);
+		tmp.erase(0, pos + 1);
 	}
 	return;
 }

@@ -9,6 +9,7 @@ Cgi :: Cgi(Request &request, const std::multimap<std::string, std::string> &cgis
 	status = 200;
 	_url = _request.getUrl(status);
 	_reqHeaders = _request.getHeaders();
+	request.getUrlEncodedBody(_reqHeaders);
 	_reqHeaders.insert(std::pair<string, string>("QUERY_STRING",
 		_request.getQueryString()));
 	_reqHeaders.insert(std::pair<string, string>("REQUEST_METHOD",
