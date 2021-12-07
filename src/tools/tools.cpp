@@ -92,15 +92,13 @@ bool	urlInfo(string fPath,t_fileInfo *fStruct, std::ifstream &FILE){
 }
 
 int  checkCgi(const std::multimap<std::string, std::string>& Cgi, std::string fPath){
-	struct stat	buff;
 	int			res = 0;
 	std::string ext = "." + fPath.substr(fPath.find_last_of('.') + 1);
 
 	std::multimap<std::string, std::string>::const_iterator i = Cgi.begin();
 	for (; i != Cgi.end(); i++){
 		if (ext == i->first){
-		stat(i->second.c_str(), &buff);
-			if (res == -1 || !(buff.st_mode & S_IXUSR))
+			if (access(i->second.c_str(), X_OK))
 				return (-1);
 			res++;
 		}
