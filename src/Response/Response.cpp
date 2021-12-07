@@ -179,8 +179,6 @@ void Response :: sendRes(int socket){
 					throw ErrorException("TOO MANY ATTEMPTS TO SEND DATA");
 				}
 			}
-			if (res == -1)
-				throw ErrorException("ERROR SENDING DATA");
 			_leftBytes -= res;
 		}
 		catch(const std::exception& e) {
