@@ -92,6 +92,10 @@ std::string	Request::getUrl(std::uint32_t &status) {
 		return "unknown url";
 	}
 	if (mode == DIR_MODE) {
+		if (_method == "PUT") {
+			status = 201;
+			return fullPath;
+		}
 		tmp = fullPath + "/" + _location->getIndex();
 		if (isDirOrFile(tmp.c_str()) == FILE_MODE) {
 			if (!access(tmp.c_str(), R_OK))
